@@ -1573,7 +1573,7 @@ function casino(){CAS={};const c=casChips(),day=today(),bonus=store.get("otc.cas
       <div class="hint">peak ${store.get("otc.cas.peak",CAS_START).toLocaleString()} · biggest win ${store.get("otc.cas.bigWin",0).toLocaleString()}</div>
       ${bonus?`<button class="pbtn c m-sun" data-act="casBonus" style="margin-top:10px">🎁 CLAIM DAILY ${broke?"BAILOUT 1,000":"BONUS 250"}</button>`:broke?`<p class="hint">Out of chips: come back tomorrow for a bailout.</p>`:""}</div>
     <div class="casgrid">${CAS_GAMES.map(([id,ic,nm,d])=>`<button class="glass casg" data-act="casGo" data-g="${id}"><span class="casic">${ic}</span><b>${nm}</b><span>${d}</span></button>`).join("")}</div>
-    <div class="menubar"><button class="pbtn" data-act="leaderboards" data-back="casino">🏆 CASINO BOARDS</button></div>
+    <div class="menubar"><button class="pbtn" data-act="leaderboards" data-back="casino" data-k="casPeak">🏆 CASINO LEADERBOARDS</button></div>
     <p class="hint center">Chips are just for fun and live on this device. Peak chips and biggest single win go on the leaderboard.</p>`,{cls:"menu"});}
 // ---------- BLACKJACK ----------
 const bjVal=h=>{let t=0,a=0;for(const c of h){const v=c.r===12?11:c.r>=8?10:c.r+2;t+=v;if(c.r===12)a++;}while(t>21&&a){t-=10;a--;}return t;};
@@ -1804,7 +1804,7 @@ function cuepon(){const w=cpGet("word",null),c=cpGet("conn",null),b=cpGet("bee",
       ${card("cpConn","🧩","CUEPNECTIONS","Sort 16 answers into 4 hidden groups.",c&&c.done?[c.win?`✓ SOLVED · ${c.miss} MISTAKE${c.miss===1?"":"S"}`:"✗ OUT OF TRIES","ok"]:c&&(c.solved.length||c.miss)?[`${c.solved.length}/4 GROUPS`,"mid"]:["PLAY","new"],cpStat("conn"))}
       ${card("cpBee","🐝","CUPID BEE","Make words from 7 letters. Always use the center one.",b&&b.found.length?[`${CP_RANKS[cpBeeRank(b.score,bz.max)]} · ${b.score} PTS`,cpBeeRank(b.score,bz.max)>=5?"ok":"mid"]:["PLAY","new"],cpStat("bee"))}
     </div>
-    <div class="menubar"><button class="pbtn" data-act="leaderboards" data-back="cuepon">🏆 TODAY'S BOARDS</button></div>`,{cls:"menu"});}
+    <div class="menubar"><button class="pbtn" data-act="leaderboards" data-back="cuepon" data-k="cpWord">🏆 CUEPON LEADERBOARDS</button></div>`,{cls:"menu"});}
 function cpShare(txt){return`<button class="pbtn" data-act="copy" data-share="${esc(txt)}">📋 COPY RESULT</button>`;}
 function cpStatsHtml(g,maxK){const s=cpStat(g);return`<div class="glass card center"><div class="row" style="justify-content:space-around">
   <div><div class="big">${s.played}</div><div class="hint">played</div></div><div><div class="big">${s.played?Math.round(s.wins/s.played*100):0}%</div><div class="hint">wins</div></div>
@@ -3444,7 +3444,7 @@ function home(){
     </div>
     <div class="menubar">
       <button class="pbtn" data-act="landing">◀ MAIN</button>
-      <button class="pbtn" data-act="leaderboards" data-back="home">🏆</button>
+      <button class="pbtn" data-act="leaderboards" data-back="home" data-k="daily">🏆</button>
       <button class="pbtn" data-act="skins">SKINS</button>
       <button class="pbtn" data-act="palettes">COLORS</button>
       <div class="glass themeseg">${Object.entries(THEMES).map(([k,t])=>`<button class="${k===THEME?"on":""}" data-act="theme2" data-t="${k}">${t.name}</button>`).join("")}</div>
@@ -3586,7 +3586,7 @@ function fuelAdd(d){if(S&&(S.mode==="endless"||S.mode==="rendless")){const D=dD(
 function geoMenu(){
   const n=PROMPTS.filter(isGeo).length,eb=store.get("oddball.endlessBestGeo",0),rb=store.get("otc.rendlessBestGeo",0),es=store.get("otc.endlessGeo",null),rs=store.get("otc.rendlessGeo",null);
   showPanel(`
-    <div class="row" style="justify-content:space-between"><h2 style="font-size:16px">🌍 GEOGRAPHY</h2><button class="pbtn sm" data-act="home">◀ HOME</button></div>
+    <div class="row" style="justify-content:space-between"><h2 style="font-size:16px">🌍 GEOGRAPHY</h2><span class="row" style="gap:6px"><button class="pbtn sm" data-act="leaderboards" data-back="geo" data-k="dailyGeo">🏆</button><button class="pbtn sm" data-act="home">◀ HOME</button></span></div>
     <p class="hint">Only places: countries, capitals, cities, states, rivers, mountains, islands, lakes, straits and more. ${n} prompts. Rarer places score more.</p>
     ${(()=>{const dg=store.get(dKey(true),null);return `<button class="daily m-sun" data-act="${dg?"geoDailySaved":"geoDaily"}" style="width:100%;margin-bottom:10px">
       <span class="dtxt"><small>🌍 TODAY'S GEOGRAPHY · SAME FOR EVERYONE</small><b>DAILY GEOGRAPHY</b><span>${dg?`${dg.score} pts · tap to see results and today's board`:`${ROUNDS} geography prompts · one shot each`}</span></span></button>`;})()}
@@ -4175,7 +4175,7 @@ function abortAsk(){
 // The rarest element in the universe is scattered through space and the deep sea.
 // Steer left/right to collect cupidium atoms, dodge hazards, and hope for a golden ONE IN A CUPIDIUM.
 const CUP_SECS=60;let CUP=null,VX=0;
-function startCup(){
+function startCup(){store.set("otc.lastArc","cup");
   closeModal();showPanel("",{hud:true});MENU=false;jumpTo(0);SC.parts=[];
   CUP={x:W/2,tx:W/2,items:[],floats:[],score:0,combo:0,lives:3,t0:performance.now(),last:performance.now(),spawnAt:0,vel:.09,hurt:0,done:false,keys:{}};
   cupHud();
@@ -4274,7 +4274,7 @@ function mBg(x,W,H,t,a="#1a0b2e",b="#07061a"){const g2=x.createLinearGradient(0,
 const mBest=id=>store.get("otc.cg."+id,0);
 
 // ---------- framework ----------
-function mgStart(id){
+function mgStart(id){store.set("otc.lastArc",id==="rush"?"cup":id);
   const G=MGAMES[id];mgClose();closeModal();clearTimers();tok++;CUP=null;MENU=true;showPanel("");$("hud").hidden=true;$("side").hidden=true;
   const ov=document.createElement("div");ov.id="mg";
   ov.innerHTML=`<div class="mgbar glass"><b class="mgname">${G.name}</b><span id="mgs"></span><button class="pbtn sm" data-act="mgQuit">QUIT</button></div>
@@ -5487,7 +5487,7 @@ function cupHub(cat){
   cat=cat||store.get("otc.arcadeTab","action");if(!ARCADE_CATS.some(c=>c[0]===cat))cat="action";store.set("otc.arcadeTab",cat);
   const games=ARCADE_CATS.find(c=>c[0]===cat)[2];
   showPanel(`
-    <div class="row" style="justify-content:space-between"><h2 style="font-size:16px"><span class="glow cup" style="padding:2px 8px">CUPIDIUM</span> ARCADE</h2><span class="row" style="gap:6px"><button class="pbtn sm" data-act="leaderboards" data-back="cuphub">🏆</button><button class="pbtn sm" data-act="landing">◀ MAIN MENU</button></span></div>
+    <div class="row" style="justify-content:space-between"><h2 style="font-size:16px"><span class="glow cup" style="padding:2px 8px">CUPIDIUM</span> ARCADE</h2><span class="row" style="gap:6px"><button class="pbtn sm" data-act="leaderboards" data-back="cuphub" data-k="lastArc">🏆</button><button class="pbtn sm" data-act="landing">◀ MAIN MENU</button></span></div>
     <div class="glass atabs">${ARCADE_CATS.map(([id,nm,gs])=>`<button class="${id===cat?"on":""}" data-act="atab" data-c="${id}">${nm}<small>${gs.length}</small></button>`).join("")}</div>
     <div class="arcade">${games.map(([id,bl])=>{const G=MGAMES[id],best=id==="rush"?store.get("otc.cupBest",0):mBest(id);
       return `<button class="glass agame" data-act="${id==="rush"?"cup":"mg"}" data-id="${id}"><canvas width="48" height="48" data-aicon="${id}"></canvas>
@@ -5505,7 +5505,7 @@ function landing(){
       <button class="glass lcard casl" data-act="casino"><b><span class="glow cup" style="padding:0 6px">CUPIDIUM CASINO</span></b><span>Blackjack, poker, slots, roulette and more. Play for cupidium chips.</span><em>🎰 ${(typeof casChips==="function"?casChips():1000).toLocaleString()} CHIPS</em></button>
       <button class="glass lcard cpl" data-act="cuepon"><b>DAILY CUEPON</b><span>Three new word puzzles every day, the same for everyone. Keep your streak.</span><em>${typeof cpDoneCount==="function"?cpDoneCount():0}/3 DONE TODAY</em></button>
     </div>
-    <div class="menubar"><button class="pbtn" data-act="leaderboards" data-back="landing">🏆 LEADERBOARDS</button>${store.get("otc.dev",false)?`<button class="pbtn" data-act="dev">🛠 VISITS</button>`:""}<button class="pbtn" data-act="skins">SKINS</button><button class="pbtn" data-act="palettes">COLORS</button>
+    <div class="menubar"><button class="pbtn" data-act="leaderboards" data-back="landing" data-k="daily">🏆 LEADERBOARDS</button>${store.get("otc.dev",false)?`<button class="pbtn" data-act="dev">🛠 VISITS</button>`:""}<button class="pbtn" data-act="skins">SKINS</button><button class="pbtn" data-act="palettes">COLORS</button>
       <div class="glass themeseg">${Object.entries(THEMES).map(([k,t])=>`<button class="${k===THEME?"on":""}" data-act="theme3" data-t="${k}">${t.name}</button>`).join("")}</div>
       <button class="pbtn" data-act="settings" aria-label="Settings">${icon("gear",18)}</button></div>`,{cls:"menu"});
 }
@@ -5749,7 +5749,7 @@ function leaderboards(back){LBV.back=back||LBV.back||"landing";
     secOf=k=>Object.keys(SECS).find(z=>SECS[z].some(g=>g[1].includes(k)));if(LBV.sec==null||!SECS[LBV.sec])LBV.sec=secOf(LBV.k)||"otc";
   if(secOf(LBV.k)!==LBV.sec)LBV.k=SECS[LBV.sec][0][1][0];
   const groups=SECS[LBV.sec],nm=k=>/^cas/.test(k)?lbName(k).replace("Casino · ",""):/^cp[A-Z]/.test(k)?lbName(k).replace(" (today)",""):k==="cup"?"RUSH":k==="dailyGeo"?"DAILY":k==="endlessGeo"?"ENDLESS":k==="rendlessGeo"?"RAPID ENDLESS":lbName(k).replace(/^IS IT CUPIDIUM\?$/,"IS IT?");
-  showPanel(`<div class="row" style="justify-content:space-between"><h2 style="font-size:16px">🏆 LEADERBOARDS</h2><button class="pbtn sm" data-act="${LBV.back}">◀ BACK</button></div>
+  panelIn("lb",`<div class="row" style="justify-content:space-between"><h2 style="font-size:16px">🏆 LEADERBOARDS</h2><button class="pbtn sm" data-act="${LBV.back}">◀ BACK</button></div>
     <div class="glass atabs lbsec"><button class="${LBV.sec==="otc"?"on":""}" data-act="lbSec" data-s="otc">OFF THE CHARTS</button><button class="${LBV.sec==="arc"?"on":""}" data-act="lbSec" data-s="arc">ARCADE</button><button class="${LBV.sec==="cas"?"on":""}" data-act="lbSec" data-s="cas">CASINO</button><button class="${LBV.sec==="cp"?"on":""}" data-act="lbSec" data-s="cp">CUEPON</button></div>
     <div class="glass lbgroups">${groups.map(([g,ks])=>`<div class="lbg"><span class="lbgh">${g}</span><div class="lbtabs">${ks.map(k=>`<button class="${k===LBV.k?"on":""}" data-act="lbTab" data-k="${k}">${esc(nm(k))}</button>`).join("")}</div></div>`).join("")}</div>
     <div id="lbBox"></div>
@@ -5760,7 +5760,8 @@ function lbRender(){const box=$("lbBox");if(!box)return;const key=lbKeyFor(LBV.k
   box.innerHTML=`<div class="glass card"><h3 style="font-size:13px">${esc(lbName(LBV.k))}${LBV.k==="daily"||LBV.k==="dailyGeo"||/^cp[A-Z]/.test(LBV.k)?" · "+today():""}</h3>
     ${rows.length?`<ol class="lbl2">${rows.map((r,i)=>`<li class="${r.i===LB.id?"me":""}"><span class="rk">${["🥇","🥈","🥉"][i]||"#"+(i+1)}</span><b>${esc(r.n)}</b><span class="sc">${r.s.toLocaleString()}</span></li>`).join("")}</ol>`
       :`<p class="hint">No scores yet. Be the first!</p>`}</div>`;}
-Object.assign(ACT,{leaderboards:b=>leaderboards(b&&b.dataset&&b.dataset.back),lbTab:b=>{LBV.k=b.dataset.k;leaderboards();},lbSec:b=>{LBV.sec=b.dataset.s;leaderboards();},
+// the board opens on whatever you were just looking at (data-k), e.g. the arcade opens on the last game you played
+Object.assign(ACT,{leaderboards:b=>{const d=(b&&b.dataset)||{};let k=d.k==="lastArc"?store.get("otc.lastArc","cup"):d.k;if(k){LBV.k=k;LBV.sec=null;}else if(d.s&&d.s!==LBV.sec){LBV.sec=d.s;LBV.k=null;}leaderboards(d.back);},lbTab:b=>{LBV.k=b.dataset.k;leaderboards();},lbSec:b=>{LBV.sec=b.dataset.s;leaderboards();},
   lbSetName:()=>{const v=($("lbName").value||"").trim().slice(0,16);if(!v)return;store.set("oddball.name",v);if(SOC.me){SOC.me.name=v;socSave();}
     for(const k in LB.b){const r=LB.b[k].find(x=>x.i===LB.id);if(r){r.n=v;r.t=Date.now();if(lbOn())socPost(LB_TOPIC,{k:"s",key:k,r});}}lbSave();toast("Saved ✓");lbRender();}});
 // ---- visit log (developer only): each visit sends a tiny ping with the player's name
