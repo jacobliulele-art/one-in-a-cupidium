@@ -420,6 +420,8 @@ b,strong{font-weight:500}
 .casgraph{width:100%;height:auto;margin-top:10px;display:block}
 .helog{font-size:13px;display:flex;flex-direction:column;gap:2px;padding:8px 12px}.helog div{color:var(--muted)}.helog div b{color:#e9d5ff;font-weight:400;font-family:var(--head);font-size:11px;letter-spacing:.06em}.helog .new{color:#fde68a}
 .hes.turn .hen::after{content:" 💭";animation:blink 1s infinite}.hea.enter{animation:aPop .45s cubic-bezier(.2,1.6,.4,1) backwards;font-size:12px}
+body[data-theme="marius"]{--glass:rgba(120,52,72,.62);--glass2:rgba(120,52,72,.84);--edge:rgba(255,200,190,.5);--muted:#ffe0dc;--p1:#ffa38f;--p2:#ffd0c2;--p3:#e2708a;--hl:#fff1c1;--acc:#ffa38f;--acc2:#f28b82;--meter:#ffa38f;--logo:#fff3ee;--bg:#3a1f33}
+body[data-theme="marius"] .pbtn:not(.c):not(.on){background:rgba(120,52,72,.56)}
 </style>
 
 <canvas id="scene"></canvas>
@@ -1504,14 +1506,14 @@ Object.assign(ADDB,{
 {q:"Name a US state on the Pacific coast",c:"GEOGRAPHY",closed:1,t:["california","oregon|washington","alaska|hawaii","",""]},
 {q:"Name a famous waterfall",c:"GEOGRAPHY",t:["niagara falls/niagara|victoria falls/victoria|angel falls/angel","iguazu falls/iguaçu falls/iguacu falls/iguazu|yosemite falls/yosemite","multnomah falls/multnomah|gullfoss|skógafoss/skogafoss|seljalandsfoss|kaieteur falls|horseshoe falls|plitvice|bridal veil falls|havasu falls|dettifoss","rhine falls|sutherland falls|tugela falls|jog falls|detian falls|huangguoshu|kawasan falls|ban gioc|erawan falls|gocta|salto grande|palouse falls|shoshone falls|snoqualmie falls|burney falls|ruby falls|cumberland falls|vernal falls|nevada falls|lower falls|mardalsfossen|vettisfossen|krimml falls|staubbach falls|reichenbach falls|trümmelbach falls","ruby falls|catarata del toro|blue nile falls|murchison falls|dudhsagar|kegon falls|nachi falls|wallaman falls|wentworth falls|jim jim falls|fairy falls|ouzoud falls|kaaterskill falls"]},
 {q:"Name a famous bridge",c:"GEOGRAPHY",t:["golden gate bridge/golden gate|london bridge|tower bridge|brooklyn bridge","sydney harbour bridge|rialto bridge|ponte vecchio|charles bridge|bay bridge","mackinac bridge|chain bridge|millau viaduct|akashi kaikyo bridge|tsing ma bridge|øresund bridge/oresund bridge|ponte 25 de abril|helix bridge|bridge of sighs|pont neuf|pont alexandre iii|stari most|seven mile bridge|verrazzano-narrows bridge|george washington bridge|manhattan bridge|forth bridge","danyang–kunshan grand bridge|hong kong–zhuhai–macau bridge|lake pontchartrain causeway|chesapeake bay bridge|confederation bridge|capilano suspension bridge|tacoma narrows bridge|sunshine skyway|new river gorge bridge|royal gorge bridge|natchez trace|rainbow bridge|khaju bridge|si-o-se pol|bosphorus bridge|great belt bridge|hängebrücke|ponte sant'angelo|millennium bridge|clifton suspension bridge|iron bridge|humber bridge","golden bridge/cau vang|dragon bridge|trift bridge|kintai bridge|shinkyo|moses bridge|python bridge|langkawi sky bridge|hussaini hanging bridge|living root bridges|puente de la mujer|banpo bridge"]},
-{q:"Name a country where Spanish is an official language",c:"GEOGRAPHY",closed:1,t:["spain|mexico|argentina|colombia","peru|chile|venezuela|cuba|ecuador","bolivia|guatemala|honduras|el salvador|nicaragua|costa rica|panama|dominican republic|uruguay|paraguay|puerto rico","equatorial guinea","western sahara/sahrawi republic"]},
-{q:"Name a country where French is an official language",c:"GEOGRAPHY",t:["france|canada|belgium|switzerland","haiti|monaco|luxembourg|senegal|ivory coast/côte d'ivoire/cote d'ivoire|madagascar|cameroon","democratic republic of the congo/drc|republic of the congo/congo|mali|niger|chad|guinea|burkina faso|benin|togo|gabon|rwanda|burundi|djibouti|comoros|seychelles|vanuatu|central african republic","equatorial guinea","french polynesia|new caledonia|quebec"]},
+{q:"Name a country where Spanish is an official language",c:"GEOGRAPHY",closed:1,t:["spain|mexico|argentina|colombia","peru|chile|venezuela|cuba|ecuador","bolivia|guatemala|honduras|el salvador|nicaragua|costa rica|panama|dominican republic","uruguay|paraguay","equatorial guinea"]},
+{q:"Name a country where French is an official language",c:"GEOGRAPHY",t:["france|canada|belgium|switzerland","haiti|monaco|luxembourg|senegal|ivory coast/côte d'ivoire/cote d'ivoire|madagascar|cameroon","democratic republic of the congo/drc|republic of the congo/congo|mali|niger|chad|guinea|burkina faso|benin|togo|gabon|central african republic","rwanda|burundi|djibouti","seychelles|comoros|vanuatu|equatorial guinea"]},
 {q:"Name a country that borders Germany",c:"GEOGRAPHY",closed:1,t:["france|poland|austria|switzerland","netherlands/holland|belgium|denmark|czech republic/czechia","luxembourg","",""]},
 {q:"Name a country that borders Brazil",c:"GEOGRAPHY",closed:1,t:["argentina|colombia|peru","venezuela|bolivia|paraguay|uruguay","guyana|suriname","france/french guiana",""]},
 {q:"Name a European microstate",c:"GEOGRAPHY",closed:1,t:["vatican city/vatican|monaco","san marino|liechtenstein","andorra|malta","",""]},
-{q:"Name a country with 'land' in its name",c:"GEOGRAPHY",t:["finland|iceland|ireland|poland|switzerland","thailand|netherlands|new zealand","greenland|scotland|england","swaziland|somaliland|nyasaland|basutoland|bechuanaland|swaziland|newfoundland|rhodesia","the netherlands|northern ireland|åland|queensland|maryland|holland"]},
+{q:"Name a country with 'land' in its name",c:"GEOGRAPHY",t:["finland|iceland|ireland|poland|switzerland","thailand|netherlands|new zealand","scotland|england","swaziland|greenland|northern ireland","somaliland"]},
 {q:"Name a capital city that starts with B",c:"GEOGRAPHY",t:["berlin|beijing|brussels|budapest|bangkok","buenos aires|bogotá/bogota|belgrade|bern|bucharest|baghdad|brasília/brasilia","bratislava|beirut|baku|bishkek|bamako|bangui|banjul|bissau|brazzaville|bujumbura|bridgetown|belmopan|bandar seri begawan","basseterre|belfast|boston|bismarck|baton rouge|boise|brisbane|barcelona","bairiki|brades|basse-terre"]},
-{q:"Name a country in the Southern Hemisphere",c:"GEOGRAPHY",t:["australia|new zealand|south africa|argentina|brazil","chile|peru|bolivia|uruguay|paraguay|madagascar|indonesia","angola|mozambique|zimbabwe|zambia|namibia|botswana|tanzania|malawi|lesotho|eswatini/swaziland|fiji|papua new guinea|samoa|tonga|mauritius|ecuador","democratic republic of the congo|republic of the congo|burundi|rwanda|seychelles|comoros|vanuatu|solomon islands|tuvalu|east timor/timor-leste|kenya|somalia|gabon|sao tome and principe|kiribati|nauru|colombia","antarctica|falkland islands|french polynesia|new caledonia|cook islands|niue|pitcairn islands|saint helena|tristan da cunha"]},
+{q:"Name a country in the Southern Hemisphere",c:"GEOGRAPHY",t:["australia|new zealand|south africa|argentina|brazil","chile|peru|bolivia|uruguay|paraguay|madagascar|indonesia","angola|mozambique|zimbabwe|zambia|namibia|botswana|tanzania|malawi|lesotho|eswatini/swaziland|fiji|papua new guinea|samoa|tonga|mauritius|ecuador","democratic republic of the congo|republic of the congo|burundi|rwanda|seychelles|comoros|solomon islands|kenya|somalia|gabon","vanuatu|tuvalu|east timor/timor-leste|sao tome and principe|kiribati|nauru"]},
 {q:"Name a city on the Mediterranean",c:"GEOGRAPHY",t:["barcelona|rome|athens|marseille|nice","naples|venice|monaco|tel aviv|alexandria|beirut|valencia|malaga/málaga|istanbul","tunis|algiers|tripoli|genoa|palermo|valletta|split|dubrovnik|cannes|haifa|limassol|antalya|izmir|thessaloniki|palma|ibiza|cagliari|bari","catania|trieste|ajaccio|bastia|saint-tropez|toulon|montpellier|perpignan|alicante|cartagena|almería|oran|tangier|benghazi|port said|latakia|tartus|sidon|tyre|byblos|ashdod|netanya|ashkelon|nicosia|larnaca|paphos|kotor|budva|tirana|durres","rijeka|zadar|pula|koper|ancona|pescara|brindisi|messina|reggio calabria|taranto|la spezia|livorno|sanremo|menton|sète|tarragona|melilla|ceuta"]},
 {q:"Name a river in Africa",c:"GEOGRAPHY",t:["nile|congo|niger|zambezi","limpopo|orange river/orange|blue nile|white nile","okavango|senegal river|volta|gambia river|ubangi|kasai|shebelle|juba|benue|kagera|atbara|cuanza|cunene|lualaba","tugela|vaal|ruvuma|rufiji|tana|omo|awash|sanaga|ogooué/ogooue|chari|logone|moulouya|sebou|draa|medjerda|kafue|luangwa|shire|save|olifants","komati|great fish|sundays|gamtoos|breede|kei|umgeni|pungwe|buzi|mono|cavally|sassandra|bandama|comoé|mano|jong|rokel|kouilou|ntem"]},
 {q:"Name a river in Asia",c:"GEOGRAPHY",t:["yangtze|ganges|mekong|yellow river/huang he","indus|euphrates|tigris|amur|brahmaputra|yenisei|ob|lena","irrawaddy|salween|pearl river|amu darya|syr darya|jordan river|ural|irtysh|kolyma|chao phraya|red river|mahanadi|godavari|krishna|narmada|yamuna|kaveri|han river","sutlej|chenab|jhelum|ravi|beas|helmand|kura|aras|tarim|songhua|liao|huai|min|xi|li river|hooghly|padma|meghna|teesta|kali gandaki|karnali|sittaung|tonle sap|mahakam|kapuas|musi|barito","pasig|cagayan|agusan|rajang|kinabatangan|pahang|perak|selenga|kherlen|orkhon|aldan|vilyuy|angara|tunguska|khatanga|anadyr"]},
@@ -1547,7 +1549,7 @@ function casChips(){return Math.max(0,Math.floor(store.get("otc.cas.chips",CAS_S
 function casHist(){return store.get("otc.cas.hist",null)||[[Date.now(),casChips()]];}
 function casSet(v,won){v=Math.max(0,Math.floor(v));store.set("otc.cas.chips",v);
   {let h=casHist();const last=h[h.length-1];if(!last||last[1]!==v){h.push([Date.now(),v]);if(h.length>600)h=h.filter((x,i)=>i%2===0||i>h.length-100);store.set("otc.cas.hist",h);}}
-  clearTimeout(casSet.t);casSet.t=setTimeout(()=>lbSubmit("casNow",casChips(),true),4000);const pk=store.get("otc.cas.peak",CAS_START);if(v>pk){store.set("otc.cas.peak",v);lbSubmit("casPeak",v);}
+  clearTimeout(casSet.t);casSet.t=setTimeout(()=>lbSubmit("casNow",casChips(),true),45000);const pk=store.get("otc.cas.peak",CAS_START);if(v>pk){store.set("otc.cas.peak",v);lbSubmit("casPeak",v);}
   if(won>0){const bw=store.get("otc.cas.bigWin",0);if(won>bw){store.set("otc.cas.bigWin",won);lbSubmit("casWin",won);}}
   const el=document.querySelector(".casbal b"),from=BALFX?BALFX.from:(el?+el.textContent.replace(/[^0-9]/g,""):v);BALFX={from,to:v};setTimeout(casBalFx,30);}
 function casBet(){return Math.max(1,Math.min(casChips()||1,store.get("otc.cas.bet",25)));}
@@ -1589,7 +1591,7 @@ function casino(){CAS={};const c=casChips(),day=today(),bonus=store.get("otc.cas
       ${casGraph()}
       ${bonus?`<button class="pbtn c m-sun" data-act="casBonus" style="margin-top:10px">🎁 CLAIM DAILY ${broke?"BAILOUT 1,000":"BONUS 250"}</button>`:broke?`<p class="hint">Out of chips: come back tomorrow for a bailout.</p>`:""}</div>
     <div class="casgrid">${CAS_GAMES.map(([id,ic,nm,d])=>`<button class="glass casg" data-act="casGo" data-g="${id}"><span class="casic">${ic}</span><b>${nm}</b><span>${d}</span></button>`).join("")}</div>
-    <div class="menubar"><button class="pbtn" data-act="leaderboards" data-back="casino" data-k="casNow">🏆 CASINO LEADERBOARDS</button></div>
+    <div class="menubar"><button class="pbtn" data-act="leaderboards" data-back="casino" data-k="casNow">🏆 CASINO LEADERBOARDS</button>${store.get("otc.dev",false)?`<button class="pbtn" data-act="devChipsGo">🪙 GIVE CHIPS</button>`:""}</div>
     <p class="hint center">Chips are just for fun and live on this device. Current chips, peak chips and biggest single win go on the leaderboards.</p>`,{cls:"menu"});}
 // ---------- BLACKJACK ----------
 const bjVal=h=>{let t=0,a=0;for(const c of h){const v=c.r===12?11:c.r>=8?10:c.r+2;t+=v;if(c.r===12)a++;}while(t>21&&a){t-=10;a--;}return t;};
@@ -2065,6 +2067,30 @@ function deckDraw(n,avoidCat,pool){
 function pickFresh(n){return deckDraw(n);}
 const examples=(pi,n=3)=>shuffle(((PROMPTS[pi].t[4]||"").trim()?PROMPTS[pi].t[4]:PROMPTS[pi].t.filter(Boolean).pop()||"").split("|").filter(Boolean).map(x=>x.split("/")[0]),rng("ex"+pi+today())).slice(0,n);
 const getCat=p=>p.c||CAT[p.q]||"TRIVIA";
+// MARIUS: a warm desert take on the dream world, and every "Cupidium" in the game reads "Marius"
+THEMES.marius=Object.assign({},THEMES.sky,{name:"MARIUS",hint:"▲ the stranger the answer, the higher the butt goes ▲",
+  tiers:["THE BOTTOM","CHEEKY HILLS","WHOOPEE CLOUDS","TOOT STREAM","PEACH MOON","ONE IN A BUTT!!!!"],
+  modes:{daily:"DAILY MARIUS",endless:"ENDLESS",blitz:"RAPID FIRE",rendless:"RAPID ENDLESS",party:"PARTY",practice:"PRACTICE"},
+  final:"FINAL HEIGHT",out:"OUT OF TOOTS",furthest:"HIGHEST BUTT",entering:"BOUNCING INTO",
+  zones:[{n:"THE BOTTOM",a:0,d:0},{n:"CHEEKY HILLS",a:200,d:60},{n:"PEACH ORCHARD",a:500,d:900},{n:"WHOOPEE CLOUDS",a:900,d:2500},{n:"BUM-BUM ISLES",a:1350,d:6000},
+    {n:"TOOT STREAM",a:2050,d:12000},{n:"SUNSET CHEEKS",a:2800,d:20000},{n:"BOOTY AURORA",a:3700,d:40000},{n:"PEACH MOON",a:4800,d:384400},{n:"STARLIGHT",a:6000,d:4e6},{n:"THE GOLDEN BUTT",a:7100,d:9e9}],
+  skins:[{id:"bpeach",name:"PEACH ROCKET",line:"A brave peach. Powered entirely by toots."},
+    {id:"bwhoopee",name:"WHOOPEE CUSHION",line:"Sit on it and it takes off."},
+    {id:"bballoon",name:"BOOTY BALLOON",line:"Two balloons, one cheeky shape, a tiny basket."},
+    {id:"bbeans",name:"CAN OF BEANS",line:"Rocket fuel. You know why."},
+    {id:"bjeans",name:"FLYING JEANS",line:"Just the pants. Nobody knows where the rest went."},
+    {id:"bbaby",name:"DIAPER BABY",line:"Gurgles, giggles, accelerates."}]});
+const isDream=()=>THEME==="sky"||THEME==="marius";
+// swap the word everywhere on screen while the Marius theme is on (and put it back afterwards)
+const MAR_ORIG=new Map();
+function mariusText(t){return String(t).replace(/cupidium/gi,w=>w===w.toUpperCase()?"MARIUS":w[0]===w[0].toUpperCase()?"Marius":"marius");}
+function mariusWalk(root){if(THEME!=="marius"||!root)return;const tw=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let n;
+  while((n=tw.nextNode())){if(/cupidium/i.test(n.nodeValue)&&n.parentNode&&!/^(SCRIPT|STYLE|TEXTAREA)$/.test(n.parentNode.nodeName)){if(!MAR_ORIG.has(n))MAR_ORIG.set(n,n.nodeValue);n.nodeValue=mariusText(n.nodeValue);}}
+  if(root.querySelectorAll)root.querySelectorAll("[placeholder],[title],[aria-label]").forEach(e=>{for(const a of["placeholder","title","aria-label"]){const v=e.getAttribute(a);if(v&&/cupidium/i.test(v))e.setAttribute(a,mariusText(v));}});}
+let MAR_OBS=null;
+function mariusOn(on){if(on){if(!MAR_OBS){MAR_OBS=new MutationObserver(ms=>{if(THEME!=="marius")return;for(const m of ms){if(m.type==="characterData"){const n=m.target;if(/cupidium/i.test(n.nodeValue))n.nodeValue=mariusText(n.nodeValue);}else m.addedNodes.forEach(x=>x.nodeType===3?(/cupidium/i.test(x.nodeValue)&&(x.nodeValue=mariusText(x.nodeValue))):mariusWalk(x));}});
+    MAR_OBS.observe(document.body,{childList:true,subtree:true,characterData:true});}mariusWalk(document.body);document.title="One in a Butt";}
+  else{if(MAR_OBS){MAR_OBS.disconnect();MAR_OBS=null;}for(const[n,v]of MAR_ORIG)if(n.isConnected)n.nodeValue=v;MAR_ORIG.clear();document.title="One in a Cupidium";}}
 let THEME=store.get("oddball.theme","space");if(!THEMES[THEME])THEME="space";
 let TH=THEMES[THEME];
 const TIERS=TIER_BASE.map((t,i)=>({...t,get name(){return TH.tiers[i];}}));
@@ -2092,9 +2118,11 @@ const SND={on:store.get("oddball.sound",true),ctx:null};
 function tone(f,d=.1,type="square",v=.035,delay=0){if(!SND.on)return;try{SND.ctx=SND.ctx||new(window.AudioContext||window.webkitAudioContext)();
   const c=SND.ctx,o=c.createOscillator(),gn=c.createGain(),t0=c.currentTime+delay;o.type=type;o.frequency.value=f;
   gn.gain.setValueAtTime(v,t0);gn.gain.exponentialRampToValueAtTime(.0001,t0+d);o.connect(gn).connect(c.destination);o.start(t0);o.stop(t0+d+.02);}catch(e){}}
+// a cartoon "pfffrrt": a low, wobbling buzz
+function toot(len=1){if(typeof tone!=="function")return;const n=Math.round(5+len*5),base=70+Math.random()*40;for(let i=0;i<n;i++)tone(base+Math.sin(i*1.7)*18+(Math.random()-.5)*14-i*1.5,.05,"sawtooth",.045*Math.min(1,len),i*.042);}
 const sfx={tick:()=>tone(880,.05),go:()=>{tone(660,.08);tone(1320,.15,"square",.035,.08);},bad:()=>tone(150,.18,"sawtooth",.045),dup:()=>tone(330,.1,"triangle",.05),
   ok:t=>[523,659,784,1047,1319,1568,2093].slice(0,t+3).forEach((f,i)=>tone(f,.14,"square",.03,i*.08)),miss:()=>{tone(220,.2,"triangle",.07);tone(110,.35,"triangle",.07,.15);},
-  whoosh:t=>{for(let i=0;i<8+t*4;i++)tone(200+i*40*(TH.up?1:-.4)+400,.06,"triangle",.012,i*.05);}};
+  whoosh:t=>{if(THEME==="marius")return toot(1+t*.3);for(let i=0;i<8+t*4;i++)tone(200+i*40*(TH.up?1:-.4)+400,.06,"triangle",.012,i*.05);}};
 const updSnd=()=>$("sndBtn").innerHTML=icon(SND.on?"snd":"mute",18);
 
 // ================= Scene engine (16-bit) =================
@@ -2131,7 +2159,7 @@ function resize(){
 }
 function buildScene(){
   const R=rng("scene"+W+THEME);SEED={};
-  if(THEME==="sky"){skySeeds(R);return;}
+  if(isDream()){skySeeds(R);return;}
   SEED.stars=[];for(let i=0;i<(HQ?760:260);i++)SEED.stars.push({x:R()*W,y:R()*1200,k:[.04,.1,.2,.35][i%4],c:["#ffffff","#c7d2fe","#fde68a","#f9a8d4","#a5f3fc"][i%5],tw:R()*10,b:R()<.08});
   SEED.shoot=[];SEED.dust=[];for(let i=0;i<60;i++)SEED.dust.push({x:R()*W,y:R()*900,s:1+Math.floor(R()*2)});
   if(TH.up){
@@ -2360,7 +2388,7 @@ function deepOne(t,a,side){const by=ys(a)+Math.sin(t*.0004)*8,bx=side<0?W*.04:W*
   if(blink){P(ex-24,ey-2,48,5,"#fde047");}
   else{disc(ex,ey,25,"#7c2d12");disc(ex,ey,22,"#fde047");disc(ex-3,ey-4,15,"#fef08a");const px=ex+vx/d*8,py=ey+vy/d*6;P(px-3,py-15,6,30,"#0b0b0b");P(px-5,py-10,10,20,"#0b0b0b");P(ex-10,ey-13,5,5,"#ffffff");P(ex-3,ey-15,2,2,"#ffffff");}
   g.globalAlpha=.55;for(let i=0;i<8;i++){const ph=(t*.0004+i*.13)%1;P(ex-side*22+Math.sin(i+t*.002)*4,ey+60-ph*170,3,3,"#7dd3fc");}g.globalAlpha=1;}
-function sceneExtras(t){const L=XS[THEME==="sky"?"sky":TH.up?"space":"ocean"];if(!L)return;const S=240,k0=Math.max(0,Math.floor((cam-160)/S)),k1=Math.floor((cam+H+160)/S);
+function sceneExtras(t){if(THEME==="marius")return;const L=XS[THEME==="sky"?"sky":TH.up?"space":"ocean"];if(!L)return;const S=240,k0=Math.max(0,Math.floor((cam-160)/S)),k1=Math.floor((cam+H+160)/S);
   for(let k=k0;k<=k1;k++){const R=rng(THEME+"xs"+k),pick=L[Math.floor(R()*L.length)],a=k*S+R()*S*.6;
     if(a<(pick.min||0)||(pick.max&&a>pick.max))continue;if(!vis(a,pick.h||60))continue;
     const left=R()<.5,x=left?W*(.08+R()*.18):W*(.74+R()*.18),y=ys(a);
@@ -2387,11 +2415,16 @@ function spaceNear(t){
 
 // ---------- DREAMLAND (third theme): a pastel sky climb from a flower meadow up past candy clouds,
 // rainbows, floating islands and sky whales to the dream moon.
+const SKY_M=[[-400,"#ffd9c7"],[0,"#ffd3c2"],[300,"#ffc4b8"],[700,"#ffb3b3"],[1200,"#f9a3b8"],[1800,"#ef93b8"],[2500,"#d982b7"],[3200,"#b56fb1"],[3900,"#8a5aa3"],[4700,"#62468a"],[5600,"#40316b"],[6600,"#2a2150"],[99999,"#2a2150"]];
+const DUNEP=["#ffb4a2","#ffcdb2","#f6a5a0","#ffe0d2","#f28b82","#ffd6a5","#e98e8a"];
+// a little pixel peach 🍑 (two cheeks, a crease, a leaf)
+function peach(x,y,r,c){disc(x-r*.42,y,r*.72,c||"#ff9f8a");disc(x+r*.42,y,r*.72,c||"#ff9f8a");disc(x-r*.55,y-r*.25,r*.22,"#ffd0c2");P(x,y-r*.45,1,r*1.0,"#d9645c");P(x-1,y-r*.95,3,2,"#5fa36b");P(x+1,y-r*1.15,3,2,"#7cc47f");}
 const SKY_D=[[-400,"#bfe8ff"],[0,"#c7ecff"],[300,"#b9d9ff"],[700,"#c9c3ff"],[1200,"#f3c4ec"],[1800,"#ffc9d9"],[2500,"#ffd7b5"],[3200,"#f6b3c8"],[3900,"#b9a3e8"],[4700,"#7e7ad1"],[5600,"#4b4aa3"],[6600,"#2d2a6e"],[99999,"#2d2a6e"]];
 const PAST=["#ffc8dd","#bde0fe","#cdb4db","#caffbf","#fdffb6","#ffd6a5","#a0c4ff","#ffadad","#9bf6ff"];
-function skySeeds(R){
-  SEED.clouds=[];for(let i=0;i<130;i++)SEED.clouds.push({a:80+R()*6600,x:R(),s:5+R()*10,v:.15+R()*.7,c:PAST[Math.floor(R()*PAST.length)],far:R()<.45});
-  SEED.flowers=[];for(let i=0;i<70;i++)SEED.flowers.push({x:R()*W,y:2+R()*30,c:PAST[Math.floor(R()*PAST.length)]});
+function skySeeds(R){const PAL=THEME==="marius"?DUNEP:PAST;
+  SEED.clouds=[];for(let i=0;i<130;i++)SEED.clouds.push({a:80+R()*6600,x:R(),s:5+R()*10,v:.15+R()*.7,c:PAL[Math.floor(R()*PAL.length)],far:R()<.45});
+  SEED.flowers=[];for(let i=0;i<70;i++)SEED.flowers.push({x:R()*W,y:2+R()*30,c:PAL[Math.floor(R()*PAL.length)]});
+  SEED.squig=[];for(let i=0;i<46;i++)SEED.squig.push({x:R()*W,y:R()*900,s:.15+R()*.4,l:6+R()*10,ph:R()*6,c:R()<.75?"#5a3324":"#8a4b33"});
   SEED.kites=[];for(let i=0;i<4;i++)SEED.kites.push({a:180+R()*260,x:.1+R()*.8,c:PAST[i*2]});
   SEED.isles=[];for(let i=0;i<9;i++)SEED.isles.push({a:1350+i*95+R()*60,x:.12+R()*.76,w:14+R()*20,c:PAST[Math.floor(R()*PAST.length)]});
   SEED.whales=[];for(let i=0;i<4;i++)SEED.whales.push({a:2050+i*180+R()*90,y0:R(),v:(R()<.5?-1:1)*(.2+R()*.25),c:["#a0c4ff","#cdb4db","#bde0fe","#ffc8dd"][i]});
@@ -2402,6 +2435,13 @@ function skySeeds(R){
 function skyCloud(x,y,s,c){disc(x,y,s,c);disc(x+s*1.1,y+2,s*.8,c);disc(x-s*1.1,y+2,s*.75,c);disc(x+s*.4,y-s*.5,s*.6,"#ffffff");P(x-s*1.6,y+s*.55,s*3.2,2,"rgba(255,255,255,.6)");}
 function skyGround(t){
   const G=ys(0);if(G>H+60)return;
+  if(THEME==="marius"){// cheeky hills (round pairs with a crease) and peaches growing everywhere
+    const hill=(cx,r,col,crease)=>{for(let x=-r*2;x<=r*2;x++){const lx=x<0?x+r:x-r,h=Math.sqrt(Math.max(0,r*r-lx*lx))*.85;P(cx+x,G-h,1,h,col);}P(cx,G-r*.7,1,r*.7,crease);};
+    for(let i=-1;i<6;i++)hill(((i*150+40)%(W+300))-60,30+((i*37)%14),"#f6b3a8","#d98479");
+    for(let i=-1;i<8;i++)hill(((i*110+95)%(W+220))-40,18+((i*23)%9),"#f29b92","#c96f68");
+    P(0,G,W,H,"#e98e8a");P(0,G,W,2,"#ffc2b4");
+    for(const f of SEED.flowers.slice(0,16)){const y=G+4+f.y*.5;if(y>H+8)continue;peach(f.x,y,4,f.c);}
+    return;}
   for(let x=0;x<W;x++){const h=Math.round(26+Math.sin(x*.018)*10+Math.sin(x*.05+1)*4);P(x,G-h,1,h,"#c3f0ca");}
   for(let x=0;x<W;x++){const h=Math.round(14+Math.sin(x*.03+2)*7);P(x,G-h,1,h,"#a8e6b0");}
   P(0,G,W,H,"#95d5a0");P(0,G,W,2,"#b9f0c2");
@@ -2411,19 +2451,20 @@ function skyGround(t){
   const cx=W/2;P(cx-14,G-3,28,3,"#e9c7a5");P(cx-14,G-3,28,1,"#f6dcc8");for(let k=-12;k<=12;k+=6)P(cx+k,G,2,6,"#c9a27d");
   for(let i=0;i<3;i++){const bx=((t*.012+i*W/3)%(W+20))-10,by=G-40-i*14+Math.sin(t*.003+i)*4,w=((t/160+i)|0)%2;disc(bx,by,2,"#fdffb6");P(bx-1,by,3,1,"#3a3a3a");P(bx-1,by-2-w,2,1,"#ffffff");}
 }
-function skyScene(t){
-  for(let y=0;y<H;y+=2)P(0,y,W,2,grad(SKY_D,cam+H-y));
+function skyScene(t){const MAR=THEME==="marius";
+  for(let y=0;y<H;y+=2)P(0,y,W,2,grad(MAR?SKY_M:SKY_D,cam+H-y));
   drawStars(t,Math.max(0,Math.min(1,(cam+H*.5-4300)/900)));
   // pastel sun / dream moon
-  if(cam<3600){const sy=ysK(900,.25);disc(W*.78,sy,16,"#fff3b0");ddisc(W*.78,sy,30,"rgba(255,243,176,.6)",.3);}
-  if(vis(5300,120))blit("dmoon",150,150,W*.3,ys(5300),(cx,cy)=>{ddisc(cx,cy,70,"rgba(255,200,221,.5)",.3);disc(cx,cy,48,"#fde2f3");disc(cx+12,cy-8,42,"#f6cfe8");for(const[ox,oy,r]of[[-18,-10,7],[10,16,9],[-6,22,5],[22,-20,4]]){disc(cx+ox,cy+oy,r,"#efc0dd");}});
+  if(cam<3600){const sy=ysK(900,.25);disc(W*.78,sy,MAR?20:16,MAR?"#fff4e8":"#fff3b0");ddisc(W*.78,sy,MAR?38:30,MAR?"rgba(255,220,210,.6)":"rgba(255,243,176,.6)",.3);}
+  if(vis(5300,120))blit(MAR?"mmoon":"dmoon",150,150,W*.3,ys(5300),(cx,cy)=>{if(MAR){ddisc(cx,cy,70,"rgba(255,180,160,.5)",.3);disc(cx-20,cy+4,36,"#ffa38f");disc(cx+20,cy+4,36,"#ffa38f");disc(cx-28,cy-8,10,"#ffd2c4");P(cx,cy-24,2,52,"#d9645c");disc(cx-6,cy-36,9,"#5fa36b");disc(cx+8,cy-40,7,"#7cc47f");return;}
+  ddisc(cx,cy,70,"rgba(255,200,221,.5)",.3);disc(cx,cy,48,"#fde2f3");disc(cx+12,cy-8,42,"#f6cfe8");for(const[ox,oy,r]of[[-18,-10,7],[10,16,9],[-6,22,5],[22,-20,4]]){disc(cx+ox,cy+oy,r,"#efc0dd");}});
   // far clouds
   for(const c of SEED.clouds)if(c.far&&visK(c.a,.55,30)){g.globalAlpha=.55;skyCloud(((c.x*W+t*c.v*.006)%(W+80))-40,ysK(c.a,.55),c.s*.7,c.c);g.globalAlpha=1;}
   // rainbow bands
-  for(const ra of[950,1050]){if(!vis(ra,90))continue;const cy2=ys(ra)+70,cols=["#ffadad","#ffd6a5","#fdffb6","#caffbf","#9bf6ff","#a0c4ff","#cdb4db"];g.globalAlpha=.75;
+  for(const ra of MAR?[]:[950,1050]){if(!vis(ra,90))continue;const cy2=ys(ra)+70,cols=["#ffadad","#ffd6a5","#fdffb6","#caffbf","#9bf6ff","#a0c4ff","#cdb4db"];g.globalAlpha=.75;
     for(let k=0;k<7;k++){const r=90-k*4;for(let a=3.14;a<6.283;a+=.012)P(W*(ra===950?.35:.7)+Math.cos(a)*r,cy2+Math.sin(a)*r*.75,2,2,cols[k]);}g.globalAlpha=1;}
   skyGround(t);
-  for(const k of SEED.kites){if(!vis(k.a,40))continue;const x=k.x*W+Math.sin(t*.0012+k.a)*20,y=ys(k.a)+Math.sin(t*.002+k.x*9)*5;
+  if(!MAR)for(const k of SEED.kites){if(!vis(k.a,40))continue;const x=k.x*W+Math.sin(t*.0012+k.a)*20,y=ys(k.a)+Math.sin(t*.002+k.x*9)*5;
     for(let i=0;i<8;i++){P(x+i,y-i+0,1,1,k.c);P(x-i,y-i,1,1,k.c);P(x+i,y+i-16,1,1,k.c);P(x-i,y+i-16,1,1,k.c);}for(let i=-7;i<=7;i++)P(x+i,y-8,1,1,"#ffffff");P(x,y-15,1,15,"#ffffff");
     for(let i=0;i<30;i+=2){P(x+Math.round(Math.sin(i*.25+t*.004)*3),y+i,1,2,"#fff");if(i%8===0)P(x-1+Math.round(Math.sin(i*.25+t*.004)*3),y+i,3,1,PAST[i/8|0]);}}
   for(const i of SEED.isles){if(!vis(i.a,50))continue;const x=i.x*W+Math.sin(t*.0006+i.a)*6,y=ys(i.a)+Math.sin(t*.0012+i.a)*3,w=i.w;
@@ -2437,7 +2478,11 @@ function skyScene(t){
   if(cam>3500&&cam<6400){g.globalAlpha=Math.min(.4,(cam-3500)/1500);for(let x=0;x<W;x+=2){const y=H*.3+Math.sin(x*.02+t*.0006)*14+Math.sin(x*.07)*4;P(x,y,2,16,"#caffbf");P(x,y-6,2,6,"#9bf6ff");P(x,y+16,2,5,"#ffc8dd");}g.globalAlpha=1;}
   if(vis(7200,60)){const cx=W/2,cy=ys(7200);ddisc(cx,cy,36,"rgba(255,95,210,.6)",.35);for(let k=0;k<5;k++){const h=18+((k*7)%11);P(cx-12+k*6,cy-h,4,h,["#ff8fe0","#ffc8dd","#ff5fd2","#ffc8dd","#ff8fe0"][k]);P(cx-12+k*6,cy-h,4,2,"#fff");}}
 }
-function skyNear(t){if(!HQ)return;g.globalAlpha=.7;for(const p of SEED.petals){const y=((p.y+t*p.s*.03+cam*1.4)%900+900)%900;if(y<H){const x=(p.x+Math.sin(t*.001+p.y)*8+W)%W;P(x,y,2,1,p.c);P(x+1,y+1,1,1,p.c);}}g.globalAlpha=1;}
+function skyNear(t){if(!HQ)return;
+  if(THEME==="marius"){// peaches drifting up, plus the occasional little toot cloud
+    for(const q of SEED.squig||[]){const y=((q.y-t*q.s*.03+cam*1.3)%900+900)%900;if(y>H)continue;const x=(q.x+Math.sin(t*.0008+q.ph)*10+W)%W;
+      if(q.l>12){g.globalAlpha=.5;disc(x,y,3,"#d9f99d");disc(x+3,y-2,2.5,"#ecfccb");disc(x-3,y-1,2,"#ecfccb");g.globalAlpha=1;}else peach(x,y,3+q.l*.12);}return;}
+  g.globalAlpha=.7;for(const p of SEED.petals){const y=((p.y+t*p.s*.03+cam*1.4)%900+900)%900;if(y<H){const x=(p.x+Math.sin(t*.001+p.y)*8+W)%W;P(x,y,2,1,p.c);P(x+1,y+1,1,1,p.c);}}g.globalAlpha=1;}
 
 // ---------- OCEAN ----------
 const SKY_O=[[-300,"#6fbff0"],[0,"#c3ecff"]];
@@ -2860,6 +2905,20 @@ function drawVehicleRaw(id,cx,cy,t,moving,pv){
     shape([["r",cx-3,by-30+bob,6,5,"#cdb4db"]]);P(cx-2,by-28+bob,1,1,"#4b4aa3");P(cx+1,by-28+bob,1,1,"#4b4aa3");P(cx-5,by-30+bob,2,2,"#cdb4db");P(cx+3,by-30+bob,2,2,"#cdb4db");
     for(const k of[-5,-2,1,4])P(cx+k,by-6+bob,1,3,"#cdb4db");P(cx-6,by-16+bob,2,2,"#ffc8dd");}
 
+  // ---- Marius (butt) skins ----
+  else if(id==="bpeach"){const w=Math.round(Math.sin(t*.01)*.6);
+    for(const[ox]of[[-5],[5]]){disc(cx+ox,by-14,8,OUT);}disc(cx-5,by-14,7,"#ffa38f");disc(cx+5,by-14,7,"#ff9580");disc(cx-7,by-17,2.5,"#ffd2c4");P(cx,by-21,1,13,"#d9645c");
+    P(cx-2,by-25+w,5,3,"#5fa36b");P(cx+1,by-28+w,4,3,"#7cc47f");P(cx,by-23,1,2,"#7c5a3a");P(cx-4,by-12,2,1,"#c25a53");P(cx+3,by-12,2,1,"#c25a53");}
+  else if(id==="bwhoopee"){const sq=L?1:0;disc(cx,by-12+sq,10,OUT);disc(cx,by-12+sq,9,"#ff6fa5");disc(cx-3,by-15+sq,3,"#ffb3cf");P(cx-9,by-12+sq,18,2,"#e1508a");
+    P(cx-2,by-3,4,4,"#e1508a");P(cx-1,by-1,2,2,"#ff6fa5");P(cx-5,by-14,1,1,"#fff");}
+  else if(id==="bballoon"){const bob=Math.round(Math.sin(t*.004)*1.2);disc(cx-5,by-26+bob,8,OUT);disc(cx+5,by-26+bob,8,OUT);disc(cx-5,by-26+bob,7,"#ffa38f");disc(cx+5,by-26+bob,7,"#ff9580");
+    disc(cx-7,by-29+bob,2,"#ffd2c4");P(cx,by-32+bob,1,12,"#d9645c");P(cx-4,by-18+bob,1,8,"#7c5a3a");P(cx+3,by-18+bob,1,8,"#7c5a3a");shape([["r",cx-5,by-10,10,6,"#c08457"]]);P(cx-5,by-10,10,1,"#e0a878");}
+  else if(id==="bbeans"){shape([["r",cx-6,by-24,12,20,"#cbd5e1"]]);P(cx-6,by-18,12,9,"#f59e0b");P(cx+3,by-24,3,20,"#94a3b8");P(cx-6,by-24,12,2,"#e2e8f0");
+    for(const[ox,oy]of[[-3,-15],[0,-13],[2,-16],[-1,-11]])disc(cx+ox,by+oy,1.4,"#b45309");P(cx-4,by-20,8,1,"#fff7ed");}
+  else if(id==="bjeans"){shape([["r",cx-7,by-22,14,6,"#3b82f6"],["r",cx-7,by-16,6,10,"#2563eb"],["r",cx+1,by-16,6,10,"#1d4ed8"]]);P(cx-7,by-22,14,2,"#1e3a8a");P(cx-1,by-20,1,5,"#93c5fd");
+    P(cx-1,by-22,2,2,"#fde047");P(cx-6,by-8,4,1,"#93c5fd");P(cx+2,by-8,4,1,"#93c5fd");}
+  else if(id==="bbaby"){const k=Math.round(Math.sin(t*.012));disc(cx,by-25,6,OUT);disc(cx,by-25,5,"#fcd5b5");P(cx-2,by-26,1,1,OUT);P(cx+1,by-26,1,1,OUT);P(cx-1,by-23,2,1,"#e57373");P(cx-1,by-31,2,2,"#7c5a3a");
+    shape([["r",cx-5,by-19,10,6,"#fcd5b5"],["r",cx-6,by-13,12,6,"#ffffff"]]);P(cx-6,by-13,12,1,"#bae6fd");P(cx-7,by-18+k,2,4,"#fcd5b5");P(cx+5,by-18-k,2,4,"#fcd5b5");P(cx-4,by-7,3,3,"#fcd5b5");P(cx+1,by-7,3,3,"#fcd5b5");}
   else if(id==="puffer"){const f=((t/150)|0)%2;
     for(let a=0;a<6.283;a+=.45)P(cx+Math.cos(a)*10,cy+Math.sin(a)*10,1,1,"#a16207");
     shape([["d",cx,cy,8,"#facc15"],["r",cx-14,cy-3,4,6,"#fbbf24"]]);
@@ -2909,13 +2968,14 @@ function frame(t){
   cam+=(camTarget()-cam)*Math.min(1,.25*Math.max(1,dt)/16.7);
   let sx=0,sy=0;if(SC.shake>0){SC.shake-=16;sx=(Math.random()-.5)*3;sy=(Math.random()-.5)*3;}
   g.save();g.translate(Math.round(sx),Math.round(sy));VEH.x.clearRect(0,0,VEH.c.width,VEH.c.height);VEH.sx=Math.round(sx);VEH.sy=Math.round(sy);
-  if(THEME==="sky"){skyScene(t);sceneExtras(t);skyNear(t);}else if(TH.up){spaceScene(t);sceneExtras(t);}else{oceanScene(t);sceneExtras(t);}
+  if(isDream()){skyScene(t);sceneExtras(t);skyNear(t);}else if(TH.up){spaceScene(t);sceneExtras(t);}else{oceanScene(t);sceneExtras(t);}
   if(THEME==="space"){spaceNear(t);for(const c of SEED.clouds)if(!c.far&&c.s>9&&visK(c.a,1.5,40)){g.globalAlpha=.35;cloud(((c.x*W*1.7+t*c.v*.02)%(W+120))-60,ysK(c.a,1.5),c.s*1.4,"#ffffff","#e2ecfb");g.globalAlpha=1;}}
   else if(THEME==="ocean")oceanNear(t);
   speedLines(t);vignette();
   if(CUP&&TH.up)speed=Math.max(speed,1);
   const vx=CUP?Math.round(CUP.x):W/2,vy=Math.round(ys(SC.alt));VX=vx;
-  if(TH.up){if(moving&&speed>0)spawn(3,["#e5e7eb","#cbd5e1","#f8fafc"],.7,46,1);else if(SC.alt<1&&Math.random()<.08)spawn(1,["#f1f5f9"],.9,55,1);}
+  if(THEME==="marius"){if(moving&&speed>0){spawn(3,["#d9f99d","#bef264","#ecfccb","#a3e635","#e7e5a8"],1,62,3);if(Math.random()<.035)toot(.6);}else if(SC.alt<1&&Math.random()<.05)spawn(1,["#ecfccb"],.8,50,2);}
+  else if(TH.up){if(moving&&speed>0)spawn(3,["#e5e7eb","#cbd5e1","#f8fafc"],.7,46,1);else if(SC.alt<1&&Math.random()<.08)spawn(1,["#f1f5f9"],.9,55,1);}
   else{if((moving&&speed>0)||Math.random()<.1)spawn(1,["#e0f2fe","#bae6fd"],.5,80,1,-12);}
   drawParts();if(CUP)cupDraw(t);
   if(!(CUP&&CUP.hurt&&performance.now()-CUP.hurt<900&&((t/80)|0)%2))drawVehicle(skinId(),vx,vy,t,(moving&&speed>0)||!!CUP,false);
@@ -2943,9 +3003,9 @@ const zoneAt=a=>TH.zones.filter(z=>a>=z.a-1).pop();
 
 // Draw every big cached planet/nebula once in the background, in small chunks.
 function prewarm(){
-  const spots=THEME==="sky"?[5300]:TH.up?[1060,1200,1560,2560,3060,3470,3740,4200,4750,5000,5380,5540,5730,5880,6380,6800]:[5300];
+  const spots=isDream()?[5300]:TH.up?[1060,1200,1560,2560,3060,3470,3740,4200,4750,5000,5380,5540,5730,5880,6380,6800]:[5300];
   const off=document.createElement("canvas");off.width=W;off.height=H;const octx=off.getContext("2d");let i=0;
-  const step=()=>{if(i>=spots.length)return;const og=g,oc=cam;g=octx;cam=spots[i]-H/2;try{THEME==="sky"?skyScene(0):TH.up?spaceScene(0):oceanScene(0);}catch(e){}g=og;cam=oc;i++;
+  const step=()=>{if(i>=spots.length)return;const og=g,oc=cam;g=octx;cam=spots[i]-H/2;try{isDream()?skyScene(0):TH.up?spaceScene(0):oceanScene(0);}catch(e){}g=og;cam=oc;i++;
     (window.requestIdleCallback||((f)=>setTimeout(f,30)))(step);};
   setTimeout(step,400);
 }
@@ -3069,7 +3129,7 @@ function learnIn(list){let n=0;const cnt={};for(const m of list||[])if(m&&typeof
     (LEARN[p.q]=cur).push({d,t,k:keys});if(cur.length>300)cur.shift();n++;}
   if(n)store.set("otc.learned5",LEARN);}
 function learnStart(){if(typeof socOn!=="function"||!socOn()||LS.es)return;
-  try{const es=new EventSource(`https://ntfy.sh/${LEARN_TOPIC}/sse?since=12h`);LS.es=es;
+  try{const es=sseOpen(`https://ntfy.sh/${LEARN_TOPIC}/sse?since=12h`);LS.es=es;
     es.onmessage=ev=>{try{const j=JSON.parse(ev.data);if(j.event&&j.event!=="message")return;const m=JSON.parse(j.message);if(m&&Array.isArray(m.a))learnIn(m.a.slice(0,60));}catch(e){}};}catch(e){}
   // re-share what this device has learned now and then (and schedule copies), so new players get it even after the relay forgets
   const share=()=>{if(Date.now()-store.get("otc.learnShared",0)<4*3600e3||!LS.recent.length)return;store.set("otc.learnShared",Date.now());
@@ -3466,7 +3526,7 @@ function home(){
   const done=store.get("oddball.daily."+today(),null),st=store.get("oddball.stats",{played:0,best:0,streak:0}),eb=store.get("oddball.endlessBest",0),bb=store.get("oddball.blitzBest",0),rb=store.get("otc.rendlessBest",0);
   const M=TH.modes,d=new Date(),num=Math.max(1,Math.floor((new Date(today())-new Date("2026-10-29"))/864e5)+1);
   showPanel(`
-    <div class="brand"><div class="logo"><span>ONE IN A</span><span>CUPIDIUM</span></div><div class="tagline">${TH.tag}</div></div>
+    <div class="brand"><div class="logo"><span>ONE IN A</span><span data-mtitle="1">${THEME==="marius"?"BUTT":"CUPIDIUM"}</span></div><div class="tagline">${TH.tag}</div></div>
     <button class="daily m-sun" data-act="${done?"saved":"daily"}">
       <span class="cal"><small>${d.toLocaleString("en-US",{month:"short"}).toUpperCase()}</small><b>${d.getDate()}</b></span>
       <span class="dtxt"><small>TODAY'S MISSION · #${num}</small><b>${M.daily}</b><span>${done?`${done.score} pts · ${zoneAt(done.score*K).n.toLowerCase()}`:`${ROUNDS} prompts · one shot each`}</span></span>
@@ -3556,7 +3616,7 @@ function palettes(){
       <button class="pbtn ${p.id===cur?"on":""}" data-act="pickPal" data-id="${p.id}">${p.id===cur?"SELECTED":"SELECT"}</button></div>`).join("")}</div>
     <p class="hint center">Changes the menus, buttons and glow. DEFAULT follows the space or ocean theme.</p>`);
 }
-function setTheme(t){THEME=t;TH=THEMES[t];store.set("oddball.theme",t);document.body.dataset.theme=t;$("abortBtn").textContent=TH.abort;lastZone="";
+function setTheme(t){if(t!=="marius"&&THEME==="marius")mariusOn(false);THEME=t;TH=THEMES[t];setTimeout(()=>mariusOn(t==="marius"),0);store.set("oddball.theme",t);document.body.dataset.theme=t;$("abortBtn").textContent=TH.abort;lastZone="";
   for(const k in CACHE)delete CACHE[k];buildScene();SC.parts=[];jumpTo(SC.alt);prewarm();}
 
 // ================= Daily / practice =================
@@ -3958,9 +4018,25 @@ const PEER_OPTS={config:{iceServers:[
   {urls:["turn:openrelay.metered.ca:80","turn:openrelay.metered.ca:443","turn:openrelay.metered.ca:443?transport=tcp","turns:openrelay.metered.ca:443"],username:"openrelayproject",credential:"openrelayproject"}]}};
 // Backup route: when a network blocks direct device-to-device links (school/work devices often do),
 // game messages go through ntfy.sh, a free public message relay over normal HTTPS.
+// Live connections to the free relay. A plain EventSource reconnects every few seconds forever when the relay says
+// "slow down", and every retry uses up more of the network's small request allowance, so the relay stays "busy".
+// These back off (8s, 16s … up to 5 min), resume from the last message, and wait while a party game is running.
+const SSE_ALL=new Set();
+function sseOpen(url,opt){opt=opt||{};const o={onmessage:null,onopen:null,onerror:null,closed:false,lastId:null,fails:0,es:null};let timer=null;SSE_ALL.add(o);
+  const connect=()=>{timer=null;if(o.closed)return;
+    if(!opt.party&&typeof N!=="undefined"&&N){timer=setTimeout(connect,20000);return;}// don't compete with the party room for the relay
+    let u=url;if(o.lastId)u=/[?&]since=/.test(u)?u.replace(/([?&])since=[^&]*/,"$1since="+o.lastId):u+(u.includes("?")?"&":"?")+"since="+o.lastId;
+    let es;try{es=new EventSource(u);}catch(e){timer=setTimeout(connect,30000);return;}o.es=es;const t0=Date.now();
+    es.onopen=e=>{o.onopen&&o.onopen(e);};
+    es.onmessage=e=>{try{const j=JSON.parse(e.data);if(j&&j.id&&j.event==="message")o.lastId=j.id;}catch(x){}o.onmessage&&o.onmessage(e);};
+    es.onerror=e=>{try{es.close();}catch(x){}if(o.es===es)o.es=null;o.onerror&&o.onerror(e);if(o.closed||timer)return;
+      o.fails=Date.now()-t0>60000?1:o.fails+1;const lim=Date.now()-(window.__relay429||0)<180000;
+      const d=Math.min(300000,(lim?30000:8000)*Math.pow(2,Math.max(0,o.fails-1)))*(.8+Math.random()*.4);timer=setTimeout(connect,opt.party?Math.min(d,20000):d);};};
+  o.close=()=>{o.closed=true;SSE_ALL.delete(o);clearTimeout(timer);try{o.es&&o.es.close();}catch(x){}};
+  Object.defineProperty(o,"readyState",{get:()=>o.es?o.es.readyState:2});connect();return o;}
 const RELAY="https://ntfy.sh/",rtopic=code=>"offthecharts-v1-room-"+code.toLowerCase();
 function relayOpen(code,me,onMsg){
-  const url=RELAY+rtopic(code),es=new EventSource(url+"/sse");let dead=false,busy=false;const q=[];
+  const url=RELAY+rtopic(code),es=sseOpen(url+"/sse",{party:true});let dead=false,busy=false;const q=[];
   es.onmessage=ev=>{try{const j=JSON.parse(ev.data);if(j.event&&j.event!=="message")return;const m=JSON.parse(j.message);if(!m||m.f===me)return;onMsg(m);}catch(e){}};
   const wait=ms=>new Promise(r=>setTimeout(r,ms));
   const pump=async()=>{if(busy)return;busy=true;
@@ -4296,7 +4372,7 @@ const CUPC="#ff5fd2";
 const PX=.5,sn=v=>Math.round(v/PX)*PX;
 const mR=(x,X,Y,w,h,c)=>{x.fillStyle=c;x.fillRect(sn(X),sn(Y),Math.max(PX,sn(w)),Math.max(PX,sn(h)));};
 function mD(x,cx,cy,r,c){if(r<=0)return;cx=sn(cx);cy=sn(cy);r=Math.max(PX,sn(r));x.fillStyle=c;for(let y=-r;y<=r;y+=PX){const w=sn(Math.sqrt(Math.max(0,r*r-y*y)));x.fillRect(cx-w,cy+y,w*2+PX,PX);}}
-function mT(x,s,X,Y,c,size=8,align="center"){x.font=`${Math.round(size)}px 'OIC Digits', Silkscreen, monospace`;x.textAlign=align;x.textBaseline="middle";
+function mT(x,s,X,Y,c,size=8,align="center"){if(THEME==="marius"&&/cupidium/i.test(s))s=mariusText(s);x.font=`${Math.round(size)}px 'OIC Digits', Silkscreen, monospace`;x.textAlign=align;x.textBaseline="middle";
   if(!/^(#0b1020|rgba\(11)/.test(c)){x.fillStyle="#0b1020";x.fillText(s,sn(X)+PX,sn(Y)+PX);}x.fillStyle=c;x.fillText(s,sn(X),sn(Y));}
 function mGlow(x,cx,cy,r,c,a=.3){if(r<=0)return;x.globalAlpha=a*.35;mD(x,cx,cy,r,c);x.globalAlpha=a*.5;mD(x,cx,cy,r*.66,c);x.globalAlpha=a*.7;mD(x,cx,cy,r*.36,c);x.globalAlpha=1;}
 // pixel "rounded" rectangle: corners notched one pixel
@@ -4474,12 +4550,17 @@ MGAMES.heist={name:"CUPIDIUM HEIST",w:200,h:130,blurb:"Sneak the cupidium vial o
 
 // ---------- 3. CUPIDIUM STACKER ----------
 MGAMES.stack={name:"CUPIDIUM STACKER",w:160,h:240,blurb:"A 3D tower of crystal floors. Drop each floor perfectly, catch cupidium atoms, pick power-ups and find relics on the way up.",
-  controls:"SPACE / ENTER or tap to drop. Whatever hangs over the edge is sliced off. Every 3 atoms you pick a power-up (1 / 2 / 3 or tap): LOCK, SLOW-MO or MEND (+12 size). Rare relic gems give a perk for the rest of the run. 3+ perfects grow your floor. 5 in a row = ONE IN A CUPIDIUM (+1000), 10 in a row = GOD OF CUPIDIUM (+3000).",
+  controls:"SPACE / ENTER or tap to drop. Whatever hangs over the edge is sliced off. Every 3 atoms you pick a power-up (1 / 2 / 3 or tap): LOCK, SLOW-MO or MEND (+12 size), or set the POWER-UPS button below to always take one. Rare relic gems give a perk for the rest of the run. 3+ perfects grow your floor. 5 in a row = ONE IN A CUPIDIUM (+1000), 10 in a row = GOD OF CUPIDIUM (+3000).",
   K:.64,BH:6,BASE:80,MAXW:104,
+  // power-up setting: ask every time, or always take the same one (or a random one)
+  autoMode(){const a=store.get("otc.stack.auto","");return a===true?"random":a||"";},
+  autoLabel(a){return a==="lock"?"ALWAYS LOCK":a==="slow"?"ALWAYS SLOW-MO":a==="mend"?"ALWAYS MEND":a==="random"?"RANDOM":"ASK ME";},
+  get dom(){const a=this.autoMode(),l=store.get("otc.stack.lat",null);
+    return`<div class="row" style="justify-content:center;gap:8px;margin-bottom:6px"><button class="pbtn sm" data-act="stackAuto" id="stAuto">POWER-UPS: ${this.autoLabel(a)}</button><button class="pbtn sm" data-act="stackSync" id="stSync">🎵 SYNC${l!=null?` (${l} ms)`:""}</button></div>`;},
   POW:{lock:{nm:"CUPIDIUM LOCK",d:"next 2 floors line up perfectly",c:"#5eead4"},slow:{nm:"SLOW-MO",d:"next 4 floors slide at half speed",c:"#a78bfa"},mend:{nm:"MEND",d:"top floor grows a little (+12)",c:"#86efac"}},
   REL:{magnet:{nm:"MAGNET",d:"atoms are easier to catch",c:"#f472b6",ic:"🧲"},grip:{nm:"WIDE GRIP",d:"perfects are easier",c:"#facc15",ic:"✋"},
     lucky:{nm:"LUCKY STAR",d:"gold atoms are much more common",c:"#fde047",ic:"⭐"},twin:{nm:"TWIN ATOMS",d:"atoms are worth double",c:"#67e8f9",ic:"✦"}},
-  init(m){m.blocks=[{x:-40,z:-40,w:80,d:80,i:0}];m.cam=0;m.perf=0;m.flash=-1e4;m.chips=[];m.atoms=[];m.cupM=0;m.lock=0;m.slow=0;m.msg=null;m.got=0;m.oic=0;m.god=0;m.rel={};m.choose=null;this.next(m);this.spawnAtom(m,1);},
+  init(m){m.blocks=[{x:-40,z:-40,w:80,d:80,i:0}];m.cam=0;m.perf=0;m.flash=-1e4;m.chips=[];m.atoms=[];m.cupM=0;m.lock=0;m.slow=0;m.msg=null;m.got=0;m.oic=0;m.god=0;m.rel={};m.choose=null;m.hist=[];this.next(m);this.spawnAtom(m,1);if(store.get("otc.stack.lat",null)==null)this.calStart(m);},
   next(m){const top=m.blocks[m.blocks.length-1],ax=m.blocks.length%2?"x":"z";
     m.cur={ax,x:ax==="x"?-130:top.x,z:ax==="z"?-130:top.z,w:top.w,d:top.d,dir:1,lockDrop:m.lock>0};},
   // at most one thing floats over each floor: usually an atom, sometimes a relic gem
@@ -4492,7 +4573,8 @@ MGAMES.stack={name:"CUPIDIUM STACKER",w:160,h:240,blurb:"A 3D tower of crystal f
     if(k==="lock")m.lock=2;else if(k==="slow")m.slow=4;else if(k==="mend"){const top=m.blocks[m.blocks.length-1],W=Math.max(top.w,Math.min(this.BASE,top.w+12)),D=Math.max(top.d,Math.min(this.BASE,top.d+12));
       top.x-=(W-top.w)/2;top.z-=(D-top.d)/2;top.w=W;top.d=D;top.grew=1;this.next(m);}
     this.say(m,P.nm+"!",P.c);sfx.ok(4);},
-  drop(m){if(m.over||m.choose)return;const top=m.blocks[m.blocks.length-1],c=m.cur,ax=c.ax,P=ax==="x"?"x":"z",S=ax==="x"?"w":"d";
+  drop(m){if(m.over||m.choose||m.cal)return;const top=m.blocks[m.blocks.length-1],c=m.cur,ax=c.ax,P=ax==="x"?"x":"z",S=ax==="x"?"w":"d";
+    const lat=store.get("otc.stack.lat",0)||0;if(lat>0&&m.hist&&m.hist.length){const want=performance.now()-lat;let best=null;for(const h of m.hist)if(!best||Math.abs(h[0]-want)<Math.abs(best[0]-want))best=h;if(best&&best[2]===m.blocks.length)c[P]=best[1];}
     const locked=m.lock>0;if(locked){c.x=top.x;c.z=top.z;m.lock--;}if(m.slow>0)m.slow--;
     const l=Math.max(top[P],c[P]),r=Math.min(top[P]+top[S],c[P]+c[S]),ov=r-l,L=m.blocks.length;
     if(ov<=0){m.chips.push({x:c.x,z:c.z,w:c.w,d:c.d,i:L,vy:0,y:0});return mgEnd("IT FELL!",`${L-1} floors · ${m.got} cupidium${m.oic?` · ${m.oic}× one in a cupidium`:""}${m.god?` · ${m.god}× GOD OF CUPIDIUM`:""}`);}
@@ -4514,18 +4596,34 @@ MGAMES.stack={name:"CUPIDIUM STACKER",w:160,h:240,blurb:"A 3D tower of crystal f
       if(a.relic){a.got=1;const Q=this.REL[a.relic];m.rel[a.relic]=1;m.score+=150;this.say(m,`RELIC: ${Q.nm}! ${Q.d}`,Q.c);mBurst(m,sx,sy,22,[Q.c,"#fff"]);sfx.ok(5);burst(30);continue;}
       if(locked)continue;a.got=1;m.got++;const pts=(a.gold?250:40)*(m.rel.twin?2:1);m.score+=pts;
       mPop(m,sx,sy-6,"+"+pts,a.gold?"#fde047":"#ff8fe0");mBurst(m,sx,sy,14,a.gold?["#fde047","#fff"]:[CUPC,"#fff"]);
-      sfx.ok(a.gold?5:4);m.cupM+=m.rel.twin?2:1;if(m.cupM>=3){m.cupM=0;m.choose=this.choices();}}
+      sfx.ok(a.gold?5:4);m.cupM+=m.rel.twin?2:1;if(m.cupM>=3){m.cupM=0;m.choose=this.choices();{const a=this.autoMode();if(a){const ks=m.choose;this.pick(m,a==="random"?ks[Math.floor(Math.random()*ks.length)]:a);}}}}
     m.atoms=m.atoms.filter(a=>a.lv>L&&!a.got);// missed ones vanish with their floor
     if(L%10===0){m.score+=100;if(!m.msg||m.t-m.msg.t>1500)this.say(m,`${L} FLOORS! +100`,"#fde047");}
     this.spawnAtom(m,L+1);this.hudT(m);this.next(m);},
   choices(){return Object.keys(this.POW);},
+  calStart(m){m.cal={t0:performance.now()+1200,iv:700,n:8,taps:[],beat:-1};this.say(m,"","#fff");},
+  calUpdate(m){const C=m.cal,now=performance.now(),k=Math.floor((now-C.t0)/C.iv);
+    if(k>=0&&k<C.n&&k!==C.beat){C.beat=k;tone(k%4===0?880:660,.07,"square",.05);}
+    if(now>C.t0+C.n*C.iv+400){const offs=C.taps.map(tp=>{const b=Math.round((tp-C.t0)/C.iv);return b>=0&&b<C.n?tp-(C.t0+b*C.iv):null;}).filter(v=>v!=null&&Math.abs(v)<350).sort((a,b)=>a-b);
+      m.cal=null;if(offs.length<4){this.say(m,"NOT ENOUGH TAPS · TRY 🎵 SYNC AGAIN","#fca5a5");return;}
+      const med=offs[Math.floor(offs.length/2)],lat=Math.max(0,Math.min(300,Math.round(med)));store.set("otc.stack.lat",lat);
+      const b=$("stSync");if(b)b.textContent=`🎵 SYNC (${lat} ms)`;this.say(m,`SYNCED! DELAY ${lat} MS`,"#86efac");sfx.ok(4);}},
+  calTap(m){const C=m.cal;if(!C)return;C.taps.push(performance.now());mBurst(m,80,120,8,["#ff8fe0","#fff"]);},
+  calDraw(m,x,t){const C=m.cal,now=performance.now();x.globalAlpha=.85;mR(x,0,0,m.W,m.H,"#0a0820");x.globalAlpha=1;
+    mT(x,"SYNC TEST",80,40,"#5eead4",9);mT(x,"Tap (or SPACE) exactly on each beat",80,56,"#e9d5ff",5);mT(x,"when the ring closes on the dot",80,64,"#e9d5ff",5);
+    const k=(now-C.t0)/C.iv,next=Math.max(0,Math.ceil(k-.001)),f=next-k;
+    if(next<C.n){const r=6+f*34;x.strokeStyle="#ff8fe0";x.lineWidth=1.2;x.beginPath();x.arc(80,120,r,0,6.283);x.stroke();}
+    const near=Math.abs(k-Math.round(k))<.08&&k>-.2&&k<C.n;mD(x,80,120,near?7:5,near?"#fde047":"#ff5fd2");
+    mT(x,k<0?"GET READY…":`${Math.min(C.n,Math.max(0,next))} / ${C.n}`,80,160,"#94a3b8",6);
+    for(let i=0;i<C.taps.length&&i<12;i++)mD(x,40+i*7,180,1.6,"#86efac");},
   hudT(m){const L=m.blocks.length-1,rel=Object.keys(m.rel).map(k=>this.REL[k].ic).join("");mgHud(`${L} FLOORS · 💖 ${m.got}${m.oic?` · ✦${m.oic}`:""}${m.god?` · 👑${m.god}`:""}${rel?" · "+rel:""}`);},
   loaded(m){this.hudT(m);},
   // isometric projection: world (x, z) on floor i -> screen
   proj(m,x,z,i){const K=this.K;return[80+(x-z)*.866*K,168+(x+z)*.5*K-i*this.BH+m.cam];},
-  key(m,k,down,first,raw){if(!down||!first)return;if(m.choose){const i="123".indexOf(raw);if(i>=0&&m.choose[i])this.pick(m,m.choose[i]);return;}if(k==="sp"||k==="ent")this.drop(m);},
-  ptr(m,x,y,t){if(t!=="pointerdown")return;if(m.choose){const i=Math.floor((y-84)/40);if(x>=14&&x<=146&&i>=0&&i<m.choose.length&&y>=84)this.pick(m,m.choose[i]);return;}this.drop(m);},
-  update(m,dt){if(m.choose)return;const n=m.blocks.length,c=m.cur,sp=(.05+n*.0035)*dt*(m.lock>0?.6:1)*(m.slow>0?.5:1)*1.25,P=c.ax==="x"?"x":"z";c[P]+=c.dir*sp;
+  key(m,k,down,first,raw){if(!down||!first)return;if(m.cal){if(k==="sp"||k==="ent")this.calTap(m);return;}if(m.choose){const i="123".indexOf(raw);if(i>=0&&m.choose[i])this.pick(m,m.choose[i]);return;}if(k==="sp"||k==="ent")this.drop(m);},
+  ptr(m,x,y,t){if(t!=="pointerdown")return;if(m.cal)return this.calTap(m);if(m.choose){const i=Math.floor((y-84)/40);if(x>=14&&x<=146&&i>=0&&i<m.choose.length&&y>=84)this.pick(m,m.choose[i]);return;}this.drop(m);},
+  update(m,dt){if(m.cal)return this.calUpdate(m);if(m.choose)return;m.hist=m.hist||[];{const P0=m.cur.ax==="x"?"x":"z";m.hist.push([performance.now(),m.cur[P0],m.blocks.length]);if(m.hist.length>40)m.hist.shift();}
+    const n=m.blocks.length,c=m.cur,sp=(.05+n*.0035)*dt*(m.lock>0?.6:1)*(m.slow>0?.5:1)*1.25,P=c.ax==="x"?"x":"z";c[P]+=c.dir*sp;
     if(c[P]>110&&c.dir>0)c.dir=-1;if(c[P]<-130&&c.dir<0)c.dir=1;
     const want=Math.max(0,(n-12)*this.BH);m.cam+=(want-m.cam)*.08;for(const ch of m.chips){ch.vy+=.0009*dt;ch.y+=ch.vy*dt;}m.chips=m.chips.filter(ch=>ch.y<60);},
   col(i,f){const h=(320-i*9)%360;return`hsl(${h},${f===0?78:f===1?65:60}%,${f===0?72:f===1?56:44}%)`;},
@@ -4566,6 +4664,7 @@ MGAMES.stack={name:"CUPIDIUM STACKER",w:160,h:240,blurb:"A 3D tower of crystal f
     for(let i=0;i<3;i++){mD(x,8+i*8,m.H-8,3,"#0b1020");mD(x,8+i*8,m.H-8,2.4,i<m.cupM?CUPC:"#3b2a55");}
     const rel=Object.keys(m.rel);rel.forEach((k,i)=>{const Q=this.REL[k];mD(x,40+i*9,m.H-8,3,Q.c);});
     if(m.lock>0)mT(x,`LOCK ×${m.lock}`,m.W-4,m.H-8,"#5eead4",6,"right");else if(m.slow>0)mT(x,`SLOW ×${m.slow}`,m.W-4,m.H-8,"#a78bfa",6,"right");
+    if(m.cal)return this.calDraw(m,x,t);
     // power-up choice
     if(m.choose){x.globalAlpha=.75;mR(x,0,0,m.W,m.H,"#0a0820");x.globalAlpha=1;mT(x,"PICK A POWER-UP",m.W/2,70,"#5eead4",8);
       m.choose.forEach((k,i)=>{const P=this.POW[k],y=84+i*40;mRR(x,14,y,132,34,4,"#241b40");mR(x,14,y,3,34,P.c);mT(x,`${i+1}  ${P.nm}`,22,y+11,P.c,7,"left");mT(x,P.d,22,y+24,"#e9d5ff",5,"left");});}}};
@@ -5615,14 +5714,14 @@ function cupHub(cat){
 function landing(){
   mgClose();if(N)leaveNet();L=null;S=null;CUP=null;MENU=true;jumpTo(0);SC.parts=[];renderSide(null);
   showPanel(`
-    <div class="brand"><div class="logo"><span>ONE IN A</span><span class="glow cup" style="padding:0 10px">CUPIDIUM</span></div><div class="tagline">TRIVIA · ARCADE · FRIENDS</div></div>
+    <div class="brand"><div class="logo"><span>ONE IN A</span><span class="glow cup" style="padding:0 10px" data-mtitle="1">${THEME==="marius"?"BUTT":"CUPIDIUM"}</span></div><div class="tagline">TRIVIA · ARCADE · FRIENDS</div></div>
     <div class="landing">
       <button class="glass lcard" data-act="otc"><b>OFF THE CHARTS</b><span>The rare answer game. Daily, endless, rapid fire and party.</span><em>PLAY ${TH.up?"▲":"▼"}</em></button>
       <button class="glass lcard cupl" data-act="cuphub"><b><span class="glow cup" style="padding:0 6px">CUPIDIUM ARCADE</span></b><span>Fifteen arcade games about the rarest element in the universe.</span><em>ENTER 💖</em></button>
       <button class="glass lcard casl" data-act="casino"><b><span class="glow cup" style="padding:0 6px">CUPIDIUM CASINO</span></b><span>Blackjack, poker, slots, roulette and more. Play for cupidium chips.</span><em>🎰 ${(typeof casChips==="function"?casChips():1000).toLocaleString()} CHIPS</em></button>
       <button class="glass lcard cpl" data-act="cuepon"><b>DAILY CUEPON</b><span>Three new word puzzles every day, the same for everyone. Keep your streak.</span><em>${typeof cpDoneCount==="function"?cpDoneCount():0}/3 DONE TODAY</em></button>
     </div>
-    <div class="menubar"><button class="pbtn" data-act="leaderboards" data-back="landing" data-k="daily">🏆 LEADERBOARDS</button>${store.get("otc.dev",false)?`<button class="pbtn" data-act="dev">🛠 VISITS</button>`:""}<button class="pbtn" data-act="skins">SKINS</button><button class="pbtn" data-act="palettes">COLORS</button>
+    <div class="menubar"><button class="pbtn" data-act="leaderboards" data-back="landing" data-k="daily">🏆 LEADERBOARDS</button>${store.get("otc.dev",false)?`<button class="pbtn" data-act="dev">🛠 VISITS</button><button class="pbtn" data-act="devChipsGo">🪙 GIVE CHIPS</button>`:""}<button class="pbtn" data-act="skins">SKINS</button><button class="pbtn" data-act="palettes">COLORS</button>
       <div class="glass themeseg">${Object.entries(THEMES).map(([k,t])=>`<button class="${k===THEME?"on":""}" data-act="theme3" data-t="${k}">${t.name}</button>`).join("")}</div>
       <button class="pbtn" data-act="settings" aria-label="Settings">${icon("gear",18)}</button></div>`,{cls:"menu"});
 }
@@ -5631,6 +5730,10 @@ function landing(){
 const ACT={
   home:()=>home(),landing:()=>landing(),atab:b=>cupHub(b.dataset.c),otc:()=>home(),cuphub:()=>cupHub(),mg:b=>mgStart(b.dataset.id),mgQuit:()=>cupHub(),mgAgain:()=>MG&&mgStart(MG.id),
   fightMode:b=>{MGAMES.fight.cfg.mode=b.dataset.v;mgStart("fight");},fightDiff:b=>{MGAMES.fight.cfg.diff=b.dataset.v;mgStart("fight");},fightPl:b=>{MGAMES.fight.cfg.humans=+b.dataset.n;mgStart("fight");},
+  stackAuto:()=>{const G=MGAMES.stack,order=["","lock","slow","mend","random"],a=order[(order.indexOf(G.autoMode())+1)%order.length];store.set("otc.stack.auto",a);
+    const b=$("stAuto");if(b)b.textContent=`POWER-UPS: ${G.autoLabel(a)}`;if(a&&MG&&MG.id==="stack"&&MG.choose)G.pick(MG,a==="random"?MG.choose[Math.floor(Math.random()*MG.choose.length)]:a);
+    toast(a?(a==="random"?"A random power-up will be picked for you":`Always picks ${G.POW[a].nm}`):"You'll choose power-ups");},
+  stackSync:()=>{if(MG&&MG.id==="stack"&&!MG.over){MG.G.calStart(MG);MG.paused=false;$("mgo").hidden=true;}},
   catchN:b=>{MGAMES.catch.humans=+b.dataset.n;mgStart("catch");},theme3:b=>{setTheme(b.dataset.t);landing();},cup:()=>cupIntro(),cupGo:()=>startCup(),daily:()=>startSolo("daily"),practice:()=>startSolo("practice"),endless:()=>runAsk("endless"),rendless:()=>runAsk("rendless"),diffGo:b=>{const d=b.dataset.d;store.set("otc.endDiff",d);$("modal").hidden=true;window.__diffOK=d;const g=b.dataset.g==="1";b.dataset.m==="rendless"?startREndless(false,g):startEndless(false,g);},blitz:()=>startBlitz(),
   runCont:b=>{closeModal();b.dataset.m==="rendless"?startREndless(true,false):startEndless(true,false);},runNew:b=>{closeModal();b.dataset.m==="rendless"?startREndless(false,false):startEndless(false,false);},
   endRun:()=>endRun(),geo:()=>geoMenu(),geoGo:b=>{closeModal();geoGo(b.dataset.m);},geoCont:b=>{closeModal();b.dataset.m==="rendless"?startREndless(true,true):startEndless(true,true);},geoNew:b=>{closeModal();b.dataset.m==="rendless"?startREndless(false,true):startEndless(false,true);},endlessNew:()=>startEndless(),rendlessNew:()=>startREndless(),party:()=>{leaveNet();partyMenu();},
@@ -5676,7 +5779,7 @@ function socBadge(){const b=$("socBtn");if(!b)return;const n=socUnread(),on=Obje
   b.innerHTML=`👥 FRIENDS${on?` <i class="sdot"></i>${on}`:""}${n?`<em>${n}</em>`:""}`;}
 function socStart(){
   if(!socOn()||!SOC.me)return;
-  if(!SOCX.esIn){const es=new EventSource(`${SOC_RELAY}otci-${SOC.me.id}/sse?since=${encodeURIComponent(SOC.lastIn||"12h")}`);SOCX.esIn=es;
+  if(!SOCX.esIn){const es=sseOpen(`${SOC_RELAY}otci-${SOC.me.id}/sse?since=${encodeURIComponent(SOC.lastIn||"12h")}`);SOCX.esIn=es;
     es.onmessage=ev=>{try{socIn(JSON.parse(ev.data));}catch(e){}};}
   clearInterval(SOCX.poll);SOCX.poll=setInterval(()=>{if(document.hidden)return;const chat=SOCX.open&&SOCX.view==="chat";SOCX.pn=(SOCX.pn||0)+1;
     if(SOCX.esIn&&SOCX.esIn.readyState===2){SOCX.esIn=null;socStart();return;}if(typeof N!=="undefined"&&N)return;const live=SOCX.esIn&&SOCX.esIn.readyState===1;if(chat?SOCX.pn%(live?4:2)===0:SOCX.pn%(live?45:8)===0)socPollIn();},4000);
@@ -5703,7 +5806,7 @@ function socAskNotif(){if(typeof Notification!=="undefined"&&Notification.permis
 function socPresence(){
   const ids=Object.keys(SOC.friends).sort(),key=ids.join(",");if(key===SOCX.pTopics&&SOCX.esP)return;SOCX.pTopics=key;
   if(SOCX.esP){SOCX.esP.close();SOCX.esP=null;}if(!ids.length)return;
-  const es=new EventSource(`${SOC_RELAY}${ids.map(i=>"otcp-"+i).join(",")}/sse?since=6m`);SOCX.esP=es;
+  const es=sseOpen(`${SOC_RELAY}${ids.map(i=>"otcp-"+i).join(",")}/sse?since=6m`);SOCX.esP=es;
   es.onmessage=ev=>{try{const j=JSON.parse(ev.data);if(j.event&&j.event!=="message")return;const m=JSON.parse(j.message),f=SOC.friends[m.f];if(!f)return;
     const t=j.time*1000;if(t>=(f.last||0)){f.last=t;f.st=m.st;if(m.n)f.name=String(m.n).slice(0,16);f.doing=m.d?String(m.d).slice(0,40):"";}socSave();socBadge();if(SOCX.open&&SOCX.view==="list")socRender();}catch(e){}};
 }
@@ -5790,7 +5893,7 @@ function pollMerge(vs){let ch=false;for(const id in vs){const v=vs[id];if(!v||!v
   if(!cur||v.ts>cur.ts){POLL.votes[id]={n:String(v.n||"someone").slice(0,16),c:v.c,ts:+v.ts||0};ch=true;}}
   if(ch){store.set("po.poll",POLL.votes);pollRender();}return ch;}
 function pollStart(){if(!pollOn()||POLL.es)return;
-  const es=new EventSource(`${SOC_RELAY}${POLL_TOPIC}/sse?since=12h`);POLL.es=es;
+  const es=sseOpen(`${SOC_RELAY}${POLL_TOPIC}/sse?since=12h`);POLL.es=es;
   es.onmessage=ev=>{try{const j=JSON.parse(ev.data);if(j.event&&j.event!=="message")return;const m=JSON.parse(j.message);
     if(m.k==="vote")pollMerge({[m.id]:m});else if(m.k==="snap")pollMerge(m.votes||{});}catch(e){}};
   setTimeout(pollShare,6000);setInterval(pollShare,3*3600e3);}
@@ -5839,7 +5942,7 @@ function lbSubmit(k,score,latest){score=Math.round(score||0);latest=latest||LB_L
   if(lbOn()&&(!before||score>before.s||latest&&score!==before.s)){socPost(LB_TOPIC,{k:"s",key,r:row});store.set("otc.lbMineSched",0);setTimeout(()=>LB.mine&&LB.mine(true),1500);}
   const rank=(LB.b[key]||[]).findIndex(x=>x.i===LB.id);if(rank>=0&&rank<3&&(!before||score>before.s))setTimeout(()=>toast(`🏆 You're <b>#${rank+1}</b> on the ${esc(lbName(k))} leaderboard!`),900);}
 function lbStart(){if(!lbOn()||LB.es)return;
-  try{const es=new EventSource(`${SOC_RELAY}${LB_TOPIC}/sse?since=12h`);LB.es=es;
+  try{const es=sseOpen(`${SOC_RELAY}${LB_TOPIC}/sse?since=12h`);LB.es=es;
     es.onmessage=ev=>{try{const j=JSON.parse(ev.data);if(j.event&&j.event!=="message")return;const m=JSON.parse(j.message);let ch=false;
       if(m.k==="gift"&&m.to===LB.id&&m.id&&typeof m.amt==="number"&&typeof casChips==="function"){const got=store.get("otc.gifts",[]);if(!got.includes(m.id)){got.push(m.id);store.set("otc.gifts",got.slice(-200));
         casSet(Math.max(0,casChips()+Math.round(m.amt)));toast(m.amt>=0?`🎁 ${esc(String(m.by||"The developer").slice(0,16))} sent you ${Math.round(m.amt).toLocaleString()} casino chips!`:`🪙 The developer removed ${Math.round(-m.amt).toLocaleString()} casino chips`);}return;}
@@ -5922,18 +6025,19 @@ async function devOpen(){if(!store.get("otc.dev",false)){const code=prompt("Deve
         <div class="devt">${list.map(v=>`<div><span>${new Date(v.t).toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"})}</span><b>${esc(v.n||"(no name) "+v.i.slice(0,4))}</b><span>${v.w||""}</span></div>`).join("")}</div>`;})()}
     <p class="hint">Each visit is kept on the relay for about 3 days, and everything this page has seen is saved on this device. A player only shows up once their copy of the game has been updated and they open it on the GitHub site (not the Claude link) on a network that doesn't block ntfy.sh.</p>
     <div class="row"><button class="pbtn sm c m-nova" data-act="dev">↻ REFRESH</button><button class="pbtn sm" data-act="devLock">LOCK DEVELOPER PAGE</button></div></div>`;
-  box.insertAdjacentHTML("afterbegin",`<div class="glass card"><h3 style="font-size:13px">🪙 CASINO CHIPS</h3>
+  box.insertAdjacentHTML("afterbegin",`<div class="glass card" id="devChips"><h3 style="font-size:13px">🪙 CASINO CHIPS</h3>
       <p class="hint">This device has <b>${(typeof casChips==="function"?casChips():0).toLocaleString()}</b> chips.</p>
       <div class="row" style="gap:6px;flex-wrap:wrap"><input id="devAmt" type="number" min="0" placeholder="amount" style="width:120px">
         <button class="pbtn sm c m-nova" data-act="devChips" data-m="give">GIVE</button><button class="pbtn sm" data-act="devChips" data-m="take">REMOVE</button><button class="pbtn sm" data-act="devChips" data-m="set">SET TO</button></div>
-      <div class="row" style="gap:6px;flex-wrap:wrap;margin-top:8px"><select id="devWho" style="flex:1;min-width:160px">${Object.entries(people).filter(([i])=>i!==LB.id).sort((a,b)=>b[1].last-a[1].last).map(([i,p])=>`<option value="${esc(i)}">${esc(p.n||"(no name) "+i.slice(0,4))}</option>`).join("")}</select>
+      <div class="row" style="gap:6px;flex-wrap:wrap;margin-top:8px"><select id="devWho" style="flex:1;min-width:160px"><option value="${esc(LB.id)}">${esc(lbMe()||"me")} (you, this device)</option>${Object.entries(people).filter(([i])=>i!==LB.id).sort((a,b)=>b[1].last-a[1].last).map(([i,p])=>`<option value="${esc(i)}">${esc(p.n||"(no name) "+i.slice(0,4))}</option>`).join("")}</select>
         <button class="pbtn sm c m-sun" data-act="devGift" data-m="give">SEND TO PLAYER</button><button class="pbtn sm" data-act="devGift" data-m="take">TAKE FROM PLAYER</button></div>
       <p class="hint">Sending works on the GitHub version: the player gets it the next time their game is open.</p></div>`);
   const dl=$("devLoad");if(dl)dl.remove();box.insertAdjacentHTML("afterbegin",`<p class="hint">${relayOK?"✓ Connected to the relay.":"⚠ Couldn't reach the relay from this device, so this only shows visits saved earlier."}</p>`);}
 let DEVDAY=null;
-Object.assign(ACT,{devChips:b=>{const a=Math.floor(+($("devAmt")||{}).value||0);if(a<0||!$("devAmt").value)return toast("Type an amount");const c=casChips(),m=b.dataset.m;
+Object.assign(ACT,{devChipsGo:async()=>{await devOpen();const go=()=>{const e=$("devChips");if(e){e.scrollIntoView({behavior:"smooth",block:"start"});const i=$("devAmt");if(i)i.focus({preventScroll:true});}else setTimeout(go,200);};go();},devChips:b=>{const a=Math.floor(+($("devAmt")||{}).value||0);if(a<0||!$("devAmt").value)return toast("Type an amount");const c=casChips(),m=b.dataset.m;
     casSet(m==="give"?c+a:m==="take"?Math.max(0,c-a):a);toast(`Chips: ${casChips().toLocaleString()}`);window.__devNoFetch=true;devOpen();},
   devGift:b=>{const a=Math.floor(+($("devAmt")||{}).value||0),to=($("devWho")||{}).value;if(!a||!to)return toast("Pick a player and an amount");
+    if(to===LB.id){casSet(Math.max(0,casChips()+(b.dataset.m==="take"?-a:a)));toast(`Chips: ${casChips().toLocaleString()}`);window.__devNoFetch=true;return devOpen();}
     socPost(LB_TOPIC,{k:"gift",to,amt:b.dataset.m==="take"?-a:a,by:lbMe()||"the developer",id:Math.random().toString(36).slice(2)});toast(`Sent ${b.dataset.m==="take"?"−":"+"}${a.toLocaleString()} chips`);},
   devDay:b=>{DEVDAY=b.dataset.d;window.__devNoFetch=true;devOpen();},dev:()=>devOpen(),devLock:()=>{store.set("otc.dev",false);landing();}});
 addEventListener("hashchange",()=>{if(location.hash==="#dev")devOpen();});
