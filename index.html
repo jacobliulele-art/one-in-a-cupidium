@@ -417,6 +417,9 @@ b,strong{font-weight:500}
 .hand.mini{min-height:0;gap:4px}.hand.mini .ccard{width:38px;height:54px}.hand.mini .ccard i{font-size:18px}.hand.mini .ccard b{font-size:9px;top:3px;left:4px}.hand.mini .ccard b.br{bottom:3px;right:4px}
 .heboard{text-align:center}.hepot{font-family:var(--head);font-size:12px;letter-spacing:.08em}.hepot b{color:#fde047}
 @media (max-width:560px){.hand.mini .ccard{width:30px;height:44px}.hebots{gap:4px}}
+.casgraph{width:100%;height:auto;margin-top:10px;display:block}
+.helog{font-size:13px;display:flex;flex-direction:column;gap:2px;padding:8px 12px}.helog div{color:var(--muted)}.helog div b{color:#e9d5ff;font-weight:400;font-family:var(--head);font-size:11px;letter-spacing:.06em}.helog .new{color:#fde68a}
+.hes.turn .hen::after{content:" 💭";animation:blink 1s infinite}.hea.enter{animation:aPop .45s cubic-bezier(.2,1.6,.4,1) backwards;font-size:12px}
 </style>
 
 <canvas id="scene"></canvas>
@@ -1541,7 +1544,10 @@ function casBalFx(){const f=BALFX;if(!f)return;BALFX=null;const el=document.quer
   const fl=document.createElement("span");fl.className="balfloat "+(d>0?"up":"down");fl.textContent=(d>0?"+":"−")+Math.abs(d).toLocaleString();box.appendChild(fl);setTimeout(()=>fl.remove(),1400);
   const t0=performance.now(),D=Math.min(900,250+Math.abs(d)/4);const step=now=>{const k=Math.min(1,(now-t0)/D),v=Math.round(f.from+d*(1-Math.pow(1-k,3)));el.textContent=v.toLocaleString();if(k<1&&el.isConnected)requestAnimationFrame(step);};requestAnimationFrame(step);}
 function casChips(){return Math.max(0,Math.floor(store.get("otc.cas.chips",CAS_START)));}
-function casSet(v,won){v=Math.max(0,Math.floor(v));store.set("otc.cas.chips",v);const pk=store.get("otc.cas.peak",CAS_START);if(v>pk){store.set("otc.cas.peak",v);lbSubmit("casPeak",v);}
+function casHist(){return store.get("otc.cas.hist",null)||[[Date.now(),casChips()]];}
+function casSet(v,won){v=Math.max(0,Math.floor(v));store.set("otc.cas.chips",v);
+  {let h=casHist();const last=h[h.length-1];if(!last||last[1]!==v){h.push([Date.now(),v]);if(h.length>600)h=h.filter((x,i)=>i%2===0||i>h.length-100);store.set("otc.cas.hist",h);}}
+  clearTimeout(casSet.t);casSet.t=setTimeout(()=>lbSubmit("casNow",casChips(),true),4000);const pk=store.get("otc.cas.peak",CAS_START);if(v>pk){store.set("otc.cas.peak",v);lbSubmit("casPeak",v);}
   if(won>0){const bw=store.get("otc.cas.bigWin",0);if(won>bw){store.set("otc.cas.bigWin",won);lbSubmit("casWin",won);}}
   const el=document.querySelector(".casbal b"),from=BALFX?BALFX.from:(el?+el.textContent.replace(/[^0-9]/g,""):v);BALFX={from,to:v};setTimeout(casBalFx,30);}
 function casBet(){return Math.max(1,Math.min(casChips()||1,store.get("otc.cas.bet",25)));}
@@ -1567,14 +1573,24 @@ function casBetCustom(){const el=$("betIn");if(!el)return;let n=Math.floor(+Stri
   const bv=$("betv");if(bv){bv.textContent=n.toLocaleString();bv.parentNode.classList.remove("pop");void bv.offsetWidth;bv.parentNode.classList.add("pop");}
   document.querySelectorAll(".casbet .pbtn").forEach(x=>x.classList.toggle("on",x.dataset.v==String(n)));el.value="";el.blur();sfx.tick();}
 let CAS={};
+// line graph of your chips over time
+function casGraph(){const h=casHist().slice();if(h.length<2)h.unshift([h[0][0]-6e4,CAS_START]);const W=520,H=150,P=34;
+  const t0=h[0][0],t1=Math.max(t0+1,h[h.length-1][0]),vs=h.map(x=>x[1]),lo=Math.min(...vs,0),hi=Math.max(...vs,1),X=t=>P+(t-t0)/(t1-t0)*(W-P-8),Y=v=>H-18-(v-lo)/(hi-lo||1)*(H-30);
+  const pts=h.map(x=>`${X(x[0]).toFixed(1)},${Y(x[1]).toFixed(1)}`).join(" "),up=vs[vs.length-1]>=vs[0];const fmt=v=>v>=1e6?(v/1e6).toFixed(1)+"M":v>=1e4?Math.round(v/1e3)+"K":v.toLocaleString();
+  const dt=d=>new Date(d).toLocaleDateString(undefined,{month:"short",day:"numeric"});const grid=[lo,(lo+hi)/2,hi];
+  return`<svg class="casgraph" viewBox="0 0 ${W} ${H}" role="img" aria-label="Chips over time"><defs><linearGradient id="cgf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${up?"#4ade80":"#f87171"}" stop-opacity=".35"/><stop offset="1" stop-color="${up?"#4ade80":"#f87171"}" stop-opacity="0"/></linearGradient></defs>
+    ${grid.map(v=>`<line x1="${P}" x2="${W-8}" y1="${Y(v)}" y2="${Y(v)}" stroke="#ffffff1a"/><text x="${P-4}" y="${Y(v)+4}" text-anchor="end" font-size="11" fill="#94a3b8">${fmt(Math.round(v))}</text>`).join("")}
+    <polygon points="${X(t0)},${Y(lo)} ${pts} ${X(t1)},${Y(lo)}" fill="url(#cgf)"/><polyline points="${pts}" fill="none" stroke="${up?"#4ade80":"#f87171"}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="${X(t1)}" cy="${Y(vs[vs.length-1])}" r="4" fill="#fde047"/><text x="${P}" y="${H-3}" font-size="11" fill="#64748b">${dt(t0)}</text><text x="${W-8}" y="${H-3}" font-size="11" fill="#64748b" text-anchor="end">now</text></svg>`;}
 function casino(){CAS={};const c=casChips(),day=today(),bonus=store.get("otc.cas.bonus","")!==day,broke=c<5;
   showPanel(`${casTop("CUPIDIUM CASINO")}
     <div class="glass card center casbanner"><div class="lbl">YOUR CHIPS</div><div class="big casglow">🪙 ${c.toLocaleString()}</div>
       <div class="hint">peak ${store.get("otc.cas.peak",CAS_START).toLocaleString()} · biggest win ${store.get("otc.cas.bigWin",0).toLocaleString()}</div>
+      ${casGraph()}
       ${bonus?`<button class="pbtn c m-sun" data-act="casBonus" style="margin-top:10px">🎁 CLAIM DAILY ${broke?"BAILOUT 1,000":"BONUS 250"}</button>`:broke?`<p class="hint">Out of chips: come back tomorrow for a bailout.</p>`:""}</div>
     <div class="casgrid">${CAS_GAMES.map(([id,ic,nm,d])=>`<button class="glass casg" data-act="casGo" data-g="${id}"><span class="casic">${ic}</span><b>${nm}</b><span>${d}</span></button>`).join("")}</div>
-    <div class="menubar"><button class="pbtn" data-act="leaderboards" data-back="casino" data-k="casPeak">🏆 CASINO LEADERBOARDS</button></div>
-    <p class="hint center">Chips are just for fun and live on this device. Peak chips and biggest single win go on the leaderboard.</p>`,{cls:"menu"});}
+    <div class="menubar"><button class="pbtn" data-act="leaderboards" data-back="casino" data-k="casNow">🏆 CASINO LEADERBOARDS</button></div>
+    <p class="hint center">Chips are just for fun and live on this device. Current chips, peak chips and biggest single win go on the leaderboards.</p>`,{cls:"menu"});}
 // ---------- BLACKJACK ----------
 const bjVal=h=>{let t=0,a=0;for(const c of h){const v=c.r===12?11:c.r>=8?10:c.r+2;t+=v;if(c.r===12)a++;}while(t>21&&a){t-=10;a--;}return t;};
 const bjSoft=h=>{let t=0,a=0;for(const c of h){t+=c.r===12?11:c.r>=8?10:c.r+2;if(c.r===12)a++;}while(t>21&&a){t-=10;a--;}return a>0&&t<=21;};
@@ -1619,7 +1635,7 @@ function heEquity(hole,board,opp,n=160){const used=new Set([...hole,...board].ma
     for(let o=0;o<opp;o++){const v=heBest([deck[k--],deck[k--],...bd]);if(v>me){best=false;break;}if(v===me)tie++;}if(best)win+=tie?1/(tie+1):1;}return win/n;}
 function heNew(){const bb=Math.max(2,casBet()),c=casChips();if(c<bb)return toast("Not enough chips");const G=CAS.vp=CAS.vp&&CAS.vp.seats?CAS.vp:{btn:-1,hands:0};
   G.bb=bb;G.sb=Math.max(1,Math.floor(bb/2));G.btn=(G.btn+1)%4;G.hands++;const d=casDeck();G.d=d;G.board=[];G.street=0;G.msg="";G.done=false;G.raises=0;G.log=[];
-  G.seats=[{you:1,n:"YOU"},...HE_BOTS.map(b=>({...b}))].map((p,i)=>({...p,i,hole:[d.pop(),d.pop()],in:0,round:0,fold:false,act:"",allin:false}));
+  G.log=[];G.seats=[{you:1,n:"YOU"},...HE_BOTS.map(b=>({...b}))].map((p,i)=>({...p,i,hole:[d.pop(),d.pop()],in:0,round:0,fold:false,act:"",allin:false}));
   const sbI=(G.btn+1)%4,bbI=(G.btn+2)%4;hePut(G,sbI,G.sb,"SMALL BLIND");hePut(G,bbI,G.bb,"BIG BLIND");G.cur=G.bb;G.minR=G.bb;G.turn=(G.btn+3)%4;G.need=new Set([0,1,2,3]);
   G.phase="play";heNext(G);}
 function hePut(G,i,amt,label){const p=G.seats[i];if(p.you){const c=casChips();if(amt>=c){amt=c;p.allin=true;}casSet(c-amt);}p.in+=amt;p.round+=amt;if(label)p.act=label;}
@@ -1628,7 +1644,7 @@ const heLive=G=>G.seats.filter(p=>!p.fold);
 function heNext(G){// whose turn? end the street when everyone still in has matched and acted
   if(heLive(G).length===1)return heShow(G);
   for(let k=0;k<4;k++){const i=(G.turn+k)%4,p=G.seats[i];if(p.fold||p.allin){G.need.delete(i);continue;}
-    if(G.need.has(i)||p.round<G.cur){G.turn=i;if(p.you){G.wait=true;return vp();}G.wait=false;vp();const t0=tok;setTimeout(()=>{if(tok!==t0||CAS.vp!==G)return;heBot(G,i);},650+Math.random()*450);return;}}
+    if(G.need.has(i)||p.round<G.cur){G.turn=i;if(p.you){G.wait=true;return vp();}G.wait=false;vp();const t0=tok;setTimeout(()=>{if(tok!==t0||CAS.vp!==G)return;heBot(G,i);},1500+Math.random()*900);return;}}
   heStreet(G);}
 function heAct(G,i,a,to){const p=G.seats[i],call=G.cur-p.round;G.need.delete(i);
   if(a==="fold"){p.fold=true;p.act="FOLD";sfx.dup();}
@@ -1636,7 +1652,7 @@ function heAct(G,i,a,to){const p=G.seats[i],call=G.cur-p.round;G.need.delete(i);
   else{const prev=G.cur;to=Math.max(to,G.cur+G.minR);hePut(G,i,to-p.round);const nowTo=p.round;
     if(nowTo>prev){G.minR=Math.max(G.minR,nowTo-prev);G.cur=nowTo;G.raises++;G.need=new Set(G.seats.filter(q=>!q.fold&&!q.allin&&q.i!==i).map(q=>q.i));}
     p.act=p.allin?"ALL IN "+p.in:(call>0?"RAISE TO ":"BET ")+nowTo;sfx.ok(1);}
-  G.turn=(i+1)%4;heNext(G);}
+  G.log.push([p.n,p.act]);if(G.log.length>40)G.log.shift();G.turn=(i+1)%4;heNext(G);}
 function heBot(G,i){const p=G.seats[i],opp=heLive(G).length-1,call=G.cur-p.round,pot=hePot(G);
   const e=heEquity(p.hole,G.board,Math.max(1,opp),G.street===0?110:150),odds=call>0?call/(pot+call):0,r=Math.random(),strong=.62-.07*(opp-1)+p.tight;
   const size=f=>G.cur+Math.max(G.minR,Math.round(pot*f/G.sb)*G.sb);
@@ -1649,8 +1665,9 @@ function heStreet(G){G.seats.forEach(p=>{p.round=0;if(!p.fold&&!p.allin)p.act=""
   if(G.street>3)return heShow(G);
   G.need=new Set(G.seats.filter(p=>!p.fold&&!p.allin).map(p=>p.i));G.turn=(G.btn+1)%4;
   // nobody left who can still bet? run the board out
-  if(G.need.size<=1&&heLive(G).some(p=>p.allin)){vp();const t0=tok;return setTimeout(()=>{if(tok===t0&&CAS.vp===G)heStreet(G);},900);}
-  vp();const t0=tok;setTimeout(()=>{if(tok===t0&&CAS.vp===G)heNext(G);},550);}
+  G.log.push(["— "+["","FLOP","TURN","RIVER"][G.street]+" —",""]);
+  if(G.need.size<=1&&heLive(G).some(p=>p.allin)){vp();const t0=tok;return setTimeout(()=>{if(tok===t0&&CAS.vp===G)heStreet(G);},1800);}
+  vp();const t0=tok;setTimeout(()=>{if(tok===t0&&CAS.vp===G)heNext(G);},1400);}
 function heShow(G){G.phase="done";G.done=true;const live=heLive(G);let win;
   if(live.length===1){win=[live[0]];live[0].act="WINS";}
   else{while(G.board.length<5)G.board.push(G.d.pop());live.forEach(p=>p.score=heBest([...p.hole,...G.board]));const top=Math.max(...live.map(p=>p.score));win=live.filter(p=>p.score===top);live.forEach(p=>{p.show=true;p.act=heName(p.score);});}
@@ -1682,6 +1699,7 @@ function vp(){const G=CAS.vp||(CAS.vp={btn:-1,hands:0});const me=G.seats&&G.seat
         <button class="pbtn c m-nova" data-act="heRaise" data-to="${raiseTo(G.cur+pot+call)}">POT ${raiseTo(G.cur+pot+call)}</button>
         <button class="pbtn c m-sun" data-act="heRaise" data-to="${chips+me.round}">ALL IN</button>`:""}</div>`
      :play?`<p class="hint center">Waiting for the bots…</p>`:`${casBetBar()}<div class="row" style="justify-content:center"><button class="pbtn c m-nova" data-act="heDeal">${G.seats?"NEXT HAND":"DEAL"}</button></div>`}
+    ${G.log&&G.log.length?`<div class="glass card helog">${G.log.slice(-6).map((l,i,a)=>`<div class="${i===a.length-1?"new":""}" ${i===a.length-1?`data-ak="lg${G.hands}_${G.log.length}" data-an="enter" data-d="0"`:""}><b>${esc(l[0])}</b> ${esc(l[1])}</div>`).join("")}</div>`:""}
     <p class="hint center">No-limit hold'em. Blinds: your bet ÷ 2 and your bet. Best five cards from your two plus the five on the board.</p>`,{cls:"menu"});}
 // ---------- ATOM SLOTS (3 reels × 3 rows, 5 lines) ----------
 const SL_SYM=[["⚛",1,800],["7️⃣",2,200],["💎",3,100],["💖",5,45],["🔔",6,30],["⭐",7,18],["🍒",9,10]];// symbol, weight, pays (×line bet) for three in a line; 🍒🍒 pays 2 · about 96% return
@@ -3034,18 +3052,22 @@ document.addEventListener("keydown",e=>{if(e.key==="Enter"&&$("nextBtn")&&!$("ca
 
 // ================= Learned answers =================
 // Answers the AI or Wikipedia approved are saved into this device's word bank, so they're instant next time.
-let LEARN=store.get("otc.learned4",{});
-setTimeout(()=>{if(store.get("otc.learnClean1",0))return;for(const q in LEARN)for(const x of LEARN[q])x.k=(x.k||[]).filter(k=>!isFix(k,x.d));store.set("otc.learned4",LEARN);store.set("otc.learnClean1",1);},0);
+let LEARN=store.get("otc.learned5",{});
+setTimeout(()=>{if(store.get("otc.learnClean1",0))return;for(const q in LEARN)for(const x of LEARN[q])x.k=(x.k||[]).filter(k=>!isFix(k,x.d));store.set("otc.learned5",LEARN);store.set("otc.learnClean1",1);},0);
 // ---- shared learning: answers the AI or Wikipedia accepted for anyone get sent to everyone (GitHub version)
-const LEARN_TOPIC="oneinacupidium-learned-v4",LS={es:null,recent:store.get("otc.learnRecent4",[])};
+const LEARN_TOPIC="oneinacupidium-learned-v5",LS={es:null,recent:store.get("otc.learnRecent5",[])};
 function learnShare(p,e){if(typeof socOn!=="function"||!socOn()||!e||!e.display||isClosed(p))return;const m={q:p.q,d:String(e.display).slice(0,40),t:Math.max(0,Math.min(4,e.tier|0)),k:(e.keys||[]).slice(0,4).map(k=>String(k).slice(0,40))};
-  socPost(LEARN_TOPIC,{k:"a",a:[m]});LS.recent.push(m);LS.recent=LS.recent.slice(-200);store.set("otc.learnRecent4",LS.recent);}
-function learnIn(list){let n=0;for(const m of list||[]){if(!m||typeof m.q!=="string"||typeof m.d!=="string")continue;const p=PROMPTS.find(x=>x.q===m.q);if(!p||isClosed(p))continue;
+  socPost(LEARN_TOPIC,{k:"a",a:[m]});LS.recent.push(m);LS.recent=LS.recent.slice(-200);store.set("otc.learnRecent5",LS.recent);}
+// an answer that shows up for lots of unrelated prompts is someone spamming, not knowledge
+function learnSpam(d){const seen=new Set();for(const q in LEARN)if(LEARN[q].some(y=>y.d===d))seen.add(q);return seen.size;}
+function learnIn(list){let n=0;const cnt={};for(const m of list||[])if(m&&typeof m.d==="string"){const d=m.d.toLowerCase();(cnt[d]=cnt[d]||new Set()).add(m.q);}
+  for(const m of list||[]){if(!m||typeof m.q!=="string"||typeof m.d!=="string")continue;const p=PROMPTS.find(x=>x.q===m.q);if(!p||isClosed(p))continue;
+    {const d0=m.d.toLowerCase();if(nameJunk(p,d0)||isPlayerName(d0)||cnt[d0].size+learnSpam(d0)>=3)continue;m.t=Math.min(3,m.t|0);}
     const d=String(m.d).slice(0,40).toLowerCase(),keys=[norm(d)].concat((m.k||[]).map(k=>norm(String(k))).filter(Boolean)).slice(0,5);if(!keys[0]||(p.no&&p.no.has(keys[0])))continue;
     const t=Math.max(0,Math.min(4,parseInt(m.t)||0)),cur=LEARN[p.q]||[];if(cur.some(y=>y.d===d))continue;
     if(p.idx){const known=match(d,p);if(known)continue;p.idx.push({display:d,tier:t,keys,ai:true,learned:1,_wr:1});p._cx=null;}
     (LEARN[p.q]=cur).push({d,t,k:keys});if(cur.length>300)cur.shift();n++;}
-  if(n)store.set("otc.learned4",LEARN);}
+  if(n)store.set("otc.learned5",LEARN);}
 function learnStart(){if(typeof socOn!=="function"||!socOn()||LS.es)return;
   try{const es=new EventSource(`https://ntfy.sh/${LEARN_TOPIC}/sse?since=12h`);LS.es=es;
     es.onmessage=ev=>{try{const j=JSON.parse(ev.data);if(j.event&&j.event!=="message")return;const m=JSON.parse(j.message);if(m&&Array.isArray(m.a))learnIn(m.a.slice(0,60));}catch(e){}};}catch(e){}
@@ -3064,7 +3086,7 @@ function learn(p,e){
   if(!e||!e.display||!e.keys)return e;if(isClosed(p))return e;if(p.no&&p.no.has(norm(e.display)))return e;const a=LEARN[p.q]=LEARN[p.q]||[];
   const x=a.find(y=>y.d===e.display);
   if(x){x.k=[...new Set(x.k.concat(e.keys))].slice(0,8);x.t=e.tier;}else a.push({d:e.display,t:e.tier,k:e.keys.slice(0,8)});
-  if(a.length>300)a.shift();store.set("otc.learned4",LEARN);return e;}
+  if(a.length>300)a.shift();store.set("otc.learned5",LEARN);return e;}
 
 // ================= Smart matching (asks before autocorrecting) =================
 const STOPW=new Set("name a an the of in on at to you d youd would find something famous type kind thing that is with from any our your bring".split(" "));
@@ -3264,7 +3286,8 @@ Reply with only JSON: {"valid": true or false, "name": "standard name", "tier": 
 // The word bank already holds the answers people think of first, so anything that needs checking is rarer than that.
 function bankFloor(p,tier){const n=p.t.reduce((a,t)=>a+(t?t.split("|").length:0),0);const f=n>=200?3:n>=60?2:n>=25?1:0;return Math.max(tier==null?2:tier,f);}
 function applyAI(p,text,res){
-  if(!res.valid)return{invalid:true,why:res.why};if(!isClosed(p))res.tier=bankFloor(p,res.tier);
+  if(!res.valid)return{invalid:true,why:res.why};if(nameJunk(p,text)||nameJunk(p,res.name||""))return{invalid:true,why:"that's a person's name, not an answer to this"};
+  if(!isClosed(p))res.tier=bankFloor(p,res.tier);if(res.tier>3)res.tier=3;
   // keep specific names: "snapping turtle" stays its own answer instead of becoming plain "turtle"
   {const tn=norm(text),rn=norm(res.name||"");if(rn&&tn!==rn&&(" "+tn+" ").includes(" "+rn+" ")&&tn.split(" ").length>rn.split(" ").length)res.name=String(text).trim();}
   idxOf(p);const known=match(res.name,p);
@@ -3285,29 +3308,43 @@ const DOMAIN_RE=/^(?:https?:\/\/)?(?:www\.)?([a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{
 async function siteProbe(text){const m=String(text).trim().match(DOMAIN_RE);if(!m)return null;const dom=m[1].toLowerCase();
   try{const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),5000);await fetch("https://"+dom+"/",{mode:"no-cors",signal:ctl.signal,cache:"no-store"});clearTimeout(to);return{dom,ok:true};}catch(e){return{dom,ok:false};}}
 // Wikipedia full-text search for the exact answer next to what the player says it's from
-async function wikiMention(text,hint){if(!wikiOn())return null;const q=`"${String(text).replace(/"/g,"")}" ${String(hint||"").replace(/"/g,"").slice(0,60)}`;
+async function wikiMention(text,hint,p){if(!wikiOn())return null;const q=`"${String(text).replace(/"/g,"")}" ${String(hint||"").replace(/"/g,"").slice(0,60)}`;
   try{const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),6000);const r=await fetch(`https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(q)}&format=json&srlimit=5&origin=*`,{signal:ctl.signal});clearTimeout(to);
-    const j=await r.json(),hits=(j.query&&j.query.search)||[],want=norm(text);
-    const h=hits.find(x=>(" "+norm(String(x.snippet||"").replace(/<[^>]+>/g,""))+" "+norm(x.title)+" ").includes(" "+want+" "));return h?{title:h.title}:null;}catch(e){return null;}}
+    const j=await r.json(),hits=(j.query&&j.query.search)||[],want=norm(text),kws=p?kwOf(p).filter(k=>k.length>2):[];
+    for(const x of hits){const sn=norm(String(x.snippet||"").replace(/<[^>]+>/g,""));const at=(" "+sn+" ").indexOf(" "+want+" ");if(at<0)continue;
+      const near=sn.slice(Math.max(0,at-60),at+want.length+60);if(kws.length&&!kws.some(k=>near.includes(k)||near.includes(stem(k))))continue;
+      return{title:x.title,snip:near.slice(0,140)};}return null;}catch(e){return null;}}
 // "IT'S REAL!": the player says what it is. Real-world evidence wins; otherwise a lenient second AI look.
 // A second rejection that's only "I don't know it / can't verify it" is overruled, since the player vouched for it.
 async function appealJudge(p,text,hint){
   if(isPlayerName(text))return{invalid:true,why:"that's a player's name, not an answer"};
-  const [site,wm]=await Promise.all([siteProbe(text),wikiMention(text,hint)]);
-  const ev=site&&site.ok?`The website ${site.dom} loads, so it really exists.`:wm?`Wikipedia's article "${wm.title}" mentions "${text}", so it really exists.`:"";
+  if(nameJunk(p,text))return{invalid:true,why:"that's a person's name, not an answer to this"};
+  const isSite=/web ?site|site|domain|url|app\b/i.test(p.q)&&DOMAIN_RE.test(String(text).trim());
+  // evidence has to be about THIS answer AND this kind of thing: a Wikipedia page titled like the answer that fits the prompt,
+  // or a search hit where the exact answer sits right next to one of the prompt's key words
+  const [site,wf,wm]=await Promise.all([isSite?siteProbe(text):null,canWiki(p)?wikiFind(p,text).catch(()=>null):null,wikiMention(text,hint,p)]);
+  const strong=(site&&site.ok)||(wf&&wf.fit);
+  const ev=site&&site.ok?`The website ${site.dom} loads, so it exists.`:wf&&wf.fit?`Wikipedia has a page "${wf.title}" that fits this prompt.`:wm?`Wikipedia's "${wm.title}" says: "${wm.snip}"`:"";
   const r=await judgeAI(p,text,true,null,hint+(ev?" ("+ev+")":""));
-  if(r&&r.display)return r;if(r&&r.error)return r;
-  const why=String(r&&r.why||"");
-  const unsure=/no (evidence|record|known|such)|not (a )?(known|real|recogni|verif|aware|found|exist|famous|notable|widely)|unknown|unverif|can'?t (verify|confirm|find)|doesn'?t (seem to )?exist|isn'?t (a )?(real|known)|made.?up|fictional|unfamiliar|obscure|not sure/i.test(why);
-  if(ev||unsure){const e={display:String(text).trim().toLowerCase().slice(0,40),tier:ev?4:3,keys:[norm(text)],ai:true};buildIndex(p).push(e);p._cx=null;learnShare(p,e);return learn(p,e);}
+  if(r&&r.display){const e=r.orig||r;if(!strong&&e.tier>3)e.tier=3;return r;}
+  if(r&&r.error)return r;
+  if(strong){const e={display:String(text).trim().toLowerCase().slice(0,40),tier:3,keys:[norm(text)],ai:true,appeal:1};buildIndex(p).push(e);p._cx=null;return learn(p,e);}
   return r;}
+// Common first names. "carlos" is not a Hawaiian island, a dinosaur or a winter sport, so a bare name (or a name glued
+// onto a word, like "carlostree") is turned down unless the prompt is actually about people or characters.
+const FIRST_NAMES=new Set("carlos juan jose luis miguel jorge pedro diego mateo alejandro javier fernando ricardo eduardo roberto sergio andres manuel antonio francisco rafael raul oscar hector cesar arturo alberto enrique pablo emilio ernesto gustavo julio marco mario hugo ivan omar adrian daniel david michael james john robert william richard joseph thomas christopher charles matthew anthony donald steven paul andrew joshua kenneth kevin brian george timothy ronald edward jason jeffrey ryan jacob gary nicholas eric jonathan stephen larry justin scott brandon benjamin samuel gregory alexander patrick dennis tyler aaron adam nathan henry zachary douglas peter kyle noah ethan jeremy walter christian keith roger terry sean gerald harold carl arthur lawrence dylan jesse bryan joe billy bruce albert willie gabriel alan wayne elijah randy roy vincent ralph eugene russell bobby louis philip johnny liam oliver lucas aiden caleb owen luke landon jayden grayson levi isaiah carter connor easton colton ezra mary patricia jennifer linda elizabeth barbara susan jessica sarah karen lisa nancy betty margaret sandra ashley kimberly emily donna michelle amanda melissa deborah stephanie rebecca sharon laura cynthia kathleen amy angela shirley anna brenda pamela emma nicole helen samantha katherine christine debra rachel carolyn janet catherine maria heather diane ruth julie olivia joyce kelly lauren christina joan evelyn judith megan andrea cheryl hannah jacqueline martha gloria teresa ann sara kathryn janice abigail alice judy sophia denise doris marilyn danielle beverly isabella theresa diana natalie brittany marie kayla alexis lori ava mia harper amelia ella chloe zoey aubrey addison lillian natalia camila valentina lucia isabel gabriela daniela fernanda alejandra paola mariana ximena carmen rosa juana ana elena luz claudia veronica monica adriana leticia yolanda silvia beatriz lupe pepe chuy paco jaime tomas felipe ramon alfredo armando ruben agustin ignacio joaquin rodrigo emiliano sebastian nicolas gael bryce jaxon ayden brayden kayden jayson jaylen tyrone deshawn darnell jamal tanisha latoya keisha shaniqua mohammed muhammad ahmed ali hassan hussein fatima aisha yusuf ibrahim mustafa priya raj rahul amit vikram arjun anjali deepak sanjay sunil ravi chen hiroshi kenji takeshi haruto mei minho jisoo seojun hyun dmitri sergei vladimir olga natasha svetlana igor boris yuri anastasia giovanni giuseppe francesco alessandro luca matteo lorenzo giulia francesca chiara pierre jacques francois antoine camille hans klaus jurgen stefan wolfgang friedrich sven lars nils bjorn erik ingrid astrid".split(" "));
+const PEOPLE_Q=/famous|character|person|people|singer|artist|actor|actress|rapper|band|player|athlete|youtuber|celebrity|president|king|queen|\bgods?\b|goddess|villain|hero|wizard|witch|pirate|\bdog\b|\bcat\b|robot|duo|baby|nickname|saint|pope|emperor|explorer|scientist|inventor|author|writer|poet|painter|composer|chef|apostle|prophet|disciple|princess|prince|muppet|simpson|spongebob|star wars|harry potter|mario|pokemon|disney|marvel|pixar|grandma|first name|boy name|girl name|kid|wrestler|streamer|comedian|director|model|dancer|ruler|leader|general|astronaut|knight|cartoon|anime|sitcom|fictional|\bname\b(?=.*\bname\b)/i;
+function nameJunk(p,text){const t=norm(text).replace(/ /g,"");if(!t||!p||PEOPLE_Q.test(p.q))return false;
+  if(FIRST_NAMES.has(t))return true;
+  for(const n of FIRST_NAMES)if(n.length>=4&&t.length>n.length&&(t.startsWith(n)||t.endsWith(n))&&t.length-n.length<=6&&!FIRST_NAMES.has(t))return true;return false;}
 function isPlayerName(text){const t=norm(text);if(!t)return false;const ns=[lbMe(),store.get("oddball.name","")];
   try{if(N&&N.players)N.players.forEach(x=>ns.push(x.name));if(N&&N.names)Object.values(N.names).forEach(x=>ns.push(x));}catch(e){}
   return ns.some(n=>{const k=norm(n||"");return k&&k.length>=3&&(t===k||t.startsWith(k)&&t.length-k.length<=4||t.endsWith(k)&&t.length-k.length<=4);});}
 async function judgeAI(p,text,noCache,w,hint){
   if(isPlayerName(text))return{invalid:true,why:"that's a player's name, not an answer"};
+  if(nameJunk(p,text))return{invalid:true,why:"that's a person's name, not an answer to this"};
   if(/web ?site|site|domain|url|app\b/i.test(p.q)&&DOMAIN_RE.test(String(text).trim())&&!hint){const sp=await siteProbe(text);if(sp&&sp.ok)hint="a website; "+sp.dom+" loads, so it really exists";}
-  const cfg=aiCfg(),ck=p.q+"|"+norm(text),cache=store.get("otc.aicache3",{});
+  const cfg=aiCfg(),ck=p.q+"|"+norm(text),cache=store.get("otc.aicache4",{});
   if(!noCache&&cache[ck])return applyAI(p,text,cache[ck]);
   const ex=p.t.slice(0,5).map((s,i)=>`${i}: ${shuffle(s.split("|").filter(Boolean).map(x=>x.split("/")[0]),rng("c"+i+p.q)).slice(0,4).join(", ")}`).join("\n");
   const ask=`Prompt: ${p.q}\nExamples by tier:\n${ex}\nPlayer answer: ${JSON.stringify(text)}${hint?`\nThe player says this comes from / refers to: ${JSON.stringify(String(hint).slice(0,220))}. Use that to identify it (it may be from an anime, manga, game, film, book or another language). The player is appealing a rejection, so give them the benefit of the doubt: accept it if it plausibly exists (real, fictional, slang, regional or in another language) and fits the prompt even loosely. Only reject if you are sure it is made up or clearly does not fit.`:""}${w&&w.fit?`\nWikipedia has a matching article: "${w.title}".`:w?"\nNo matching Wikipedia article was found (it can still be valid: fiction, slang, literal answers).":""}`;
@@ -3330,7 +3367,7 @@ async function judgeAI(p,text,noCache,w,hint){
     }
   }
   const keys=Object.keys(cache);if(keys.length>2000)delete cache[keys[0]];
-  cache[ck]=res;store.set("otc.aicache3",cache);
+  cache[ck]=res;store.set("otc.aicache4",cache);
   return applyAI(p,text,res);
 }
 const BUILTIN_GEMINI_KEY="";
@@ -4306,7 +4343,9 @@ function mgRestore(){if(!MG)return;const sv=store.get(mgSaveKey(MG.id),null);MG.
 setInterval(mgSave,4000);addEventListener("pagehide",mgSave);document.addEventListener("visibilitychange",()=>{if(document.hidden)mgSave();});
 setTimeout(()=>Object.assign(ACT,{mgCont:()=>mgRestore(),mgNew:()=>{if(!MG)return;store.set(mgSaveKey(MG.id),null);MG.paused=false;$("mgo").hidden=true;}}),0);
 function mgPtr(e){if(!MG||!MG.G.ptr||MG.paused)return;if(e.type==="pointerdown")try{MG.c.setPointerCapture(e.pointerId);}catch(x){}const r=MG.c.getBoundingClientRect();MG.G.ptr(MG,(e.clientX-r.left)/r.width*MG.W,(e.clientY-r.top)/r.height*MG.H,e.type);if(e.type==="pointerdown")e.preventDefault();}
-function mgFit(){if(!MG)return;const aw=Math.min(innerWidth-24,900),ah=innerHeight-150,s=Math.max(1,Math.min(aw/MG.W,ah/MG.H));MG.c.style.width=Math.floor(MG.W*s)+"px";MG.c.style.height=Math.floor(MG.H*s)+"px";}
+// the canvas is drawn at (on-screen size × screen density) so text and numbers stay sharp instead of being stretched
+function mgFit(){if(!MG)return;const aw=Math.min(innerWidth-24,900),ah=innerHeight-150,s=Math.max(1,Math.min(aw/MG.W,ah/MG.H));MG.c.style.width=Math.floor(MG.W*s)+"px";MG.c.style.height=Math.floor(MG.H*s)+"px";
+  const S=Math.max(2,Math.min(MG.G.maxS||4,Math.ceil(s*(window.devicePixelRatio||1))));if(MG.S!==S){MG.S=S;MG.c.width=MG.W*S;MG.c.height=MG.H*S;MG.x.setTransform(S,0,0,S,0,0);MG.x.imageSmoothingEnabled=false;}}
 addEventListener("resize",()=>MG&&mgFit());
 function mgLoop(now){if(!MG)return;const dt=Math.min(50,now-MG.last);MG.last=now;
   const live=!MG.over&&!MG.paused&&$("modal").hidden&&!document.hidden;if(live){MG.t+=dt;MG.G.update(MG,dt);}if(!MG)return;const x=MG.x;x.save();if(MG.shk>MG.t)x.translate((Math.random()-.5)*MG.shkA,(Math.random()-.5)*MG.shkA);MG.G.draw(MG,x,MG.t,live?dt:0);x.restore();MG.raf=requestAnimationFrame(mgLoop);}
@@ -4588,19 +4627,31 @@ MGAMES.isit={name:"IS IT CUPIDIUM?",w:240,h:150,blurb:"Real element or made-up? 
 
 // ---------- 6. CUPIDIUM MINER ----------
 MGAMES.miner={name:"CUPIDIUM MINER",w:200,h:150,blurb:"Drill deep, haul ore up to sell, hatch pets, open treasure and rebirth for bigger profits. Cupidium sleeps in the hot, deep rock.",
-  controls:"←↑→↓ / WASD: move or drill any way (no gravity) · touch: hold where you want to go · surface shop: tap or 1–8, E / ESC or ✕ to close · B: dynamite · pets and rebirths multiply every sale",
+  controls:"←↑→↓ / WASD: move or drill any way (no gravity) · touch: hold where you want to go · surface shop: tap it, E / ESC or ✕ closes · B: dynamite · T: teleport to the surface · F: fuel can · pets from eggs boost sales, digging and more",
   T:10,C:20,
   ORE:{11:["COAL",5,"#6b7280"],3:["COPPER",12,"#f59e0b"],4:["SILVER",30,"#e5e7eb"],5:["GOLD",75,"#facc15"],10:["EMERALD",160,"#34d399"],12:["RUBY",240,"#f43f5e"],13:["DIAMOND",420,"#a5f3fc"],6:["CUPIDIUM",600,"#ff5fd2"]},
   ZONES:[[0,"TOPSOIL"],[12,"BEDROCK"],[30,"CRYSTAL CAVES"],[45,"RUBY RIFT"],[55,"MAGMA BELT"],[70,"DIAMOND DEPTHS"],[80,"CUPIDIUM DEEP"]],
-  UP:{drill:{nm:"DRILL",cost:[80,200,450,900,1800]},tank:{nm:"FUEL TANK",cost:[60,160,380,800,1600]},cargo:{nm:"CARGO",cost:[70,180,400,850,1700]},hull:{nm:"HULL",cost:[90,220,500,1000,2000]},light:{nm:"LAMP",cost:[50,150,350,700,1400]},bomb:{nm:"DYNAMITE",cost:[40]},egg:{nm:"PET EGG"},reb:{nm:"REBIRTH"}},
-  UPK:["drill","tank","cargo","hull","light","bomb","egg","reb"],
-  PETS:[["DIRT DOG","common",.1,"#a16207",55],["ROCK CAT","common",.15,"#9ca3af",30],["GEM BUNNY","rare",.35,"#34d399",9],["MAGMA DRAKE","epic",.8,"#f97316",4.5],["CUPID","legendary",2,"#ff5fd2",1.5]],
-  eggCost(m){return 250+m.eggs*150;},rebCost(m){return 4000*(m.reb+1);},
-  mult(m){return(1+m.reb*.5)*(1+(m.pets||[]).slice(0,3).reduce((s,p)=>s+this.PETS[p][2],0));},
+  UP:{drill:{nm:"DRILL",cost:[80,200,450,900,1800]},tank:{nm:"TANK",cost:[60,160,380,800,1600]},cargo:{nm:"CARGO",cost:[70,180,400,850,1700]},hull:{nm:"HULL",cost:[90,220,500,1000,2000]},light:{nm:"LAMP",cost:[50,150,350,700,1400]},
+    bomb:{nm:"DYNAMITE",price:40},tp:{nm:"TELEPORT",price:75},can:{nm:"FUEL CAN",price:45},egg:{nm:"BASIC EGG"},egg2:{nm:"GEM EGG"},egg3:{nm:"CUPID EGG"},reb:{nm:"REBIRTH"}},
+  UPK:["drill","tank","cargo","hull","light","bomb","tp","can","egg","egg2","egg3","reb"],
+  // pets: [name, rarity, colour, what it does]. Your best 3 are equipped automatically.
+  PETS:[["DIRT DOG","common","#a16207",{sell:.1}],["ROCK CAT","common","#9ca3af",{sell:.1,cargo:2}],["MOLE","uncommon","#92400e",{dig:.12,sell:.05}],["FIREFLY","uncommon","#fde047",{lamp:1,sell:.08}],
+    ["FUEL FOX","rare","#fb923c",{fuel:.2,sell:.15}],["GEM BUNNY","rare","#34d399",{sell:.35}],["IRON GOLEM","epic","#94a3b8",{hull:2,cargo:4,sell:.2}],["MAGMA DRAKE","epic","#f97316",{sell:.7,dig:.1}],
+    ["CRYSTAL OWL","legendary","#a5f3fc",{sell:1.2,dbl:.15,lamp:1}],["CUPID","legendary","#ff5fd2",{sell:2,dig:.2}],["CUPIDIUM SPIRIT","mythic","#ffffff",{sell:4,dbl:.3,fuel:.25,dig:.25}]],
+  RAR:{common:"#cbd5e1",uncommon:"#86efac",rare:"#60a5fa",epic:"#c084fc",legendary:"#fde047",mythic:"#ff5fd2"},
+  // odds per egg (same order as PETS)
+  EGGS:{egg:{nm:"BASIC EGG",w:[40,30,14,10,4,1.6,.3,.1,0,0,0]},egg2:{nm:"GEM EGG",w:[0,0,22,22,20,16,10,6,2.6,1.4,0]},egg3:{nm:"CUPID EGG",w:[0,0,0,0,8,18,24,22,13,11,4]}},
+  eggCost(m,k){return k==="egg3"?20000+(m.e3||0)*5000:k==="egg2"?2500+(m.e2||0)*500:250+m.eggs*100;},rebCost(m){return 4000*(m.reb+1);},
+  petPow(k){const e=this.PETS[k][3];return(e.sell||0)+(e.dig||0)*2+(e.fuel||0)*1.5+(e.dbl||0)*3+(e.hull||0)*.1+(e.cargo||0)*.05+(e.lamp||0)*.1;},
+  pst(m){const o={sell:0,dig:0,fuel:0,hull:0,cargo:0,lamp:0,dbl:0};for(const k of (m.pets||[]).slice(0,3)){const e=this.PETS[k]&&this.PETS[k][3];if(e)for(const q in e)o[q]+=e[q];}o.dig=Math.min(.6,o.dig);o.fuel=Math.min(.6,o.fuel);return o;},
+  petDesc(k){const e=this.PETS[k][3],out=[];if(e.sell)out.push(`+${Math.round(e.sell*100)}% sell`);if(e.dig)out.push(`+${Math.round(e.dig*100)}% dig speed`);if(e.fuel)out.push(`-${Math.round(e.fuel*100)}% fuel use`);
+    if(e.dbl)out.push(`${Math.round(e.dbl*100)}% double ore`);if(e.hull)out.push(`+${e.hull} hull`);if(e.cargo)out.push(`+${e.cargo} cargo`);if(e.lamp)out.push(`+${e.lamp} lamp`);return out.join(", ");},
+  mult(m){return(1+m.reb*.5)*(1+this.pst(m).sell);},
   init(m){m.rows=[];m.p={x:10,y:1};m.rp={x:10,y:1};m.lv={drill:0,tank:0,cargo:0,hull:0,light:0};m.bombs=1;m.money=0;m.earned=0;m.load=[];m.cam=0;m.msg=null;m.dig=null;m.walkT=0;m.face=1;
-    m.pets=[];m.eggs=0;m.reb=0;m.maxF=this.maxF(m);m.fuel=m.maxF;m.hp=this.maxHP(m);m.deep=0;this.hud(m);},
-  loaded(m){this.hud(m);},
-  maxF(m){return 50+m.lv.tank*35;},maxHP(m){return 3+m.lv.hull*2;},cap(m){return 6+m.lv.cargo*5;},
+    m.pets=[];m.eggs=0;m.reb=0;m.tps=1;m.cans=1;m.maxF=this.maxF(m);m.fuel=m.maxF;m.hp=this.maxHP(m);m.deep=0;this.hud(m);},
+  loaded(m){// old saves used a different pet list
+    if(!m.petV){m.pets=(m.pets||[]).map(k=>[0,1,5,7,9][k]).filter(k=>k!=null);m.petV=2;m.tps=m.tps||1;m.cans=m.cans||1;}this.hud(m);},
+  maxF(m){return 50+m.lv.tank*35;},maxHP(m){return 3+m.lv.hull*2+this.pst(m).hull;},cap(m){return 10+m.lv.cargo*8+this.pst(m).cargo;},
   hud(m){mgHud(`DEEPEST ${m.deep} m`);},
   tile(m,x,y){if(x<0||x>=this.C)return 9;if(y<2)return 0;while(m.rows.length<=y){const d=m.rows.length-2,row=[];
       for(let i=0;i<this.C;i++){const r=Math.random();let v=1;
@@ -4609,18 +4660,20 @@ MGAMES.miner={name:"CUPIDIUM MINER",w:200,h:150,blurb:"Drill deep, haul ore up t
           else if(d>55&&r<.24)v=8;else if(d>12&&r<.2)v=7;else if(r<.2+Math.min(.3,d*.005))v=2;}
         if(m.rows.length<3)v=m.rows.length<2?0:1;row.push(v);}m.rows.push(row);}return m.rows[y][x];},
   set(m,x,y,v){this.tile(m,x,y);m.rows[y][x]=v;},
-  digTime(m,v){const k=[1,.7,.5,.36,.26,.19][m.lv.drill],pet=(m.pets||[]).slice(0,3).some(p=>p>=2)?.85:1;return(v===2?560:v===8?700:v===6||v===10||v===12||v===13?420:240)*k*pet;},
+  digTime(m,v){const k=[1,.7,.5,.36,.26,.19][m.lv.drill],pet=1-this.pst(m).dig;return(v===2?560:v===8?700:v===6||v===10||v===12||v===13?420:240)*k*pet;},
   say(m,txt,c){m.msg={txt,c,t:m.t};},
   hurt(m,n,why){m.hp-=n;SC.shake=250;sfx.bad();this.say(m,why,"#f87171");if(m.hp<=0)mgEnd("YOUR RIG BROKE",`deepest ${m.deep} m · earned $${m.earned}`);},
   boom(m,cx,cy){for(let y=cy-1;y<=cy+1;y++)for(let x=cx-1;x<=cx+1;x++){if(y<2)continue;const v=this.tile(m,x,y);if(v===9)continue;if(this.ORE[v])this.collect(m,v,x,y);if(v!==0)this.set(m,x,y,0);}
     mBurst(m,cx*10+5,cy*10+5-m.cam,30,["#fb923c","#fde047","#fff"]);SC.shake=300;tone(80,.3,"sawtooth",.06);},
   chest(m,x,y){const R=Math.random(),dep=Math.max(1,y/10);let t;
-    if(R<.15){m.bombs+=2;t="CHEST: +2 DYNAMITE";}else if(R<.27){this.hatch(m,true);return;}else{const c=Math.round((80+Math.random()*220)*dep);m.money+=c;m.earned+=c;m.score=m.earned;t=`CHEST: +$${c}`;}
+    if(R<.12){m.bombs+=2;t="CHEST: +2 DYNAMITE";}else if(R<.2){m.tps=(m.tps||0)+1;t="CHEST: +1 TELEPORT";}else if(R<.3){this.hatch(m,true,y>50?"egg2":"egg");return;}else{const c=Math.round((80+Math.random()*220)*dep);m.money+=c;m.earned+=c;m.score=m.earned;t=`CHEST: +$${c}`;}
     this.say(m,t,"#fde047");mBurst(m,x*10+5,y*10+5-m.cam,26,["#fde047","#fff","#f59e0b"]);sfx.ok(5);burst(30);},
-  hatch(m,free){const w=this.PETS.map(p=>p[4]),tot=w.reduce((a,b)=>a+b,0);let R=Math.random()*tot,k=0;for(let i=0;i<w.length;i++){if(R<w[i]){k=i;break;}R-=w[i];}
-    m.pets.unshift(k);m.pets.sort((a,b)=>this.PETS[b][2]-this.PETS[a][2]);if(m.pets.length>12)m.pets.length=12;const P=this.PETS[k];
-    this.say(m,`${free?"CHEST PET! ":"HATCHED "}${P[0]} (${P[1].toUpperCase()}) +${Math.round(P[2]*100)}%`,P[3]);sfx.ok(k>=3?5:3);if(k>=3)burst(60);this.hud(m);},
-  collect(m,v,x,y){if(v===14)return this.chest(m,x,y);const o=this.ORE[v];if(m.load.length>=this.cap(m)){this.say(m,"CARGO FULL! HEAD UP","#fca5a5");return;}m.load.push(v);this.say(m,`${o[0]} +$${o[1]}`,o[2]);
+  hatch(m,free,egg){const w=this.EGGS[egg||"egg"].w,tot=w.reduce((a,b)=>a+b,0);let R=Math.random()*tot,k=0;for(let i=0;i<w.length;i++){if(R<w[i]){k=i;break;}R-=w[i];}
+    m.pets.unshift(k);m.pets.sort((a,b)=>this.petPow(b)-this.petPow(a));if(m.pets.length>12)m.pets.length=12;const P=this.PETS[k],eq=m.pets.indexOf(k)<3;
+    m.hatchFx={k,t:m.t};this.say(m,`${free?"CHEST PET! ":""}${P[1].toUpperCase()} ${P[0]}! ${this.petDesc(k)}${eq?"":" (not in your top 3)"}`,this.RAR[P[1]]);
+    m.maxF=this.maxF(m);m.hp=Math.min(this.maxHP(m),m.hp+(P[3].hull||0));const big=["epic","legendary","mythic"].includes(P[1]);sfx.ok(big?5:3);if(big)burst(P[1]==="mythic"?160:60);this.hud(m);},
+  collect(m,v,x,y){if(v===14)return this.chest(m,x,y);const o=this.ORE[v];if(m.load.length>=this.cap(m)){this.say(m,"CARGO FULL! HEAD UP (T = TELEPORT)","#fca5a5");return;}m.load.push(v);
+    const dbl=Math.random()<this.pst(m).dbl&&m.load.length<this.cap(m);if(dbl)m.load.push(v);this.say(m,`${dbl?"DOUBLE ":""}${o[0]} +$${o[1]*(dbl?2:1)}`,o[2]);
     mBurst(m,x*10+5,y*10+5-m.cam,v===6?24:8,v===6?[CUPC,"#fff","#ffd1f3"]:[o[2],"#fff"]);v===6?(sfx.ok(5),burst(40)):sfx.ok(2);},
   enter(m,nx,ny){const v=this.tile(m,nx,ny);
     if(v===7){this.boom(m,nx,ny);this.hurt(m,m.lv.hull>=2?0:1,"GAS POCKET!");}
@@ -4630,19 +4683,23 @@ MGAMES.miner={name:"CUPIDIUM MINER",w:200,h:150,blurb:"Drill deep, haul ore up t
     if(m.p.y<=1)this.surface(m);this.hud(m);},
   surface(m){if(m.wasDown){m.shopOff=0;m.wasDown=0;}if(m.load.length){const v=Math.round(m.load.reduce((s,k)=>s+this.ORE[k][1],0)*this.mult(m));m.money+=v;m.earned+=v;m.score=m.earned;this.say(m,`SOLD ${m.load.length} ORE! +$${v}`,"#86efac");m.load=[];sfx.ok(3);}
     m.fuel=m.maxF;m.hp=this.maxHP(m);this.hud(m);},
-  buy(m,k){if(m.p.y>1||m.over)return;const U=this.UP[k];if(k==="bomb"){if(m.money<40)return sfx.dup();m.money-=40;m.bombs++;sfx.ok(1);return this.hud(m);}
-    if(k==="egg"){const c=this.eggCost(m);if(m.money<c){this.say(m,`NEED $${c}`,"#fca5a5");return sfx.dup();}m.money-=c;m.eggs++;return this.hatch(m);}
+  buy(m,k){if(m.p.y>1||m.over)return;const U=this.UP[k];
+    if(U.price){if(m.money<U.price){this.say(m,`NEED $${U.price}`,"#fca5a5");return sfx.dup();}m.money-=U.price;if(k==="bomb")m.bombs++;else if(k==="tp")m.tps=(m.tps||0)+1;else m.cans=(m.cans||0)+1;sfx.ok(1);this.say(m,`+1 ${U.nm}`,"#5eead4");return this.hud(m);}
+    if(this.EGGS[k]){const c=this.eggCost(m,k);if(m.money<c){this.say(m,`${this.EGGS[k].nm} NEEDS $${c.toLocaleString()}`,"#fca5a5");return sfx.dup();}m.money-=c;if(k==="egg")m.eggs++;else if(k==="egg2")m.e2=(m.e2||0)+1;else m.e3=(m.e3||0)+1;return this.hatch(m,false,k);}
     if(k==="reb"){const c=this.rebCost(m);if(m.money<c){this.say(m,`REBIRTH NEEDS $${c}`,"#fca5a5");return sfx.dup();}
       m.reb++;m.money=0;m.lv={drill:0,tank:0,cargo:0,hull:0,light:0};m.rows=[];m.p={x:10,y:1};m.rp={x:10,y:1};m.cam=0;m.load=[];m.maxF=this.maxF(m);m.fuel=m.maxF;m.hp=this.maxHP(m);
       m.score+=1000*m.reb;this.say(m,`REBIRTH ${m.reb}! ALL ORE ×${(1+m.reb*.5).toFixed(1)}`,"#fde047");burst(100);sfx.ok(5);return this.hud(m);}
     const lv=m.lv[k];if(lv>=5)return sfx.dup();const c=U.cost[lv];if(m.money<c){this.say(m,`NEED $${c}`,"#fca5a5");return sfx.dup();}
     m.money-=c;m.lv[k]++;m.maxF=this.maxF(m);m.fuel=m.maxF;m.hp=this.maxHP(m);sfx.ok(4);burst(20);this.say(m,`${U.nm} LV ${m.lv[k]}!`,"#5eead4");this.hud(m);},
   bomb(m){if(!m.bombs||m.p.y<2)return;m.bombs--;this.boom(m,m.p.x,m.p.y+1);this.hud(m);},
-  key(m,k,down,first,raw){if(!down||!first)return;if(m.p.y<=1&&(raw==="e"||raw==="escape")){m.shopOff=m.shopOff?0:1;sfx.tick();return;}if(raw>="1"&&raw<="8"&&!m.shopOff)this.buy(m,this.UPK[+raw-1]);if(raw==="b")this.bomb(m);},
+  // teleport straight to the surface (with your cargo), or top up fuel from a can
+  teleport(m){if(!m.tps||m.p.y<=1)return;m.tps--;mBurst(m,m.p.x*10+5,m.p.y*10+5-m.cam,30,["#a78bfa","#fff","#67e8f9"]);m.p={x:10,y:1};m.rp={x:10,y:1};m.dig=null;sfx.ok(4);this.surface(m);this.say(m,"🌀 TELEPORTED!","#a78bfa");},
+  refuel(m){if(!m.cans||m.fuel>=m.maxF)return;m.cans--;m.fuel=Math.min(m.maxF,m.fuel+m.maxF*.5);sfx.ok(2);this.say(m,"⛽ +50% FUEL","#86efac");this.hud(m);},
+  key(m,k,down,first,raw){if(!down||!first)return;if(m.p.y<=1&&(raw==="e"||raw==="escape")){m.shopOff=m.shopOff?0:1;sfx.tick();return;}if(m.p.y<=1&&!m.shopOff){const i="1234567890-=".indexOf(raw);if(i>=0)this.buy(m,this.UPK[i]);}if(raw==="b")this.bomb(m);if(raw==="t")this.teleport(m);if(raw==="f")this.refuel(m);},
   ptr(m,x,y,t){m.hx=x;m.hy=y;if(t==="pointermove"&&m.tap&&m.tap.down){m.tap.x=x;m.tap.y=y;return;}if(t==="pointerup"&&m.tap){m.tap.down=0;m.tap.hold=0;return;}if(t!=="pointerdown")return;if(m.p.y<=1&&m.shopOff&&x>=4&&x<44&&y>=24&&y<37){m.shopOff=0;sfx.tick();return;}
     if(m.p.y<=1&&!m.shopOff&&x>=168&&x<195&&y>=40&&y<50){m.shopOff=1;sfx.tick();return;}
-    if(m.p.y<=1&&!m.shopOff&&y>=51&&y<122&&x>=6&&x<196){const col=Math.floor((x-6)/47.5),row=y<86?0:1,i=row*4+col;if(col>=0&&col<4)return this.buy(m,this.UPK[i]);return;}if(m.p.y<=1&&!m.shopOff&&y>=38&&y<131)return;
-    if(x>=166&&y>=130&&m.bombs)return this.bomb(m);m.tap={x,y,until:m.t+260,hold:1,down:1};},
+    if(m.p.y<=1&&!m.shopOff&&y>=51&&y<119&&x>=5&&x<197){const col=Math.floor((x-5)/32),row=y<85?0:1,i=row*6+col;if(col>=0&&col<6)return this.buy(m,this.UPK[i]);return;}if(m.p.y<=1&&!m.shopOff&&y>=38&&y<131)return;
+    if(y>=130&&m.p.y>1){if(x>=166&&m.bombs)return this.bomb(m);if(x>=132&&x<164&&m.tps)return this.teleport(m);if(x>=98&&x<130&&m.cans)return this.refuel(m);}m.tap={x,y,until:m.t+260,hold:1,down:1};},
   dirs(m){const k=m.keys,out=[];
     if(m.tap&&(m.tap.hold||m.t<m.tap.until)){const dx=m.tap.x/this.T-(m.p.x+.5),dy=(m.tap.y+m.cam)/this.T-(m.p.y+.5);if(Math.abs(dx)>.6||Math.abs(dy)>.6){const h=[Math.sign(dx),0],v=[0,Math.sign(dy)];
       if(Math.abs(dx)>Math.abs(dy)){out.push(h);if(Math.abs(dy)>.6)out.push(v);}else{out.push(v);if(Math.abs(dx)>.6)out.push(h);}}return out;}
@@ -4652,17 +4709,17 @@ MGAMES.miner={name:"CUPIDIUM MINER",w:200,h:150,blurb:"Drill deep, haul ore up t
     if(d&&d[0])m.face=d[0];
     if(d){const nx=m.p.x+d[0],ny=m.p.y+d[1],v=this.tile(m,nx,ny);
       if(v===9||ny<1){m.dig=null;}
-      else if(d[1]<0&&v===0){m.dig=null;m.walkT+=dt;if(m.walkT>100){m.walkT=0;m.fuel-=.35;this.enter(m,nx,ny);}}
-      else if(v===0){m.dig=null;m.walkT+=dt;if(m.walkT>85){m.walkT=0;m.fuel-=.1;this.enter(m,nx,ny);}}
+      else if(d[1]<0&&v===0){m.dig=null;m.walkT+=dt;if(m.walkT>100){m.walkT=0;m.fuel-=(1-this.pst(m).fuel)*.35;this.enter(m,nx,ny);}}
+      else if(v===0){m.dig=null;m.walkT+=dt;if(m.walkT>85){m.walkT=0;m.fuel-=(1-this.pst(m).fuel)*.1;this.enter(m,nx,ny);}}
       else{if(!m.dig||m.dig.x!==nx||m.dig.y!==ny)m.dig={x:nx,y:ny,p:0,need:this.digTime(m,v)*(d[1]<0?1.35:1),up:d[1]<0};m.dig.p+=dt;
         if(Math.random()<.4)m.fx&&m.fx.length<80&&mBurst(m,nx*10+5-d[0]*4,ny*10+5-d[1]*4-m.cam,1,v===2?"#a8a29e":"#a16207",.6);
-        if(m.dig.p>=m.dig.need){m.fuel-=(v===2?1.6:1)*(m.dig.up?1.3:1);m.dig=null;this.enter(m,nx,ny);tone(140+Math.random()*80,.04,"square",.02);}}}
+        if(m.dig.p>=m.dig.need){m.fuel-=(v===2?1.6:1)*(m.dig.up?1.3:1)*(1-this.pst(m).fuel);m.dig=null;this.enter(m,nx,ny);tone(140+Math.random()*80,.04,"square",.02);}}}
     else{m.dig=null;m.walkT=0;}
     // no gravity: the rig hovers wherever you leave it
     const f=Math.min(1,dt*.02);m.rp.x+=(m.p.x-m.rp.x)*f;m.rp.y+=(m.p.y-m.rp.y)*f;
     const want=Math.max(-16,m.rp.y*this.T-55);m.cam+=(want-m.cam)*Math.min(1,dt*.01);
     if(m.fuel<=0&&m.p.y>1)mgEnd("OUT OF FUEL",`deepest ${m.deep} m · earned $${m.earned} · lost ${m.load.length} ore`);},
-  draw(m,x,t,dt){t=t||0;dt=dt||0;const T=this.T,r0=Math.floor(m.cam/T),depthRow=m.p.y,light=3.2+m.lv.light*1.6;
+  draw(m,x,t,dt){t=t||0;dt=dt||0;const T=this.T,r0=Math.floor(m.cam/T),depthRow=m.p.y,light=3.2+(m.lv.light+this.pst(m).lamp)*1.6;
     mR(x,0,0,m.W,m.H,"#0b0705");
     for(let y=r0;y<r0+17;y++)for(let i=0;i<this.C;i++){const v=this.tile(m,i,y),px=i*T,py=y*T-m.cam;
       if(y<2){mR(x,px,py,T,T,y===0?"#7dd3fc":"#bae6fd");continue;}
@@ -4682,8 +4739,8 @@ MGAMES.miner={name:"CUPIDIUM MINER",w:200,h:150,blurb:"Drill deep, haul ore up t
     mR(x,px+1,py+2,8,6,"#0b1020");mR(x,px+2,py+3,6,4,"#f97316");mR(x,px+2,py+3,6,1,"#fdba74");mR(x,px+3+(m.face>0?2:0),py+3,2,1,"#67e8f9");mR(x,px+2,py+7,6,2,"#334155");mR(x,px+2+spin,py+8,1,1,"#94a3b8");mR(x,px+5+spin,py+8,1,1,"#94a3b8");
     if(d[1]>0){mR(x,px+4,py+9,2,2,"#cbd5e1");mR(x,px+4+spin,py+10,1,1,"#fff");}else if(d[1]<0){mR(x,px+3,py,4,2,"#67e8f9");if(spin)mR(x,px+2,py+9,6,1,"#fde047");}
     else{const sx=m.face>0?px+9:px-1;mR(x,sx,py+4,2,2,"#cbd5e1");mR(x,sx+(m.face>0?1:0),py+4+spin,1,1,"#fff");}
-    (m.pets||[]).slice(0,3).forEach((k,i)=>{const P=this.PETS[k],bx=px+5-m.face*(9+i*7),by=py+4+Math.sin(t*.008+i*1.7)*2;mR(x,bx-2,by-1,5,4,"#0b1020");mR(x,bx-1,by,3,2,P[3]);mR(x,bx+(m.face>0?1:-1),by,1,1,"#fff");
-      if(k===4){mGlow(x,bx,by,5,P[3],.4);}});
+    (m.pets||[]).slice(0,3).forEach((k,i)=>{const P=this.PETS[k];if(!P)return;const bx=px+5-m.face*(9+i*7),by=py+4+Math.sin(t*.008+i*1.7)*2;mR(x,bx-2,by-1,5,4,"#0b1020");mR(x,bx-1,by,3,2,P[2]);mR(x,bx+(m.face>0?1:-1),by,1,1,"#fff");
+      if(["legendary","mythic"].includes(P[1])){mGlow(x,bx,by,5,this.RAR[P[1]],.4+.2*Math.sin(t*.01));}});
     mFx(m,x,dt);
     // HUD: one tidy strip with labelled bars on the left, depth and money on the right
     const bar=(lx,y,w,f,c,lab,val)=>{mT(x,lab,lx,y+1,"#94a3b8",3.6,"left");const bx=lx+15;mR(x,bx,y-1,w,4,"#1e1b3a");mR(x,bx,y-1,Math.max(0,Math.min(1,f))*w,4,c);mR(x,bx,y-1,Math.max(0,Math.min(1,f))*w,1,"#ffffff44");if(val)mT(x,val,bx+w+2,y+1,"#e5e7eb",3.6,"left");};
@@ -4696,25 +4753,33 @@ MGAMES.miner={name:"CUPIDIUM MINER",w:200,h:150,blurb:"Drill deep, haul ore up t
     mT(x,`$${m.money.toLocaleString()}`,195,7,"#fde68a",5.5,"right");mT(x,`${Math.max(0,(m.p.y-1)*5)} m · ${zone}`,195,15,"#c4b5fd",3.8,"right");
     if(full&&m.p.y>1&&((t/400)|0)%2)mT(x,"CARGO FULL · HEAD UP ▲",100,27,"#fca5a5",4.5);
     // dynamite button
-    if(m.bombs){mRR(x,166,131,31,16,4,"#450a0a");mRR(x,167,132,29,14,3,"#991b1b");mT(x,`💣 ×${m.bombs}`,181.5,139,"#fff",5);mT(x,"B",193,134.5,"#fca5a5",3);}
+    if(m.p.y>1){const btn=(bx,c1,c2,txt,key,on)=>{x.globalAlpha=on?1:.35;mRR(x,bx,131,31,16,4,c1);mRR(x,bx+1,132,29,14,3,c2);mT(x,txt,bx+15.5,139,"#fff",4.6);mT(x,key,bx+27,134.5,"#ffffffaa",3);x.globalAlpha=1;};
+      btn(166,"#450a0a","#991b1b",`💣 ×${m.bombs}`,"B",m.bombs>0);btn(132,"#2e1065","#6d28d9",`🌀 ×${m.tps||0}`,"T",(m.tps||0)>0);btn(98,"#052e16","#15803d",`⛽ ×${m.cans||0}`,"F",(m.cans||0)>0);}
     // shop at the surface: two neat rows of cards
     if(m.p.y<=1&&m.shopOff){mRR(x,4,24,40,13,4,"#1c1636");mR(x,6,24,36,1,"#5eead4");mT(x,"🛒 SHOP",24,30.5,"#5eead4",4.5);}
     if(m.p.y<=1&&!m.shopOff){mRR(x,3,38,194,92,5,"#0b1020ee");mR(x,4,38,192,1,"#5eead4");
       mT(x,"SURFACE SHOP",8,45,"#5eead4",5,"left");mT(x,"ore sold · refilled",150,45,"#64748b",3.6,"right");
       const hc=m.hx>=168&&m.hx<195&&m.hy>=40&&m.hy<50;mRR(x,168,40,27,10,3,hc?"#7f1d1d":"#2a2046");mT(x,"✕ CLOSE",181.5,45,"#fecaca",3.8);
-      this.UPK.forEach((k,i)=>{const U=this.UP[k],sp=k==="bomb"||k==="egg"||k==="reb",lv=sp?0:m.lv[k],max=!sp&&lv>=5,
-          c=max?0:k==="bomb"?40:k==="egg"?this.eggCost(m):k==="reb"?this.rebCost(m):U.cost[lv],can=max||m.money>=c,
-          col=i%4,row=(i/4)|0,bx=6+col*47.5,by=51+row*37,hov=m.hx>=bx&&m.hx<bx+45&&m.hy>=by&&m.hy<by+34;
-        const ac=k==="reb"?"#facc15":k==="egg"?"#f472b6":k==="bomb"?"#f87171":"#a78bfa";
-        mRR(x,bx,by,45,34,4,max?"#151029":hov?"#2e2552":"#1c1636");mR(x,bx+2,by,41,1,can&&!max?ac:"#3b2d63");
-        mT(x,k==="reb"?"REBIRTH":k==="egg"?"PET EGG":U.nm,bx+3,by+6,can?"#f5f3ff":"#94a3b8",4,"left");mT(x,String(i+1),bx+42,by+6,"#475569",3.4,"right");
-        if(sp)mT(x,k==="bomb"?`have ${m.bombs}`:k==="egg"?`${(m.pets||[]).length} pets`:`next: sell ×${(1+(m.reb+1)*.5).toFixed(1)}`,bx+3,by+14,"#cbd5e1",3.5,"left");
-        else for(let j=0;j<5;j++)mR(x,bx+3+j*6,by+12,5,3,j<lv?ac:"#3b2d63");
-        mRR(x,bx+3,by+21,39,10,3,max?"#1e1b3a":can?"#14532d":"#2a2046");
-        mT(x,max?"MAX":"$"+(c>=1e4?(c/1000).toFixed(0)+"K":c.toLocaleString()),bx+22.5,by+26.5,max?"#fde047":can?"#bbf7d0":"#94a3b8",4.5);});
-      const pt=(m.pets||[]).slice(0,3);mT(x,"PETS",8,126,"#64748b",3.6,"left");
-      if(pt.length)pt.forEach((k,i)=>{const P=this.PETS[k];mD(x,26+i*56,125.5,2,P[3]);mT(x,`${P[0]} +${Math.round(P[2]*100)}%`,30+i*56,126,"#e9d5ff",3.4,"left");});
-      else mT(x,"none yet: buy a PET EGG to boost every sale",24,126,"#94a3b8",3.4,"left");}
+      this.UPK.forEach((k,i)=>{const U=this.UP[k],egg=this.EGGS[k],sp=!!(U.price||egg||k==="reb"),lv=sp?0:m.lv[k],max=!sp&&lv>=5,
+          c=max?0:U.price||(egg?this.eggCost(m,k):k==="reb"?this.rebCost(m):U.cost[lv]),can=max||m.money>=c,
+          col=i%6,row=(i/6)|0,bx=5+col*32,by=51+row*34,hov=m.hx>=bx&&m.hx<bx+30&&m.hy>=by&&m.hy<by+32;
+        const ac=k==="reb"?"#facc15":egg?["#cbd5e1","#60a5fa","#ff5fd2"][["egg","egg2","egg3"].indexOf(k)]:U.price?"#5eead4":"#a78bfa";
+        mRR(x,bx,by,30,32,4,max?"#151029":hov?"#2e2552":"#1c1636");mR(x,bx+2,by,26,1,can&&!max?ac:"#3b2d63");
+        const nm=k==="reb"?"REBIRTH":U.nm;mT(x,nm.split(" ")[0],bx+15,by+5.5,can?"#f5f3ff":"#94a3b8",3.6);if(nm.includes(" "))mT(x,nm.split(" ").slice(1).join(" "),bx+15,by+10,can?"#e9d5ff":"#94a3b8",3.2);
+        if(k==="bomb"||k==="tp"||k==="can")mT(x,`have ${k==="bomb"?m.bombs:k==="tp"?m.tps||0:m.cans||0}`,bx+15,by+16,"#cbd5e1",3.3);
+        else if(egg){const best=this.PETS[egg.w.reduce((bi,w,j)=>w>0?j:bi,0)];mT(x,"up to",bx+15,by+14.5,"#64748b",3);mT(x,best[1].toUpperCase(),bx+15,by+18.5,this.RAR[best[1]],3.2);}
+        else if(k==="reb")mT(x,`sell ×${(1+(m.reb+1)*.5).toFixed(1)}`,bx+15,by+16,"#fde68a",3.3);
+        else for(let j=0;j<5;j++)mR(x,bx+3.5+j*4.8,by+14,4,2.6,j<lv?ac:"#3b2d63");
+        mRR(x,bx+2,by+22,26,8,3,max?"#1e1b3a":can?"#14532d":"#2a2046");
+        mT(x,max?"MAX":"$"+(c>=1e4?(c/1000).toFixed(0)+"K":c>=1e3?(c/1000).toFixed(1).replace(".0","")+"K":c),bx+15,by+26,max?"#fde047":can?"#bbf7d0":"#94a3b8",4);});
+      const pt=(m.pets||[]).slice(0,3);mT(x,"PETS",8,124,"#64748b",3.6,"left");
+      if(pt.length){const P=this.PETS[pt[0]];mT(x,`${pt.map(k=>this.PETS[k][0]).join(" · ")}`,24,124,"#e9d5ff",3.4,"left");const st=this.pst(m),parts=[];if(st.sell)parts.push(`+${Math.round(st.sell*100)}% sell`);if(st.dig)parts.push(`+${Math.round(st.dig*100)}% dig`);if(st.fuel)parts.push(`-${Math.round(st.fuel*100)}% fuel`);if(st.dbl)parts.push(`${Math.round(st.dbl*100)}% double ore`);if(st.hull)parts.push(`+${st.hull} hull`);if(st.cargo)parts.push(`+${st.cargo} cargo`);if(st.lamp)parts.push(`+${st.lamp} lamp`);
+        mT(x,"TOTAL: "+parts.join(", "),8,129.5,"#86efac",3.2,"left");}
+      else mT(x,"none yet: hatch an egg (better eggs, rarer pets)",24,124,"#94a3b8",3.4,"left");}
+    // egg hatch reveal
+    if(m.hatchFx&&m.t-m.hatchFx.t<2400){const P=this.PETS[m.hatchFx.k],k=(m.t-m.hatchFx.t)/2400,rc=this.RAR[P[1]],sc=Math.min(1,k*6);x.globalAlpha=Math.min(1,(1-k)*5);
+      mRR(x,40,44,120,60,6,"#0b1020f2");mR(x,42,44,116,1.5,rc);mT(x,P[1].toUpperCase()+"!",100,52,rc,5);mGlow(x,100,70,14*sc,rc,.5);mD(x,100,70,7*sc,"#0b1020");mD(x,100,70,6*sc,P[2]);mR(x,97,68,2,2,"#fff");mR(x,101,68,2,2,"#fff");
+      mT(x,P[0],100,86,"#fff",5.5);mT(x,this.petDesc(m.hatchFx.k),100,95,"#86efac",3.6);x.globalAlpha=1;}
     if(m.msg&&m.t-m.msg.t<1500){const k=m.t-m.msg.t,sur=m.p.y<=1,y=sur?140:34,cx=sur?82:100,sz=m.msg.txt.length>26?5:6,w=Math.min(sur?158:196,m.msg.txt.length*sz*.62+12);x.globalAlpha=Math.min(1,(1500-k)/300);
       mRR(x,cx-w/2,y-6,w,12,4,"#0b1020e6");mR(x,cx-w/2+3,y+5,w-6,1,m.msg.c);mT(x,m.msg.txt,cx,y,m.msg.c,sz);x.globalAlpha=1;}}};
 
@@ -4731,7 +4796,7 @@ MGAMES.defense={name:"CUPIDIUM DEFENSE",w:400,h:250,blurb:"Bloon-style tower def
       paths:[[[-12,110],[88,110],[88,26],[230,26],[230,150],[140,150],[140,62],[268,62],[268,196],[312,196]]]},
     {id:"core",nm:"CORE CROSSING",lvl:"ADVANCED",bg:["#10172a","#141d33"],path:["#52627a","#3d4b63"],deco:"circuit",
       paths:[[[-12,40],[112,40],[112,112],[312,112]],[[-12,184],[182,184],[182,112],[312,112]]]}],
-  DIFF:[{nm:"EASY",cash:650,lives:200,hp:.85,price:.85,win:30,sc:1},{nm:"MEDIUM",cash:650,lives:150,hp:1,price:1,win:40,sc:1.5},{nm:"HARD",cash:650,lives:100,hp:1.12,price:1.08,win:50,sc:2.2}],
+  DIFF:[{nm:"EASY",cash:850,lives:200,hp:.85,price:.85,win:30,sc:1,pay:1.6},{nm:"MEDIUM",cash:800,lives:150,hp:1,price:1,win:40,sc:1.5,pay:1.4},{nm:"HARD",cash:750,lives:100,hp:1.12,price:1.08,win:50,sc:2.2,pay:1.25}],
   // ---------- heartlings (layered like bloons: pop one and the next layer pops out) ----------
   EN:{R:{nm:"Red",hp:1,sp:32,r:3.6,c:"#ef4444",kids:[]},B:{nm:"Blue",hp:1,sp:44,r:3.8,c:"#3b82f6",kids:["R"]},G:{nm:"Green",hp:1,sp:58,r:4,c:"#22c55e",kids:["B"]},
     Y:{nm:"Yellow",hp:1,sp:100,r:4.1,c:"#facc15",kids:["G"]},P:{nm:"Pink",hp:1,sp:112,r:4.2,c:"#f472b6",kids:["Y"]},
@@ -4798,8 +4863,26 @@ MGAMES.defense={name:"CUPIDIUM DEFENSE",w:400,h:250,blurb:"Bloon-style tower def
       A:[["BIGGER RADIUS",400,"Boosts a bigger area.",s=>{s.vr+=16;}],["PRIMARY TRAINING",800,"Nearby towers get +1 pierce and more range.",s=>{s.bPierce=1;s.bRng=1.18;}],
          ["JUNGLE DRUMS",1500,"Nearby towers attack 15% faster.",s=>{s.bRate=.85;}],["HEART TEMPLE",9000,"Nearby towers get +1 damage and attack faster.",s=>{s.bDmg=1;s.bRate=.7;}]],
       B:[["RADAR SCANNER",900,"Nearby towers see camo.",s=>{s.bCamo=1;}],["CUPID INTEL",2500,"Nearby towers can pop every type (lead, black, white).",s=>{s.bAll=1;}],
-         ["OVERDRIVE",5000,"Nearby towers attack 25% faster.",s=>{s.bRate=Math.min(s.bRate||1,.75);}],["CALL OF CUPID",12000,"Nearby towers get +2 damage and +2 pierce.",s=>{s.bDmg=2;s.bPierce=(s.bPierce||0)+2;}]]}},
-  ORDER:["dart","tack","bomb","frost","sniper","tesla","wizard","farm","village"],
+         ["OVERDRIVE",5000,"Nearby towers attack 25% faster.",s=>{s.bRate=Math.min(s.bRate||1,.75);}],["CALL OF CUPID",12000,"Nearby towers get +2 damage and +2 pierce.",s=>{s.bDmg=2;s.bPierce=(s.bPierce||0)+2;}]]},
+    cowboy:{nm:"CUPID COWBOY",c:"#f59e0b",cost:550,d:"Every few shots it's payday: earns 💖 while it fights.",
+      base:{rng:60,rate:1100,dmg:1,proj:"bullet",dt:"sharp",cashEvery:4,cashAmt:12},
+      A:[["LUCKY SPURS",350,"Paydays give 20 💖.",s=>{s.cashAmt=20;}],["GOLD RUSH",900,"Payday every 3 shots, 30 💖.",s=>{s.cashEvery=3;s.cashAmt=30;}],
+         ["BOUNTY HUNTER",2200,"60 💖 per payday and +1 damage.",s=>{s.cashAmt=60;s.dmg+=1;}],["HEART TYCOON",7000,"100 💖 per payday.",s=>{s.cashAmt=100;}]],
+      B:[["QUICK DRAW",250,"Shoots 25% faster (more paydays).",s=>{s.rate*=.75;}],["SHARPSHOOTER",700,"+2 damage and sees camo.",s=>{s.dmg+=2;s.camo=1;}],
+         ["SILVER BULLETS",1800,"Pops lead, +2 damage, shoots faster.",s=>{s.lead=1;s.dmg+=2;s.rate*=.75;}],["HIGH NOON",5000,"Twice as fast, 8 damage.",s=>{s.rate*=.5;s.dmg=8;}]]},
+    commander:{nm:"COMMANDER",c:"#93c5fd",cost:650,d:"Nearby towers attack 10% faster.",
+      base:{vr:40,proj:"none",bRate:.9},
+      A:[["BIGGER SQUAD",350,"Commands a bigger area.",s=>{s.vr+=14;}],["DRILL SERGEANT",800,"Nearby towers attack 18% faster.",s=>{s.bRate=.82;}],
+         ["FIELD MARSHAL",2600,"Nearby towers attack 28% faster.",s=>{s.bRate=.72;}],["SUPREME COMMAND",8000,"40% faster and +1 damage nearby.",s=>{s.bRate=.6;s.bDmg=1;}]],
+      B:[["SCOUTS",400,"Nearby towers see camo.",s=>{s.bCamo=1;}],["SUPPLY LINES",900,"Nearby towers get +8% range.",s=>{s.bRng=1.08;}],
+         ["SHARPENED STEEL",2000,"Nearby towers get +1 pierce.",s=>{s.bPierce=1;}],["WAR CRY",6000,"Nearby towers hit everything (lead, black, white).",s=>{s.bAll=1;}]]},
+    minigun:{nm:"MINIGUNNER",c:"#e5e7eb",cost:900,d:"A non-stop stream of bullets at one target.",
+      base:{rng:56,rate:150,dmg:1,pierce:1,proj:"dart",spd:420,n:1,spread:.06,dt:"sharp"},
+      A:[["HOT BARRELS",500,"Shoots 20% faster.",s=>{s.rate*=.8;}],["DEPLETED ROUNDS",1500,"Pops lead and +1 damage.",s=>{s.lead=1;s.dmg+=1;}],
+         ["INCENDIARY",3500,"+2 damage and +1 pierce.",s=>{s.dmg+=2;s.pierce+=1;}],["SPIN TO WIN",9000,"Twice as fast.",s=>{s.rate*=.5;}]],
+      B:[["LASER SIGHT",400,"More range.",s=>{s.rng+=12;}],["THERMAL SCOPE",900,"Sees camo.",s=>{s.camo=1;}],
+         ["TWIN BARRELS",2800,"Fires 2 bullets at a time.",s=>{s.n=2;}],["GATLING GOD",8000,"3 bullets and +3 damage.",s=>{s.n=3;s.dmg+=3;}]]}},
+  ORDER:["dart","tack","bomb","frost","sniper","tesla","wizard","minigun","cowboy","farm","village","commander"],
   TGT:["FIRST","LAST","STRONG","CLOSE"],
   // ---------- rounds 1-40 (letters = heartling type, c camo, g regrow, f fortified; count:spacing ms; @ms = start time) ----------
   ROUNDS:["R20:520","R35:420","R25:420,B5:650@5500","R35:360,B18:600@2000","R5:500,B27:460","R15:450,B15:450@1500,G4:900@3500","R20:400,B20:400@2000,G5:800@6000","R10:400,B20:350@1000,G14:500@5000",
@@ -4824,7 +4907,7 @@ MGAMES.defense={name:"CUPIDIUM DEFENSE",w:400,h:250,blurb:"Bloon-style tower def
       for(let i=0;i<cnt;i++)out.push({t:st+i*gap,k,camo:mods.includes("c"),rg:mods.includes("g"),fort:mods.includes("f")});tPrev=st+cnt*gap;}
     return out.sort((a,b)=>a.t-b.t);},
   // ---------- setup ----------
-  loaded(m){if(m.state==="play"){m.map=this.MAPS[m.mapI];m.bg=this.paintBg(m);m.placing=null;m.sel=null;
+  loaded(m){if(m.state==="play"){(m.en||[]).forEach(e=>{if(e.r==null)e.r=(this.EN[e.k]||{}).r||4;});m.map=this.MAPS[m.mapI];m.bg=this.paintBg(m);m.placing=null;m.sel=null;
     const byId=new Map(m.en.map(e=>[e.id,e]));for(const q of m.pr||[])if(q.t&&q.t.id)q.t=byId.get(q.t.id)||null;}this.hud(m);},
   init(m){m.state="menu";m.mapI=store.get("otc.td.map",0);m.diffI=store.get("otc.td.diff",1);m.hx=-1;m.hy=-1;m.msg="";this.hud(m);},
   begin(m){const M=this.MAPS[m.mapI],D=this.DIFF[m.diffI];store.set("otc.td.map",m.mapI);store.set("otc.td.diff",m.diffI);
@@ -4838,11 +4921,18 @@ MGAMES.defense={name:"CUPIDIUM DEFENSE",w:400,h:250,blurb:"Bloon-style tower def
     e.x=g.a[0]+(g.b[0]-g.a[0])*f;e.y=g.a[1]+(g.b[1]-g.a[1])*f;e.ang=Math.atan2(g.b[1]-g.a[1],g.b[0]-g.a[0]);},
   spawn(m,k,o){const E=this.EN[k],fortOK=o.fort&&(k==="L"||k==="C"||E.moab),freeHp=m.round>m.dif.win?1+(m.round-m.dif.win)*.06:1;
     const hp=(fortOK?E.fort:E.hp)*(E.moab||k==="C"?m.dif.hp*freeHp:1);
-    const e={id:++m.eid,k,hp,mx:hp,d:o.d||0,p:o.p||0,si:0,camo:!!o.camo,rg:!!o.rg,top:o.top||k,fort:fortOK,frz:0,slowT:0,slow:1,stun:0,hitT:0,x:-20,y:-20,ang:0};
+    const e={id:++m.eid,k,r:E.r,hp,mx:hp,d:o.d||0,p:o.p||0,si:0,camo:!!o.camo,rg:!!o.rg,top:o.top||k,fort:fortOK,frz:0,slowT:0,slow:1,stun:0,hitT:0,x:-20,y:-20,ang:0};
     this.pos(m,e);m.en.push(e);return e;},
+  bonus(m){return 150+m.round*5;},
+  // Tower Defense Simulator style: once the last enemies of a wave are out, you can skip ahead for a cash bonus
+  canSkip(m){return m.inRound&&!m.spawns.length&&m.en.length>0&&m.won!==1;},
+  skipRound(m){if(!this.canSkip(m))return;const bonus=this.bonus(m),extra=20+m.round*3;let farm=0;
+    for(const w of m.tw)if(w.k==="farm"){farm+=w.s.inc;mPop(m,w.x,w.y-8,"+"+w.s.inc,"#86efac");}
+    m.cash+=bonus+extra+farm;m.round++;m.rMax=0;m.spawns=this.parseRound(m.round);m.rt=0;const np=m.paths.length;m.spawns.forEach((q,i)=>q.p=i%np);
+    m.msg=`Skipped! +${bonus+extra} 💖 (skip bonus ${extra})`;m.score=Math.round((m.round*100+m.popN*.15)*m.dif.sc);MG.score=m.score;sfx.ok(3);this.hud(m);},
   startRound(m){if(m.state!=="play"||m.inRound||m.won===1)return;m.round++;m.rMax=0;m.spawns=this.parseRound(m.round);m.rt=0;m.inRound=true;m.si=0;m.msg="";
     const np=m.paths.length;m.spawns.forEach((s,i)=>s.p=i%np);this.hud(m);sfx.tick();},
-  endRound(m){m.inRound=false;const bonus=100+m.round;let farm=0,bank=0;
+  endRound(m){m.inRound=false;const bonus=this.bonus(m);let farm=0,bank=0;
     for(const w of m.tw)if(w.k==="farm"){farm+=w.s.inc;if(w.s.bank)bank+=Math.min(w.s.bank,Math.round(m.cash*.12));mPop(m,w.x,w.y-8,"+"+w.s.inc,"#86efac");}
     m.cash+=bonus+farm+bank;m.score=Math.round((m.round*100+m.popN*.15)*m.dif.sc);MG.score=m.score;
     m.msg=`Round ${m.round} cleared! +${bonus} 💖${farm?` · farms +${farm}`:""}${bank?` · interest +${bank}`:""}`;sfx.ok(2);
@@ -4866,7 +4956,7 @@ MGAMES.defense={name:"CUPIDIUM DEFENSE",w:400,h:250,blurb:"Bloon-style tower def
   sell(m){const w=m.sel;if(!w)return;const back=Math.round(w.spent*.7);m.cash+=back;m.tw=m.tw.filter(q=>q!==w);m.sel=null;m.vver++;mPop(m,w.x,w.y-6,"+"+back,"#86efac");sfx.tick();this.hud(m);},
   // village boosts (cached until towers change)
   buffs(m){if(m.bver===m.vver)return;m.bver=m.vver;
-    for(const w of m.tw){const b={rng:1,rate:1,pierce:0,dmg:0,camo:0,all:0};for(const v of m.tw){if(v.k!=="village"||v===w)continue;const s=v.s;if(Math.hypot(v.x-w.x,v.y-w.y)>s.vr)continue;
+    for(const w of m.tw){const b={rng:1,rate:1,pierce:0,dmg:0,camo:0,all:0};for(const v of m.tw){if(v.k!=="village"&&v.k!=="commander"||v===w)continue;const s=v.s;if(Math.hypot(v.x-w.x,v.y-w.y)>s.vr)continue;
         b.rng=Math.max(b.rng,s.bRng||1);b.rate=Math.min(b.rate,s.bRate||1);b.pierce=Math.max(b.pierce,s.bPierce||0);b.dmg=Math.max(b.dmg,s.bDmg||0);if(s.bCamo)b.camo=1;if(s.bAll)b.all=1;}w.buf=b;}},
   // ---------- damage ----------
   canHit(e,s,w){const E=this.EN[e.k],all=w&&w.buf&&w.buf.all;if(all)return true;
@@ -4877,7 +4967,7 @@ MGAMES.defense={name:"CUPIDIUM DEFENSE",w:400,h:250,blurb:"Bloon-style tower def
     let d=dmg+(w&&w.buf?w.buf.dmg:0);if(E.moab&&s.moabx)d*=s.moabx;if(e.k==="C"&&s.ceramx)d*=s.ceramx;if(e.frz>m.t&&e.brittle)d+=2;
     e.hp-=d;e.hitT=m.t;if(w&&!E.moab)w.pops+=Math.min(d,e.hp+d);
     if(e.hp<=0)this.pop(m,e,-e.hp,w);else if(E.moab){if(w)w.pops+=d;}return true;},
-  pop(m,e,over,w){if(e.gone)return;e.gone=1;const E=this.EN[e.k];m.popN++;m.cash+=E.cash||1;if(w&&E.moab)w.pops+=1;
+  pop(m,e,over,w){if(e.gone)return;e.gone=1;const E=this.EN[e.k];m.popN++;m.cashF=(m.cashF||0)+(E.cash||1)*(m.dif.pay||1);if(m.cashF>=1){const c=Math.floor(m.cashF);m.cash+=c;m.cashF-=c;}if(w&&E.moab)w.pops+=1;
     if(E.moab){mBurst(m,e.x,e.y,26,[E.c,"#fff",CUPC],1.6);SC.shake=E.boss?400:150;sfx.whoosh&&sfx.whoosh(2);mPop(m,e.x,e.y-10,"+"+E.cash,"#ff8fe0");}
     else if((!m.fx||m.fx.length<350)&&Math.random()<.35)mBurst(m,e.x,e.y,3,[E.c,"#fff"]);
     if(m.en.length>650){m.cash+=Math.round((this.rbeOf(e.k,e.fort)-E.hp)*.5);return;}// too many on screen: pay out instead of splitting
@@ -4908,9 +4998,9 @@ MGAMES.defense={name:"CUPIDIUM DEFENSE",w:400,h:250,blurb:"Bloon-style tower def
       if(w.cd>0)continue;const tg=this.target(m,w,rng);if(!tg)continue;w.cd=s.rate*b.rate;w.ang=Math.atan2(tg.y-w.y,tg.x-w.x);
       if(s.proj==="freeze"){let n=0;for(const e of this.near(m,w.x,w.y,rng+20)){if(Math.hypot(e.x-w.x,e.y-w.y)>rng)continue;this.chill(m,e,s,w);if(++n>=s.pierce)break;}m.vfx.push({ring:1,x:w.x,y:w.y,r:rng,t,c:"#bae6fd",l:300});}
       else if(s.proj==="ring"){for(const e of this.near(m,w.x,w.y,rng+20))if(Math.hypot(e.x-w.x,e.y-w.y)<rng+e.r)this.hit(m,e,s.dmg,s,w);m.vfx.push({ring:1,x:w.x,y:w.y,r:rng,t,c:"#fb923c",l:200});}
-      else if(s.proj==="bullet"){this.hit(m,tg,s.dmg,s,w);if(s.stunMoab&&this.EN[tg.k].moab)tg.stun=t+s.stunMoab;m.vfx.push({line:1,x:w.x,y:w.y,tx:tg.x,ty:tg.y,t,c:"#ecfccb",l:90});}
+      else if(s.proj==="bullet"){this.hit(m,tg,s.dmg,s,w);if(s.cashEvery){w.shots=(w.shots||0)+1;if(w.shots%s.cashEvery===0){m.cash+=s.cashAmt;w.earned=(w.earned||0)+s.cashAmt;mPop(m,w.x,w.y-8,"+"+s.cashAmt+" 💖","#fde047");}}if(s.stunMoab&&this.EN[tg.k].moab)tg.stun=t+s.stunMoab;m.vfx.push({line:1,x:w.x,y:w.y,tx:tg.x,ty:tg.y,t,c:"#ecfccb",l:90});}
       else if(s.proj==="zap"){let cur=tg;const hitS=new Set([tg]),pts=[[w.x,w.y],[tg.x,tg.y]];this.hit(m,tg,s.dmg,s,w);if(s.stun)tg.stun=t+s.stun;
-        for(let i=1;i<s.chain;i++){let best=null,bd=36;for(const e of this.near(m,cur.x,cur.y,40)){if(hitS.has(e)||e.gone||!this.sees(e,s,w))continue;const d=Math.hypot(e.x-cur.x,e.y-cur.y);if(d<bd){bd=d;best=e;}}if(!best)break;
+        for(let i=1;i<s.chain;i++){let best=null,bd=36;for(const e of this.near(m,cur.x,cur.y,40)){if(hitS.has(e)||e.gone||!this.sees(e,s,w)||Math.hypot(e.x-w.x,e.y-w.y)>rng+e.r)continue;const d=Math.hypot(e.x-cur.x,e.y-cur.y);if(d<bd){bd=d;best=e;}}if(!best)break;
           hitS.add(best);this.hit(m,best,s.dmg,s,w);if(s.stun)best.stun=t+s.stun;pts.push([best.x,best.y]);cur=best;}m.vfx.push({zap:1,pts,t,c:"#fde047",l:120});}
       else if(s.proj==="tack"){for(let i=0;i<s.n;i++){const a=i/s.n*Math.PI*2;this.proj(m,w,w.x,w.y,a,s,{life:rng/s.spd*1000});}}
       else this.shoot(m,w,tg,s);}
@@ -4957,7 +5047,7 @@ MGAMES.defense={name:"CUPIDIUM DEFENSE",w:400,h:250,blurb:"Bloon-style tower def
   menuClick(m,x,y){this.MAPS.forEach((M,i)=>{const bx=12+i*128;if(x>bx&&x<bx+120&&y>56&&y<150){m.mapI=i;sfx.tick();}});
     this.DIFF.forEach((D,i)=>{const bx=70+i*90;if(x>bx&&x<bx+82&&y>164&&y<184){m.diffI=i;sfx.tick();}});
     if(x>150&&x<250&&y>200&&y<224)this.begin(m);},
-  barClick(m,x,y){if(x<56){if(!m.inRound&&m.won!==1)this.startRound(m);else{m.ff=m.ff>=3?1:m.ff+1;sfx.tick();}return;}
+  barClick(m,x,y){if(x>=246&&this.canSkip(m))return this.skipRound(m);if(x<56){if(!m.inRound&&m.won!==1)this.startRound(m);else{m.ff=m.ff>=3?1:m.ff+1;sfx.tick();}return;}
     if(x<98){m.auto=!m.auto;store.set("otc.td.auto",m.auto);if(m.auto&&!m.inRound)m.autoT=400;sfx.tick();return;}},
   panelClick(m,x,y){if(m.sel){const w=m.sel,D=this.TW[w.k];
       if(y<43&&x>380&&y>20){m.sel=null;return;}
@@ -4965,8 +5055,9 @@ MGAMES.defense={name:"CUPIDIUM DEFENSE",w:400,h:250,blurb:"Bloon-style tower def
       if(y>=177&&y<192&&D.base.proj!=="none"){w.tg=(w.tg+1)%4;sfx.tick();return;}
       if(y>=196&&y<211)return this.sell(m);return;}
     const i=this.shopAt(x,y);if(i>=0){const k=this.ORDER[i];m.placing=m.placing===k?null:k;m.sel=null;sfx.tick();}},
-  shopAt(x,y){if(y<31||y>211)return-1;const col=x<351?0:1,row=Math.floor((y-31)/36);const i=row*2+col;return i<this.ORDER.length?i:-1;},
+  shopAt(x,y){if(y<31||y>158||x<this.MW+3)return-1;const col=Math.min(2,Math.floor((x-this.MW-3)/32)),row=Math.floor((y-31)/32);const i=row*3+col;return i<this.ORDER.length?i:-1;},
   key(m,k,down,first,raw){if(!down||!first||m.state!=="play")return;
+    if(raw==="s"&&this.canSkip(m))return this.skipRound(m);
     if(k==="sp"||k==="ent"){if(m.won===1)return;if(!m.inRound)this.startRound(m);else m.ff=m.ff>=3?1:m.ff+1;return;}
     if(raw==="escape"){m.placing=null;m.sel=null;return;}
     if(raw>="1"&&raw<="9"){const k2=this.ORDER[+raw-1];if(k2){m.placing=k2;m.sel=null;}return;}
@@ -5019,6 +5110,9 @@ MGAMES.defense={name:"CUPIDIUM DEFENSE",w:400,h:250,blurb:"Bloon-style tower def
     else if(k==="tesla"){mR(x,px-1,py-1,2,5,"#94a3b8");mD(x,px,py-2,3,D.c);if(((t/90)|0)%3===0){mR(x,px-4,py-4,1,1,"#fff");mR(x,px+3,py-3,1,1,"#fff");}}
     else if(k==="wizard"){x.fillStyle="#7c3aed";x.beginPath();x.moveTo(px,py-6);x.lineTo(px+3.5,py+2);x.lineTo(px-3.5,py+2);x.fill();mR(x,px-.5,py-3,1,1,"#fde047");mD(x,px+ca*4,py+sa*4,1.3,D.c);}
     else if(k==="farm"){mR(x,px-4,py-1,8,5,"#92400e");x.fillStyle="#b91c1c";x.beginPath();x.moveTo(px-5,py-1);x.lineTo(px,py-5);x.lineTo(px+5,py-1);x.fill();mR(x,px-1,py+1,2,3,"#fde68a");}
+    else if(k==="cowboy"){mD(x,px,py,3.4,"#92400e");mR(x,px-4.5,py-3,9,1.4,"#78350f");mR(x,px-2.5,py-5,5,2.4,"#b45309");mR(x,px+ca*4-1,py+sa*4-.5,2,1,"#e5e7eb");mR(x,px-.5,py+.5,1,1,"#fde047");}
+    else if(k==="commander"){mD(x,px,py,3.6,"#1e3a8a");mR(x,px-3,py-4.5,6,2,"#93c5fd");mR(x,px-.6,py-1.5,1.2,1.2,"#fde047");mR(x,px-.5,py-9,1,6,"#cbd5e1");mR(x,px+.5,py-9,4,2.5,"#ef4444");}
+    else if(k==="minigun"){mD(x,px,py,3.6,"#374151");for(let i=-1;i<=1;i++)mR(x,px+ca*3+(-sa)*i*1.1-.5,py+sa*3+ca*i*1.1-.5,1+Math.abs(ca)*3,1+Math.abs(sa)*3,"#9ca3af");mD(x,px,py,1.4,"#e5e7eb");}
     else if(k==="village"){mR(x,px-4,py-2,8,6,"#fcd34d");x.fillStyle="#b45309";x.beginPath();x.moveTo(px-5,py-2);x.lineTo(px,py-6);x.lineTo(px+5,py-2);x.fill();mR(x,px-1,py+1,2,3,"#78350f");}
     if(tier)for(let i=0;i<4;i++){const on=i<(a||0),on2=i<(b||0);if(i<Math.max(a||0,b||0)){mR(x,px-5+i*2.6,py+6.5,1.8,1.2,on&&on2?"#fde047":on?"#f9a8d4":"#7dd3fc");}}},
   draw(m,x,t,dt){t=t||0;dt=dt||0;mR(x,0,0,400,250,"#0b0716");
@@ -5049,10 +5143,20 @@ MGAMES.defense={name:"CUPIDIUM DEFENSE",w:400,h:250,blurb:"Bloon-style tower def
     if(m.placing&&m.hx>=0&&m.hx<this.MW&&m.hy<this.MH){const D=this.TW[m.placing],ok=this.okSpot(m,m.hx,m.hy)&&m.cash>=this.price(m,D.cost);
       const r=m.placing==="village"?D.base.vr:D.base.rng;if(r)showR(m.hx,m.hy,r,ok?"#ffffff":"#ef4444");x.globalAlpha=.75;this.drawTower(x,m.placing,m.hx,m.hy,-1.57,0,0,t);x.globalAlpha=1;
       if(!ok){x.strokeStyle="#ef4444";x.lineWidth=1;x.beginPath();x.arc(m.hx,m.hy,7,0,7);x.stroke();}}
+    {// boss bar (like Tower Defense Simulator): the toughest blimp on the field
+      let bb=null;for(const e of m.en)if(this.EN[e.k].moab&&!e.gone&&(!bb||e.mx>bb.mx||e.mx===bb.mx&&e.d>bb.d))bb=e;
+      if(bb){const E=this.EN[bb.k],f=Math.max(0,bb.hp/bb.mx);mRR(x,70,3,160,10,3,"#0b0716cc");mR(x,72,5,156,6,"#3f1d2e");mR(x,72,5,156*f,6,E.boss?"#ff5fd2":"#ef4444");mR(x,72,5,156*f,1.5,"#ffffff55");
+        mT(x,`${E.nm}${bb.fort?" (FORTIFIED)":""} · ${Math.ceil(bb.hp).toLocaleString()} HP`,150,8.2,"#fff",3.8);}}
     this.drawPanel(m,x,t);this.drawBar(m,x,t);
     if(m.won===1){mR(x,0,0,this.MW,this.MH,"#0b071699");mRR(x,70,60,160,108,6,"#1c1636");mT(x,"🏆 VICTORY!",150,80,"#fde047",12);mT(x,`${m.map.nm} · ${m.dif.nm}`,150,96,"#e9d5ff",5.5);
       mT(x,`All ${m.dif.win} rounds beaten · ${m.popN.toLocaleString()} pops`,150,106,"#cbd5e1",5);
       mRR(x,95,120,110,18,4,"#be185d");mT(x,"KEEP GOING (FREEPLAY)",150,129,"#fff",5.5);mRR(x,95,142,110,18,4,"#2a2046");mT(x,"FINISH",150,151,"#fff",6);}},
+  dps(s,b){b=b||{};if(!s||s.proj==="none")return 0;const dmg=(s.dmg||1)+(b.dmg||0),rate=(s.rate||1000)*(b.rate||1);let hits=(s.n||1)*(s.chain||1);
+    if(s.proj==="tack")hits=Math.max(1,(s.n||8)/4);if(s.proj==="freeze"||s.proj==="ring")hits=1;let d=dmg*hits*1000/rate;if(s.fireball)d+=2*1000/s.fireball;if(s.breath)d+=4;if(s.phoenix)d+=6;return d;},
+  statLine(s,b,k){b=b||{};if(k==="farm")return[["INCOME",s.inc+" 💖/round"]].concat(s.bank?[["INTEREST","12% up to "+s.bank]]:[]);
+    if(k==="village"||k==="commander")return[["RADIUS",s.vr],["SPEED",s.bRate?Math.round((1-s.bRate)*100)+"%":"-"]].concat(s.bRng&&s.bRng>1?[["RANGE+",Math.round((s.bRng-1)*100)+"%"]]:[]).concat(s.bDmg?[["DMG+",s.bDmg]]:[]);
+    const r=[["DPS",this.dps(s,b).toFixed(1)],["DMG",(s.dmg||1)+(b.dmg||0)],["RATE",((s.rate||0)*(b.rate||1)/1000).toFixed(2)+"s"],["RANGE",s.rng>500?"∞":Math.round(s.rng*(b.rng||1))]];
+    if(s.pierce)r.push(["PIERCE",s.pierce+(b.pierce||0)]);if(s.chain)r.push(["JUMPS",s.chain]);if(s.cashEvery)r.push(["PAYDAY",s.cashAmt+" 💖/"+s.cashEvery+" shots"]);return r;},
   drawPanel(m,x,t){const X=this.MW;mR(x,X,0,100,250,"#100b22");mR(x,X,0,1,250,"#3b2d63");
     // header: cash and lives
     mRR(x,X+3,3,58,14,4,"#1c1636");mT(x,`💖 ${m.cash.toLocaleString()}`,X+7,10.5,"#ff8fe0",6,"left");
@@ -5061,7 +5165,7 @@ MGAMES.defense={name:"CUPIDIUM DEFENSE",w:400,h:250,blurb:"Bloon-style tower def
     if(m.sel){const w=m.sel,D=this.TW[w.k],s=w.s;
       mRR(x,X+3,21,94,22,4,"#1c1636");this.drawTower(x,w.k,X+13,32,-1.57,w.a,w.b,t);
       mT(x,D.nm,X+24,28,D.c,5.5,"left");mT(x,"✕",X+91,28,"#94a3b8",6);
-      mT(x,w.k==="farm"?`+${s.inc} 💖 / round${s.bank?" · bank":""}`:w.k==="village"?`boost radius ${s.vr}`:`${w.pops.toLocaleString()} pops · tier ${w.a}-${w.b}`,X+24,37,"#94a3b8",4,"left");
+      mT(x,w.k==="farm"?`+${s.inc} 💖 / round${s.bank?" · bank":""}`:w.k==="village"||w.k==="commander"?`boost radius ${s.vr}`:`DPS ${this.dps(s,w.buf).toFixed(1)} · ${w.pops.toLocaleString()} pops${w.earned?" · +"+w.earned+"💖":""}`,X+24,37,"#94a3b8",4,"left");
       ["A","B"].forEach((path,pi)=>{const y=46+pi*64,lv=pi?w.b:w.a,why=this.canUp(w,path),U=D[path][lv],c=U?this.price(m,U[1]):0,can=!why&&m.cash>=c,hov=m.hx>=X&&m.hy>=y&&m.hy<y+60,pc=pi?"#7dd3fc":"#f9a8d4";
         mRR(x,X+3,y,94,60,4,hov&&can?"#251d45":"#1a1433");mR(x,X+3,y+2,2,56,why==="LOCKED"?"#3b2d63":pc);
         mT(x,pi?"PATH 2":"PATH 1",X+9,y+6,"#64748b",3.6,"left");for(let i=0;i<4;i++)mR(x,X+62+i*8,y+4.5,6,3,i<lv?pc:"#3b2d63");
@@ -5072,25 +5176,36 @@ MGAMES.defense={name:"CUPIDIUM DEFENSE",w:400,h:250,blurb:"Bloon-style tower def
         mT(x,why==="LOCKED"?"other path is past tier 2":can?`UPGRADE · ${c.toLocaleString()} 💖`:`NEED ${c.toLocaleString()} 💖`,X+50.5,y+47.5,why?"#64748b":can?"#fff":"#fca5a5",why?3.8:4.8);});
       if(D.base.proj!=="none"){mRR(x,X+3,177,94,15,4,"#2a2046");mT(x,`🎯 TARGET: ${this.TGT[w.tg]}`,X+50,184.5,"#e9d5ff",5);}
       mRR(x,X+3,196,94,15,4,"#7f1d1d");mT(x,`SELL  +${Math.round(w.spent*.7).toLocaleString()} 💖`,X+50,203.5,"#fff",5);
-      mT(x,"ESC or ✕ to close",X+50,222,"#475569",3.8);
+      // stats now, or what the hovered upgrade would change
+      const hp=m.hx>=X&&m.hy>=46&&m.hy<170?(m.hy<106?"A":"B"):null,canP=hp&&!this.canUp(w,hp);
+      mRR(x,X+3,214,94,33,4,"#1a1433");
+      if(canP){const w2=Object.assign({},w,{a:w.a+(hp==="A"?1:0),b:w.b+(hp==="B"?1:0)}),s2=this.stats(w2),now=this.statLine(s,w.buf,w.k),nx=this.statLine(s2,w.buf,w.k);
+        mT(x,"IF YOU UPGRADE:",X+7,219.5,"#fde047",3.6,"left");let row=0;
+        nx.forEach(([k2,v2])=>{const o=now.find(q=>q[0]===k2),v1=o?o[1]:"-";if(String(v1)===String(v2)||row>=4)return;mT(x,`${k2} ${v1} → ${v2}`,X+7,226.5+row*5.6,"#86efac",3.6,"left");row++;});
+        if(!row)mT(x,"(special ability, see above)",X+7,226.5,"#94a3b8",3.6,"left");}
+      else{const L=this.statLine(s,w.buf,w.k);L.slice(0,6).forEach(([k2,v2],i)=>mT(x,`${k2} ${v2}`,X+7+(i%2)*46,220+((i/2)|0)*8,i===0&&k2==="DPS"?"#fde047":"#cbd5e1",3.8,"left"));}
       return;}
-    mT(x,"TOWERS",X+5,26,"#64748b",4,"left");mT(x,"key",X+95,26,"#475569",3.4,"right");
-    this.ORDER.forEach((k,i)=>{const D=this.TW[k],col=i%2,row=(i/2)|0,bx=X+3+col*48,by=31+row*36,c=this.price(m,D.cost),can=m.cash>=c,on=m.placing===k,hov=m.hx>=bx&&m.hx<bx+46&&m.hy>=by&&m.hy<by+34;
-      if(on)mRR(x,bx-1,by-1,48,36,5,D.c);mRR(x,bx,by,46,34,4,on?"#3b1f73":hov?"#2a2150":"#1a1433");
-      x.globalAlpha=can?1:.4;this.drawTower(x,k,bx+23,by+11,-1.57,0,0,t);mT(x,D.nm.split(" ").pop(),bx+23,by+22,"#e9d5ff",4,"center");x.globalAlpha=1;
-      mRR(x,bx+5,by+25,36,7,3,can?"#3b1d4a":"#1e1938");mT(x,c.toLocaleString(),bx+23,by+28.5,can?"#ff8fe0":"#64748b",4.2,"center");mT(x,String(i+1),bx+43,by+4,"#475569",3.4,"right");});
-    // info box: what the hovered / chosen tower does
-    mRR(x,X+3,214,94,33,4,"#1a1433");
+    mT(x,"TOWERS",X+5,26,"#64748b",4,"left");mT(x,"tap, then place",X+95,26,"#475569",3.4,"right");
+    this.ORDER.forEach((k,i)=>{const D=this.TW[k],col=i%3,row=(i/3)|0,bx=X+3+col*32,by=31+row*32,c=this.price(m,D.cost),can=m.cash>=c,on=m.placing===k,hov=m.hx>=bx&&m.hx<bx+30&&m.hy>=by&&m.hy<by+30;
+      if(on)mRR(x,bx-1,by-1,32,32,5,D.c);mRR(x,bx,by,30,30,4,on?"#3b1f73":hov?"#2a2150":"#1a1433");
+      x.globalAlpha=can?1:.4;this.drawTower(x,k,bx+15,by+11,-1.57,0,0,t);x.globalAlpha=1;
+      mRR(x,bx+2,by+21,26,7,3,can?"#3b1d4a":"#1e1938");mT(x,c>=1000?(c/1000).toFixed(c%1000?2:0).replace(/0$/,"")+"K":String(c),bx+15,by+24.5,can?"#ff8fe0":"#64748b",4,"center");if(i<9)mT(x,String(i+1),bx+28,by+3.5,"#475569",3.2,"right");});
+    // info box: what the hovered / chosen tower does, with its stats
+    mRR(x,X+3,162,94,85,4,"#1a1433");
     const hv=this.shopAt(m.hx,m.hy);const showK=m.placing||(m.hx>=X&&hv>=0?this.ORDER[hv]:null);
-    if(showK){const D=this.TW[showK],l=wrap(D.d,26);mT(x,D.nm,X+7,220,D.c,4.5,"left");for(let i=0;i<3;i++)if(l[i])mT(x,l[i],X+7,228+i*6.5,"#cbd5e1",3.6,"left");}
-    else{mT(x,"Pick a tower, then tap",X+50,226,"#94a3b8",4);mT(x,"anywhere off the track",X+50,234,"#94a3b8",4);}},
+    if(showK){const D=this.TW[showK],l=wrap(D.d,27);mT(x,D.nm,X+7,168,D.c,4.6,"left");mT(x,this.price(m,D.cost)+" 💖",X+93,168,"#ff8fe0",4,"right");
+      for(let i=0;i<3;i++)if(l[i])mT(x,l[i],X+7,176+i*6.5,"#cbd5e1",3.6,"left");
+      this.statLine(D.base,null,showK).slice(0,6).forEach(([k2,v2],i)=>mT(x,`${k2} ${v2}`,X+7+(i%2)*46,200+((i/2)|0)*8,i===0&&k2==="DPS"?"#fde047":"#94a3b8",3.8,"left"));
+      mT(x,m.placing?"tap the map to place · ESC to cancel":"tap to pick it",X+50,241,"#475569",3.6);}
+    else{mT(x,"Pick a tower, then tap",X+50,196,"#94a3b8",4.2);mT(x,"anywhere off the track",X+50,204,"#94a3b8",4.2);mT(x,"(hover one to see its stats)",X+50,214,"#475569",3.6);}},
   drawBar(m,x,t){const Y=this.MH;mR(x,0,Y,this.MW,250-Y,"#100b22");mR(x,0,Y,this.MW,1,"#3b2d63");
     const idle=!m.inRound&&m.won!==1;mRR(x,3,Y+4,54,24,5,idle?"#be185d":"#0e7490");mR(x,6,Y+5,48,1,"#ffffff44");mT(x,idle?"▶ START":m.ff===1?"⏩ 1×":m.ff===2?"⏩ 2×":"⏩ 3×",30,Y+16,"#fff",6.5);
     mRR(x,60,Y+4,36,24,5,m.auto?"#15803d":"#221a3f");mT(x,"AUTO",78,Y+12,"#fff",5);mT(x,m.auto?"ON":"OFF",78,Y+21,m.auto?"#bbf7d0":"#94a3b8",4.5);
     mT(x,`ROUND ${m.round}${m.round>m.dif.win?" · FREEPLAY":"/"+m.dif.win}`,102,Y+9,"#fde047",6,"left");
     const left=m.en.length+m.spawns.length;if(m.inRound)m.rMax=Math.max(m.rMax||1,left);
-    if(m.inRound){mR(x,102,Y+15,190,3,"#221a3f");mR(x,102,Y+15,190*(1-left/(m.rMax||1)),3,"#ff8fe0");}
-    else{mR(x,102,Y+15,190,3,"#221a3f");mR(x,102,Y+15,190*Math.min(1,m.round/m.dif.win),3,"#fde047");}
+    if(m.inRound){mR(x,102,Y+15,140,3,"#221a3f");mR(x,102,Y+15,140*(1-left/(m.rMax||1)),3,"#ff8fe0");}
+    else{mR(x,102,Y+15,140,3,"#221a3f");mR(x,102,Y+15,140*Math.min(1,m.round/m.dif.win),3,"#fde047");}
+    if(this.canSkip(m)){const pulse=.75+.25*Math.sin(t*.008);x.globalAlpha=pulse;mRR(x,246,Y+4,51,24,5,"#7c2d12");x.globalAlpha=1;mT(x,"⏭ SKIP",271.5,Y+12,"#fff",5);mT(x,`+${this.bonus(m)+20+m.round*3} 💖`,271.5,Y+21,"#fde68a",4);}
     const nxt=idle?this.roundSpec(m.round+1):"";
     mT(x,m.msg||(idle?`Next: ${this.describe(nxt)}`:`${left} heartlings left`),102,Y+25,"#cbd5e1",4.3,"left");},
   describe(spec){const nm={R:"red",B:"blue",G:"green",Y:"yellow",P:"pink",K:"black",W:"white",L:"lead",Z:"zebra",N:"rainbow",C:"ceramic",M:"MOAB",F:"BFB",X:"ZOMG",Q:"CUPID KING"};
@@ -5110,20 +5225,22 @@ MGAMES.defense={name:"CUPIDIUM DEFENSE",w:400,h:250,blurb:"Bloon-style tower def
 
 // ---------- 8. CUPIDIUM CATCH (party, same device) ----------
 MGAMES.catch={persist:false,name:"CUPIDIUM CATCH",w:240,h:160,blurb:"Party game on one device: 1–2 players plus bots race to grab atoms. Bump someone to make them drop one.",
-  controls:"Player 1: arrow keys · Player 2: W A S D · 60 seconds · most atoms wins.",dom:`<div class="row" style="justify-content:center"><button class="pbtn sm" data-act="catchN" data-n="1">1 PLAYER + 3 BOTS</button><button class="pbtn sm" data-act="catchN" data-n="2">2 PLAYERS + 2 BOTS</button></div>`,
+  controls:"Player 1: arrow keys, or hold your finger / mouse where you want to go · Player 2: W A S D · 60 seconds · most atoms wins.",dom:`<div class="row" style="justify-content:center"><button class="pbtn sm" data-act="catchN" data-n="1">1 PLAYER + 3 BOTS</button><button class="pbtn sm" data-act="catchN" data-n="2">2 PLAYERS + 2 BOTS</button></div>`,
   humans:1,
   init(m){const cols=[["P1","#ff5fd2"],["P2","#67e8f9"],["BOT","#fde047"],["BOT","#86efac"]];
     m.pl=cols.map((c,i)=>({name:i<this.humans?c[0]:"BOT",c:c[1],human:i<this.humans,x:40+(i%2)*160,y:40+Math.floor(i/2)*80,vx:0,vy:0,n:0,stun:0}));m.atoms=[];m.spawn=0;m.end=60000;},
   update(m,dt){if(m.t>=m.end){const w=m.pl.slice().sort((a,b)=>b.n-a.n)[0];m.score=m.pl[0].n*10;return mgEnd(w.human?`${w.name} WINS!`:"A BOT WINS",m.pl.map(p=>`${p.name} ${p.n}`).join(" · "));}
     m.spawn-=dt;if(m.spawn<=0&&m.atoms.length<9){m.spawn=550;m.atoms.push({x:14+Math.random()*(m.W-28),y:14+Math.random()*(m.H-28),gold:Math.random()<.06});}
     const k=m.keys,acc=.0009*dt;
-    m.pl.forEach((p,i)=>{if(p.stun>m.t){p.vx*=.9;p.vy*=.9;}else if(p.human){const L=i===0?[k["~arrowleft"],k["~arrowright"],k["~arrowup"],k["~arrowdown"]]:[k["~a"],k["~d"],k["~w"],k["~s"]];if(L[0])p.vx-=acc*60;if(L[1])p.vx+=acc*60;if(L[2])p.vy-=acc*60;if(L[3])p.vy+=acc*60;}
-      else{let tg=null,bd=1e9;for(const a of m.atoms){const d=Math.hypot(a.x-p.x,a.y-p.y)-(a.gold?30:0);if(d<bd){bd=d;tg=a;}}if(tg){const d=Math.hypot(tg.x-p.x,tg.y-p.y)||1;p.vx+=(tg.x-p.x)/d*acc*42;p.vy+=(tg.y-p.y)/d*acc*42;}}
+    m.pl.forEach((p,i)=>{if(p.stun>m.t){p.vx*=.9;p.vy*=.9;}else if(p.human){const L=i===0?[k["~arrowleft"],k["~arrowright"],k["~arrowup"],k["~arrowdown"]]:[k["~a"],k["~d"],k["~w"],k["~s"]];const H=78;if(i===0&&m.tp){const dx=m.tp.x-p.x,dy=m.tp.y-p.y,d=Math.hypot(dx,dy);if(d>3){p.vx+=dx/d*acc*H;p.vy+=dy/d*acc*H;}}if(L[0])p.vx-=acc*H;if(L[1])p.vx+=acc*H;if(L[2])p.vy-=acc*H;if(L[3])p.vy+=acc*60;}
+      else{if(!p.tg||p.tg.got||(p.rt||0)<m.t){p.rt=m.t+700+Math.random()*700;let tg=null,bd=1e9;for(const a of m.atoms){const d=Math.hypot(a.x-p.x,a.y-p.y)-(a.gold?20:0)+Math.random()*40;if(d<bd){bd=d;tg=a;}}p.tg=tg;}
+        const tg=p.tg;if(tg&&!tg.got){const d=Math.hypot(tg.x-p.x,tg.y-p.y)||1;p.vx+=(tg.x-p.x)/d*acc*30;p.vy+=(tg.y-p.y)/d*acc*30;}}
       p.vx*=.9;p.vy*=.9;p.x+=p.vx*dt*.06;p.y+=p.vy*dt*.06;if(p.x<6||p.x>m.W-6){p.vx*=-1;p.x=Math.max(6,Math.min(m.W-6,p.x));}if(p.y<6||p.y>m.H-6){p.vy*=-1;p.y=Math.max(6,Math.min(m.H-6,p.y));}
-      for(const a of m.atoms)if(!a.got&&Math.hypot(a.x-p.x,a.y-p.y)<9){a.got=1;p.n+=a.gold?5:1;if(p.human)a.gold?(sfx.ok(5),burst(40)):sfx.ok(1);}});
+      for(const a of m.atoms)if(!a.got&&Math.hypot(a.x-p.x,a.y-p.y)<(p.human?13:8)){a.got=1;p.n+=a.gold?5:1;if(p.human)a.gold?(sfx.ok(5),burst(40)):sfx.ok(1);}});
     for(let i=0;i<4;i++)for(let j=i+1;j<4;j++){const a=m.pl[i],b=m.pl[j],d=Math.hypot(a.x-b.x,a.y-b.y);if(d<10&&d>0){const nx=(a.x-b.x)/d,ny=(a.y-b.y)/d,sa=Math.hypot(a.vx,a.vy),sb=Math.hypot(b.vx,b.vy);
-      a.vx+=nx*2;a.vy+=ny*2;b.vx-=nx*2;b.vy-=ny*2;const loser=sa>sb?b:a;if(loser.n>0&&loser.stun<m.t){loser.n--;loser.stun=m.t+700;m.atoms.push({x:Math.max(10,Math.min(m.W-10,loser.x+nx*18*(loser===a?1:-1))),y:Math.max(10,Math.min(m.H-10,loser.y+ny*18*(loser===a?1:-1)))});if(loser.human||a.human&&b.human)sfx.dup();}}}
+      a.vx+=nx*2;a.vy+=ny*2;b.vx-=nx*2;b.vy-=ny*2;const loser=sa>sb?b:a,winner=loser===a?b:a;if(loser.human&&!winner.human&&Math.max(sa,sb)<Math.min(sa,sb)*1.6)continue;if(loser.n>0&&loser.stun<m.t){loser.n--;loser.stun=m.t+700;m.atoms.push({x:Math.max(10,Math.min(m.W-10,loser.x+nx*18*(loser===a?1:-1))),y:Math.max(10,Math.min(m.H-10,loser.y+ny*18*(loser===a?1:-1)))});if(loser.human||a.human&&b.human)sfx.dup();}}}
     m.atoms=m.atoms.filter(a=>!a.got);m.score=m.pl[0].n*10;if(m.t%400<dt)mgHud(`${Math.ceil((m.end-m.t)/1000)}s`);},
+  ptr(m,x,y,t){if(t==="pointerdown"||t==="pointermove"&&m.tp)m.tp={x,y};if(t==="pointerup")m.tp=null;},
   draw(m,x,t){mBg(x,m.W,m.H,t,"#1b0c33","#0a0820");mR(x,1,1,m.W-2,m.H-2,"#ffffff06");
     for(const a of m.atoms)mAtom(x,a.x,a.y,3,a.gold?"#facc15":CUPC,t);
     m.pl.forEach(p=>{const fl=p.stun>m.t&&((m.t/80)|0)%2;if(fl)return;mD(x,p.x,p.y,6,"#0b1020");mD(x,p.x,p.y,5,p.c);mR(x,p.x-2,p.y-2,2,2,"#fff");mT(x,`${p.name} ${p.n}`,p.x,p.y-10,p.c,6);});
@@ -5521,7 +5638,7 @@ const ACT={
   perf:b=>{PERF=b.dataset.v;store.set("otc.perf",PERF);HQ=PERF==="low"?0:1;slowFrames=0;resize();settings();},
   pickSkin:b=>{store.set("otc.skin."+THEME,b.dataset.id);skins();},
   theme2:b=>{setTheme(b.dataset.t);home();},
-  aiSave:()=>{aiSave();settings("Saved ✓");},aiTest:()=>aiTest(),aiClear:()=>{store.set("otc.aicache3",{});LEARN={};store.set("otc.learned4",{});PROMPTS.forEach(p=>{delete p.idx;p._ln=0;p._cx=null;});$("aimsg").textContent="Forgotten ✓";},
+  aiSave:()=>{aiSave();settings("Saved ✓");},aiTest:()=>aiTest(),aiClear:()=>{store.set("otc.aicache4",{});LEARN={};store.set("otc.learned5",{});PROMPTS.forEach(p=>{delete p.idx;p._ln=0;p._cx=null;});$("aimsg").textContent="Forgotten ✓";},
   sound:()=>{SND.on=!SND.on;store.set("oddball.sound",SND.on);updSnd();},soundSet:()=>{ACT.sound();settings();},
   copy:b=>{try{navigator.clipboard.writeText(b.dataset.share).then(()=>b.textContent="COPIED!",()=>b.textContent="COPY BLOCKED");}catch(e){}},
   abort:()=>abortAsk(),abortYes:()=>{closeModal();leaveNet();if(PP&&PP.live){PP.live=false;return partyMenu();}CUP?cupHub():home();},closeModal:()=>closeModal(),
@@ -5700,7 +5817,7 @@ Object.assign(ACT,{pollVote:b=>pollVote(b.dataset.o),pollAll:()=>{POLL.all=!POLL
 // board and re-shares a compact snapshot now and then, so boards survive the relay's 12-hour memory as long as
 // someone plays at least twice a day. Claude's version keeps your own scores only.
 const LB_TOPIC="oneinacupidium-lb-v2",DEV_TOPIC="oneinacupidium-visits-7k3q",LB_KEEP=10;
-const LB_NAMES={daily:"Daily (today)",dailyGeo:"🌍 Geo Daily (today)",endless:"Endless",rendless:"Rapid Endless",blitz:"Rapid Fire",endlessGeo:"🌍 Geo Endless",rendlessGeo:"🌍 Geo Rapid Endless",cup:"Cupidium Rush",casPeak:"Casino · Most Chips",casWin:"Casino · Biggest Win",cpWord:"Cuepdle (today)",cpConn:"Cuepnections (today)",cpBee:"Cupid Bee (today)"};
+const LB_NAMES={daily:"Daily (today)",dailyGeo:"🌍 Geo Daily (today)",endless:"Endless",rendless:"Rapid Endless",blitz:"Rapid Fire",endlessGeo:"🌍 Geo Endless",rendlessGeo:"🌍 Geo Rapid Endless",cup:"Cupidium Rush",casNow:"Casino · Current Chips",casPeak:"Casino · Peak Chips",casWin:"Casino · Biggest Win",cpWord:"Cuepdle (today)",cpConn:"Cuepnections (today)",cpBee:"Cupid Bee (today)"};
 const lbName=k=>LB_NAMES[k]||(MGAMES[k]?MGAMES[k].name.replace("CUPIDIUM ","").replace(/^\w/,c=>c):k);
 const LB={b:store.get("otc.lb",{}),es:null,id:store.get("otc.pid",null)};
 if(!LB.id){LB.id=Math.random().toString(36).slice(2,10);store.set("otc.pid",LB.id);}
@@ -5708,20 +5825,24 @@ const lbOn=()=>socOn();
 const lbMe=()=>(SOC.me&&SOC.me.name)||store.get("oddball.name","")||"";
 const lbKeyFor=k=>k==="daily"||k==="dailyGeo"||/^cp[A-Z]/.test(k)?k+":"+today():k;
 function lbMerge(key,rows){if(!key||!Array.isArray(rows))return false;const cur=LB.b[key]=LB.b[key]||[];let ch=false;
-  for(const r of rows){if(!r||!r.i||typeof r.s!=="number"||r.s<0||r.s>1e7)continue;const nm=String(r.n||"Player").slice(0,16),o=cur.find(x=>x.i===r.i);
-    if(o){if(r.s>o.s){o.s=r.s;o.t=r.t||o.t;ch=true;}if(nm!==o.n&&(r.t||0)>=(o.t||0)){o.n=nm;ch=true;}}else{cur.push({i:r.i,n:nm,s:r.s,t:r.t||Date.now()});ch=true;}}
+  for(const r of rows){if(!r||!r.i||typeof r.s!=="number"||r.s<0||r.s>1e12)continue;const nm=String(r.n||"Player").slice(0,16),o=cur.find(x=>x.i===r.i);
+    if(o){if(LB_LATEST.has(key)?(r.t||0)>(o.t||0)&&r.s!==o.s:r.s>o.s){o.s=r.s;o.t=r.t||o.t;ch=true;}if(nm!==o.n&&(r.t||0)>=(o.t||0)){o.n=nm;ch=true;}}else{cur.push({i:r.i,n:nm,s:r.s,t:r.t||Date.now()});ch=true;}}
   cur.sort((a,b)=>b.s-a.s||a.t-b.t);if(cur.length>LB_KEEP)cur.length=LB_KEEP;return ch;}
 function lbSave(){// drop old daily boards
   for(const k of Object.keys(LB.b))if(/^daily(Geo)?:/.test(k)&&!k.endsWith(":"+today())){const d=k.split(":")[1];if(d<dkey(new Date(Date.now()-3*864e5)))delete LB.b[k];}
   store.set("otc.lb",LB.b);}
 // called whenever a run/game ends
-function lbSubmit(k,score){score=Math.round(score||0);if(score<=0)return;const key=lbKeyFor(k),nm=lbMe()||"Player "+LB.id.slice(0,3).toUpperCase(),row={i:LB.id,n:nm,s:score,t:Date.now()};
+// "latest" boards (current casino chips) keep each player's newest score instead of their best
+const LB_LATEST=new Set(["casNow"]);
+function lbSubmit(k,score,latest){score=Math.round(score||0);latest=latest||LB_LATEST.has(k);if(score<=0&&!latest)return;if(score<0)score=0;const key=lbKeyFor(k),nm=lbMe()||"Player "+LB.id.slice(0,3).toUpperCase(),row={i:LB.id,n:nm,s:score,t:Date.now()};
   const before=(LB.b[key]||[]).find(x=>x.i===LB.id);lbMerge(key,[row]);lbSave();
-  if(lbOn()&&(!before||score>before.s)){socPost(LB_TOPIC,{k:"s",key,r:row});store.set("otc.lbMineSched",0);setTimeout(()=>LB.mine&&LB.mine(true),1500);}
+  if(lbOn()&&(!before||score>before.s||latest&&score!==before.s)){socPost(LB_TOPIC,{k:"s",key,r:row});store.set("otc.lbMineSched",0);setTimeout(()=>LB.mine&&LB.mine(true),1500);}
   const rank=(LB.b[key]||[]).findIndex(x=>x.i===LB.id);if(rank>=0&&rank<3&&(!before||score>before.s))setTimeout(()=>toast(`🏆 You're <b>#${rank+1}</b> on the ${esc(lbName(k))} leaderboard!`),900);}
 function lbStart(){if(!lbOn()||LB.es)return;
   try{const es=new EventSource(`${SOC_RELAY}${LB_TOPIC}/sse?since=12h`);LB.es=es;
     es.onmessage=ev=>{try{const j=JSON.parse(ev.data);if(j.event&&j.event!=="message")return;const m=JSON.parse(j.message);let ch=false;
+      if(m.k==="gift"&&m.to===LB.id&&m.id&&typeof m.amt==="number"&&typeof casChips==="function"){const got=store.get("otc.gifts",[]);if(!got.includes(m.id)){got.push(m.id);store.set("otc.gifts",got.slice(-200));
+        casSet(Math.max(0,casChips()+Math.round(m.amt)));toast(m.amt>=0?`🎁 ${esc(String(m.by||"The developer").slice(0,16))} sent you ${Math.round(m.amt).toLocaleString()} casino chips!`:`🪙 The developer removed ${Math.round(-m.amt).toLocaleString()} casino chips`);}return;}
       if(m.k==="s")ch=lbMerge(m.key,[m.r]);else if(m.k==="mine"&&m.i&&m.b)for(const key in m.b)ch=lbMerge(key,[{i:m.i,n:m.n,s:+m.b[key][0],t:+m.b[key][1]||Date.now()}])||ch;else if(m.k==="snap"&&m.b)for(const key in m.b)ch=lbMerge(key,m.b[key].map(a=>({i:a[0],n:a[1],s:a[2],t:a[3]})))||ch;
       if(ch){lbSave();if($("lbBox"))lbRender();}}catch(e){}};}catch(e){}
   // re-share a compact snapshot every few hours so the boards outlive the relay's 12h memory
@@ -5745,7 +5866,7 @@ function leaderboards(back){LBV.back=back||LBV.back||"landing";
   // two sections: Off the Charts modes, and the arcade grouped like the arcade menu
   const OTC=[["MODES",["daily","blitz","endless","rendless"]],["🌍 GEOGRAPHY",["dailyGeo","endlessGeo","rendlessGeo"]]],
     ARC=ARCADE_CATS.map(([id,nm,gs])=>[nm,gs.map(g=>g[0]==="rush"?"cup":g[0])]),
-    SECS={otc:OTC,arc:ARC,cas:[["CUPIDIUM CASINO",["casPeak","casWin"]]],cp:[["TODAY'S PUZZLES",["cpWord","cpConn","cpBee"]]]},
+    SECS={otc:OTC,arc:ARC,cas:[["CUPIDIUM CASINO",["casNow","casPeak","casWin"]]],cp:[["TODAY'S PUZZLES",["cpWord","cpConn","cpBee"]]]},
     secOf=k=>Object.keys(SECS).find(z=>SECS[z].some(g=>g[1].includes(k)));if(LBV.sec==null||!SECS[LBV.sec])LBV.sec=secOf(LBV.k)||"otc";
   if(secOf(LBV.k)!==LBV.sec)LBV.k=SECS[LBV.sec][0][1][0];
   const groups=SECS[LBV.sec],nm=k=>/^cas/.test(k)?lbName(k).replace("Casino · ",""):/^cp[A-Z]/.test(k)?lbName(k).replace(" (today)",""):k==="cup"?"RUSH":k==="dailyGeo"?"DAILY":k==="endlessGeo"?"ENDLESS":k==="rendlessGeo"?"RAPID ENDLESS":lbName(k).replace(/^IS IT CUPIDIUM\?$/,"IS IT?");
@@ -5801,9 +5922,20 @@ async function devOpen(){if(!store.get("otc.dev",false)){const code=prompt("Deve
         <div class="devt">${list.map(v=>`<div><span>${new Date(v.t).toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"})}</span><b>${esc(v.n||"(no name) "+v.i.slice(0,4))}</b><span>${v.w||""}</span></div>`).join("")}</div>`;})()}
     <p class="hint">Each visit is kept on the relay for about 3 days, and everything this page has seen is saved on this device. A player only shows up once their copy of the game has been updated and they open it on the GitHub site (not the Claude link) on a network that doesn't block ntfy.sh.</p>
     <div class="row"><button class="pbtn sm c m-nova" data-act="dev">↻ REFRESH</button><button class="pbtn sm" data-act="devLock">LOCK DEVELOPER PAGE</button></div></div>`;
+  box.insertAdjacentHTML("afterbegin",`<div class="glass card"><h3 style="font-size:13px">🪙 CASINO CHIPS</h3>
+      <p class="hint">This device has <b>${(typeof casChips==="function"?casChips():0).toLocaleString()}</b> chips.</p>
+      <div class="row" style="gap:6px;flex-wrap:wrap"><input id="devAmt" type="number" min="0" placeholder="amount" style="width:120px">
+        <button class="pbtn sm c m-nova" data-act="devChips" data-m="give">GIVE</button><button class="pbtn sm" data-act="devChips" data-m="take">REMOVE</button><button class="pbtn sm" data-act="devChips" data-m="set">SET TO</button></div>
+      <div class="row" style="gap:6px;flex-wrap:wrap;margin-top:8px"><select id="devWho" style="flex:1;min-width:160px">${Object.entries(people).filter(([i])=>i!==LB.id).sort((a,b)=>b[1].last-a[1].last).map(([i,p])=>`<option value="${esc(i)}">${esc(p.n||"(no name) "+i.slice(0,4))}</option>`).join("")}</select>
+        <button class="pbtn sm c m-sun" data-act="devGift" data-m="give">SEND TO PLAYER</button><button class="pbtn sm" data-act="devGift" data-m="take">TAKE FROM PLAYER</button></div>
+      <p class="hint">Sending works on the GitHub version: the player gets it the next time their game is open.</p></div>`);
   const dl=$("devLoad");if(dl)dl.remove();box.insertAdjacentHTML("afterbegin",`<p class="hint">${relayOK?"✓ Connected to the relay.":"⚠ Couldn't reach the relay from this device, so this only shows visits saved earlier."}</p>`);}
 let DEVDAY=null;
-Object.assign(ACT,{devDay:b=>{DEVDAY=b.dataset.d;window.__devNoFetch=true;devOpen();},dev:()=>devOpen(),devLock:()=>{store.set("otc.dev",false);landing();}});
+Object.assign(ACT,{devChips:b=>{const a=Math.floor(+($("devAmt")||{}).value||0);if(a<0||!$("devAmt").value)return toast("Type an amount");const c=casChips(),m=b.dataset.m;
+    casSet(m==="give"?c+a:m==="take"?Math.max(0,c-a):a);toast(`Chips: ${casChips().toLocaleString()}`);window.__devNoFetch=true;devOpen();},
+  devGift:b=>{const a=Math.floor(+($("devAmt")||{}).value||0),to=($("devWho")||{}).value;if(!a||!to)return toast("Pick a player and an amount");
+    socPost(LB_TOPIC,{k:"gift",to,amt:b.dataset.m==="take"?-a:a,by:lbMe()||"the developer",id:Math.random().toString(36).slice(2)});toast(`Sent ${b.dataset.m==="take"?"−":"+"}${a.toLocaleString()} chips`);},
+  devDay:b=>{DEVDAY=b.dataset.d;window.__devNoFetch=true;devOpen();},dev:()=>devOpen(),devLock:()=>{store.set("otc.dev",false);landing();}});
 addEventListener("hashchange",()=>{if(location.hash==="#dev")devOpen();});
 // ---- first open: everyone picks a player name (used for friends, party rooms, leaderboards and the visit log)
 function nameGate(){if(lbMe()||$("nameGate"))return;const d=document.createElement("div");d.id="nameGate";
