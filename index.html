@@ -1598,6 +1598,11 @@ Object.assign(ADDB,{
 ["Name a fruit","Name a vegetable","Name a color","Name a sport","Name a bird","Name a flower","Name a type of tree","Name a job","Name a pet","Name a farm animal","Name a piece of furniture","Name an item of clothing","Name a school subject","Name a room in a house","Name a human body part","Name an emotion","Name a type of weather","Name something red","Name something round","Name something that's yellow","Name something that's orange","Name a thing that's orange","Name a thing that's purple","Name something that's cold","Name something that's sweet","Name something that's in a fridge","Name something in a refrigerator","Name something that has wings","Name something that flies","Name a type of bread","Name a nut","Name a language","Name a movie","Name a TV show","Name a toy","Name a hobby","Name something that's always cold","Name something that's round and orange","Name something that has stripes","Name something with stripes","Name a musical instrument","Name a vegetable","Name a dessert","Name a sauce or condiment"].forEach(q=>{const p=PROMPTS.find(x=>x.q===q);if(p&&p.w==null)p.w=.35;});
 }
 
+// Tokyo wards and neighbourhoods aren't cities; the Australian states prompt is gone
+{const p=PROMPTS.find(x=>x.q==="Name a city in Japan");if(p){const bad=["shibuya","shinjuku","harajuku","akihabara","ginza","roppongi","asakusa","ikebukuro","odaiba","ueno","shimokitazawa","minato","chiyoda","setagaya","nerima","koto","meguro","taito","sumida"];
+  p.no=new Set([...(p.no||[]),...bad.map(norm)]);const bs=new Set(bad);p.t=p.t.map(t=>(t||"").split("|").filter(a=>!bs.has(a.split("/")[0].trim())).join("|"));p.idx=null;}}
+{const i=PROMPTS.findIndex(x=>x.q==="Name an Australian state or territory");if(i>=0)PROMPTS.splice(i,1);}
+
 </script>
 <script>
 // Word lists for Daily Cuepon (from SCOWL / wordlist-english; common words only)
