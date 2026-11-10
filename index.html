@@ -419,6 +419,10 @@ b,strong{font-weight:500}
 @media (max-width:560px){.hand.mini .ccard{width:30px;height:44px}.hebots{gap:4px}}
 .casgraph{width:100%;height:auto;margin-top:10px;display:block}
 .helog{font-size:13px;display:flex;flex-direction:column;gap:2px;padding:8px 12px}.helog div{color:var(--muted)}.helog div b{color:#e9d5ff;font-weight:400;font-family:var(--head);font-size:11px;letter-spacing:.06em}.helog .new{color:#fde68a}
+.hef{font-size:28px;line-height:1.1;margin:2px 0 0;display:inline-block}.hef.weak,.hef.trash{animation:heJit 1.6s infinite}.hef.strong{animation:heBob 1.4s ease-in-out infinite}
+.het{font-size:10px;color:#cbd5e1;min-height:13px;margin-bottom:3px;font-style:italic}
+@keyframes heJit{0%,86%,100%{transform:none}90%{transform:translateX(-1.5px) rotate(-4deg)}95%{transform:translateX(1.5px) rotate(4deg)}}
+@keyframes heBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
 .hes.turn .hen::after{content:" 💭";animation:blink 1s infinite}.hea.enter{animation:aPop .45s cubic-bezier(.2,1.6,.4,1) backwards;font-size:12px}
 body[data-theme="marius"]{--glass:rgba(120,52,72,.62);--glass2:rgba(120,52,72,.84);--edge:rgba(255,200,190,.5);--muted:#ffe0dc;--p1:#ffa38f;--p2:#ffd0c2;--p3:#e2708a;--hl:#fff1c1;--acc:#ffa38f;--acc2:#f28b82;--meter:#ffa38f;--logo:#fff3ee;--bg:#3a1f33}
 body[data-theme="marius"] .pbtn:not(.c):not(.on){background:rgba(120,52,72,.56)}
@@ -1511,13 +1515,88 @@ Object.assign(ADDB,{
 {q:"Name a country that borders Germany",c:"GEOGRAPHY",closed:1,t:["france|poland|austria|switzerland","netherlands/holland|belgium|denmark|czech republic/czechia","luxembourg","",""]},
 {q:"Name a country that borders Brazil",c:"GEOGRAPHY",closed:1,t:["argentina|colombia|peru","venezuela|bolivia|paraguay|uruguay","guyana|suriname","france/french guiana",""]},
 {q:"Name a European microstate",c:"GEOGRAPHY",closed:1,t:["vatican city/vatican|monaco","san marino|liechtenstein","andorra|malta","",""]},
-{q:"Name a country with 'land' in its name",c:"GEOGRAPHY",t:["finland|iceland|ireland|poland|switzerland","thailand|netherlands|new zealand","scotland|england","swaziland|greenland|northern ireland","somaliland"]},
+{q:"Name a country with 'land' in its name",c:"GEOGRAPHY",t:["finland|iceland|ireland|poland|switzerland","thailand|netherlands|new zealand","scotland|england","swaziland|northern ireland|solomon islands","marshall islands"]},
 {q:"Name a capital city that starts with B",c:"GEOGRAPHY",t:["berlin|beijing|brussels|budapest|bangkok","buenos aires|bogotá/bogota|belgrade|bern|bucharest|baghdad|brasília/brasilia","bratislava|beirut|baku|bishkek|bamako|bangui|banjul|bissau|brazzaville|bujumbura|bridgetown|belmopan|bandar seri begawan","basseterre|belfast|boston|bismarck|baton rouge|boise|brisbane|barcelona","bairiki|brades|basse-terre"]},
 {q:"Name a country in the Southern Hemisphere",c:"GEOGRAPHY",t:["australia|new zealand|south africa|argentina|brazil","chile|peru|bolivia|uruguay|paraguay|madagascar|indonesia","angola|mozambique|zimbabwe|zambia|namibia|botswana|tanzania|malawi|lesotho|eswatini/swaziland|fiji|papua new guinea|samoa|tonga|mauritius|ecuador","democratic republic of the congo|republic of the congo|burundi|rwanda|seychelles|comoros|solomon islands|kenya|somalia|gabon","vanuatu|tuvalu|east timor/timor-leste|sao tome and principe|kiribati|nauru"]},
 {q:"Name a city on the Mediterranean",c:"GEOGRAPHY",t:["barcelona|rome|athens|marseille|nice","naples|venice|monaco|tel aviv|alexandria|beirut|valencia|malaga/málaga|istanbul","tunis|algiers|tripoli|genoa|palermo|valletta|split|dubrovnik|cannes|haifa|limassol|antalya|izmir|thessaloniki|palma|ibiza|cagliari|bari","catania|trieste|ajaccio|bastia|saint-tropez|toulon|montpellier|perpignan|alicante|cartagena|almería|oran|tangier|benghazi|port said|latakia|tartus|sidon|tyre|byblos|ashdod|netanya|ashkelon|nicosia|larnaca|paphos|kotor|budva|tirana|durres","rijeka|zadar|pula|koper|ancona|pescara|brindisi|messina|reggio calabria|taranto|la spezia|livorno|sanremo|menton|sète|tarragona|melilla|ceuta"]},
 {q:"Name a river in Africa",c:"GEOGRAPHY",t:["nile|congo|niger|zambezi","limpopo|orange river/orange|blue nile|white nile","okavango|senegal river|volta|gambia river|ubangi|kasai|shebelle|juba|benue|kagera|atbara|cuanza|cunene|lualaba","tugela|vaal|ruvuma|rufiji|tana|omo|awash|sanaga|ogooué/ogooue|chari|logone|moulouya|sebou|draa|medjerda|kafue|luangwa|shire|save|olifants","komati|great fish|sundays|gamtoos|breede|kei|umgeni|pungwe|buzi|mono|cavally|sassandra|bandama|comoé|mano|jong|rokel|kouilou|ntem"]},
 {q:"Name a river in Asia",c:"GEOGRAPHY",t:["yangtze|ganges|mekong|yellow river/huang he","indus|euphrates|tigris|amur|brahmaputra|yenisei|ob|lena","irrawaddy|salween|pearl river|amu darya|syr darya|jordan river|ural|irtysh|kolyma|chao phraya|red river|mahanadi|godavari|krishna|narmada|yamuna|kaveri|han river","sutlej|chenab|jhelum|ravi|beas|helmand|kura|aras|tarim|songhua|liao|huai|min|xi|li river|hooghly|padma|meghna|teesta|kali gandaki|karnali|sittaung|tonle sap|mahakam|kapuas|musi|barito","pasig|cagayan|agusan|rajang|kinabatangan|pahang|perak|selenga|kherlen|orkhon|aldan|vilyuy|angara|tunguska|khatanga|anadyr"]},
 ].forEach(add);}
+
+// not countries: states/territories with "land" in the name
+{const p=PROMPTS.find(x=>x.q==="Name a country with 'land' in its name");if(p){p.no=new Set([...(p.no||[]),...["somaliland","greenland","puntland","rhineland","queensland","maryland","new england","lapland","nunavut","isle of man","faroe islands","cayman islands","virgin islands","falkland islands","cook islands","aland","aland islands","new caledonia","newfoundland","hokkaido"].map(norm)]);p.idx=null;}}
+
+// ===== Krillion-style prompts: specific, a bit weird, with a long tail of rare answers =====
+{const have=new Set(PROMPTS.map(p=>p.q.toLowerCase()));const add=p=>{
+  if(p.t.some(x=>!x)){const all=p.t.flatMap(x=>x?x.split("|"):[]);if(all.length>=5){const out=[[],[],[],[],[]];all.forEach((a,i)=>out[Math.min(4,Math.floor(i*5/all.length))].push(a));p.t=out.map(x=>x.join("|"));}}
+  {const seen=new Set();p.t=p.t.map(x=>x.split("|").filter(a=>{const k=a.split("/")[0].trim();if(!k||seen.has(k))return false;seen.add(k);return true;}).join("|"));}
+  if(!have.has(p.q.toLowerCase())){have.add(p.q.toLowerCase());p.fun=1;PROMPTS.push(p);}};
+[
+// ---------- WORDS & LANGUAGE ----------
+{q:"Name a word that's also a name",c:"WORDS",t:["rose|lily|daisy|ruby|grace|hope|joy","bill|frank|jack|mark|art|bob|pat|rob|sue","faith|summer|autumn|amber|violet|penny|crystal|dawn|holly|iris|ivy|grant|chase|hunter|will","drew|sandy|candy|rusty|sky|river|stone|forest|cliff|dale|glen|guy|ray|neil|sterling","bud|chip|dusty|wade|gale|rod|lance|ginger|honey|cherry|storm|heath|hazel|olive|dolly|sage|wren|reed"]},
+{q:"Name a compound word",c:"WORDS",t:["sunflower|football|rainbow|butterfly|cupcake","basketball|toothbrush|popcorn|snowman|bedroom|pancake|firefly|starfish","grasshopper|skateboard|notebook|airplane|watermelon|backpack|doorbell|fireworks|homework","wheelchair|lighthouse|honeymoon|earthquake|thunderstorm|bookworm|jellyfish|scarecrow|moonlight","butterscotch|dragonfly|cobweb|hedgehog|ladybug|daydream|mailbox|nightmare|wristwatch|eyebrow|turtleneck"]},
+{q:"Name a word that starts with 'un'",c:"WORDS",t:["under|unicorn|uncle|unhappy|undo","unique|unit|universe|union|unless|until|unite|unusual","umbrella|unicycle|uniform|unlucky|unknown|unbelievable|unfair|unzip","unanimous|unravel|unearth|unscathed|underdog|undertaker|uncanny|unicameral","unkempt|unwieldy|ungainly|unctuous|unflappable|unrequited|unbeknownst|unfathomable"]},
+{q:"Name a word that ends in '-nk'",c:"WORDS",t:["pink|drink|think|sink|bank","skunk|monk|honk|wink|blink|stink|tank|thank|trunk","junk|link|clunk|plank|chunk|spunk|ink|mink|bunk|drank|shrunk","prank|frank|swank|dunk|punk|flunk|rink|slink|clink|brink|crank|flank|hunk","plink|kerplunk|gunk|debunk|chipmunk|hoodwink|kink|lank|shank|yank|zonk|bonk"]},
+{q:"Name a word with a 'j' in it",c:"WORDS",t:["jump|jelly|jungle|jacket|juice|jar","enjoy|major|object|pajamas|banjo|ninja|rajah","jigsaw|jinx|jockey|jalapeno|journey|jovial|juxtapose|injury|adjective","hijack|majesty|fjord|jeopardy|jubilant|jettison|cajole|conjure","marjoram|sojourn|jejune|mahjong|svelte|hajj|bijou|dojo|rijsttafel|azulejo|jodhpurs"]},
+{q:"Name a word that's spelled the same backwards as another word",c:"WORDS",t:["stop|pots|god|dog|live|evil","star|rats|stressed|desserts|reward|parts|strap","diaper|repaid|drawer|lived|devil|keep|peek|net|ten|tops|spot|wolf|flow","snoops|spoons|knits|stink|regal|lager|deliver|reviled|denim|mined","sloops|spools|redraw|warder|straw|warts|gateman|nametag|smart|trams|moor|room"]},
+// ---------- PEOPLE & POP CULTURE ----------
+{q:"Name a famous person who was assassinated",c:"PEOPLE",t:["john f kennedy/jfk/kennedy|abraham lincoln/lincoln|martin luther king/mlk|julius caesar/caesar","gandhi|malcolm x|john lennon|franz ferdinand|robert kennedy/rfk|james garfield/garfield","william mckinley/mckinley|indira gandhi|yitzhak rabin/rabin|benazir bhutto|anwar sadat/sadat|harvey milk","tupac|biggie|selena|shinzo abe/abe|olof palme|leon trotsky/trotsky|rasputin|archduke ferdinand","huey long|medgar evers|caligula|philip ii of macedon|thomas becket|spencer perceval|park chung hee|patrice lumumba|alexander ii"]},
+// ---------- FICTION / MOVIES / TV ----------
+{q:"Name a fictional character who is a mouse or rat",c:"FICTION",t:["mickey mouse|jerry|remy|minnie mouse|stuart little","speedy gonzales|splinter|pinky|the brain|scabbers|despereaux|basil","mighty mouse|fievel|templeton|reepicheep|danger mouse|bernard|bianca","gus|jaq|ratigan|nicodemus|mrs brisby|timothy|mighty|roquefort|rizzo","ben|angelina ballerina|maisy|geronimo stilton|frisby|redwall's matthias"]},
+{q:"Name a fictional character with red hair",c:"FICTION",t:["ariel|ron weasley|merida|anne of green gables|annie","pippi longstocking|ginny weasley|jessica rabbit|black widow|poison ivy|mary jane","wilma flintstone|kim possible|jean grey|daphne|chucky|ronald mcdonald|pepper potts","wendy|lucille ball's lucy|ygritte|sansa stark|archie andrews|ginger","raggedy ann|misty|chuckie finster|red sonja|princess fiona|velma|nami|asuka|kushina|erza"]},
+{q:"Name a famous fictional school",c:"FICTION",t:["hogwarts|bayside|springfield elementary","xavier's school|monster university|rydell high|sunnydale high|east high","degrassi|hill valley high|ridgemont high|shermer high|west beverly|beacon hills","u a high|ouran|nevermore|starfleet academy|camp half-blood|jedi temple|sky high","grange hill|constance billard|wakanda|beauxbatons|durmstrang|ilvermorny|brakebills|malory towers|st trinians"]},
+// ---------- FOOD (weird angles) ----------
+{q:"Name a type of pie",c:"FOOD",t:["apple|cherry|pumpkin|pecan|blueberry","key lime|lemon meringue|banana cream|chicken pot pie|sweet potato|peach","shepherd's pie|strawberry rhubarb|chocolate cream|coconut cream|mince|pot pie|cottage pie","blackberry|banoffee|boston cream|shoofly|chess|mud pie|meat pie|pork pie|grasshopper","steak and kidney|stargazy|buttermilk|sugar cream|whoopie pie|tourtiere|bean pie|humble pie|pi"]},
+// ---------- THINGS & EVERYDAY ----------
+// ---------- NATURE / ANIMALS (specific) ----------
+{q:"Name an animal with a long neck",c:"ANIMALS",t:["giraffe|swan|ostrich|camel","flamingo|llama|alpaca|heron|goose|emu","brachiosaurus|gerenuk|turtle|crane|stork|okapi|horse","egret|cormorant|anhinga|plesiosaur|diplodocus|snake necked turtle|vulture","sauropod|tanystropheus|giraffe weevil|giraffe gazelle|loch ness monster|swan goose|darter"]},
+{q:"Name an animal that's poisonous or venomous",c:"ANIMALS",t:["snake|spider|scorpion|jellyfish|cobra","rattlesnake|black widow|box jellyfish|poison dart frog|bee|wasp","platypus|stingray|pufferfish|blue ringed octopus|cone snail|komodo dragon|lionfish","gila monster|stonefish|tarantula hawk|brown recluse|funnel web|taipan|mamba|toad","slow loris|solenodon|shrew|cane toad|hooded pitohui|sea snake|irukandji|bullet ant|fire salamander"]},
+{q:"Name an animal you'd find in Australia",c:"ANIMALS",t:["kangaroo|koala|wombat|emu|platypus","dingo|tasmanian devil|crocodile|kookaburra|wallaby|cockatoo","echidna|quokka|cassowary|possum|goanna|frilled lizard|huntsman spider|box jellyfish","bilby|numbat|sugar glider|lyrebird|cane toad|taipan|funnel web|galah|budgie","thorny devil|quoll|bandicoot|potoroo|cuscus|tree kangaroo|dugong|bin chicken|drop bear|lorikeet"]},
+{q:"Name an animal that hibernates",c:"NATURE",t:["bear|hedgehog|bat|groundhog|squirrel","chipmunk|frog|turtle|snake|bee|ladybug|dormouse","marmot|skunk|raccoon|toad|snail|lemur|prairie dog|woodchuck","bumblebee queen|poorwill|garter snake|wood frog|box turtle|badger|lizard","fat tailed dwarf lemur|alpine marmot|arctic ground squirrel|echidna"]},
+// ---------- WHAT IF / OPINION (open, funny) ----------
+// ---------- GAMES & SPORTS (specific) ----------
+{q:"Name a sport that uses a net",c:"SPORTS",t:["volleyball|tennis|basketball|soccer|badminton","hockey|table tennis/ping pong|pickleball|water polo|netball|lacrosse","handball|beach volleyball|squash|sepak takraw|fishing|butterfly catching","field hockey|ice hockey|footvolley|roundnet/spikeball|teqball|goalball|korfball","jai alai|bossaball|padel|polo|trampoline|circus|quidditch|tchoukball"]},
+{q:"Name a famous video game boss",c:"GAMES",t:["bowser|ganon|ender dragon|wither","dr robotnik/eggman|sephiroth|king dedede|ridley|mother brain|dr wily","glados|the lich king|ganondorf|malenia|radahn|ornstein and smough|sans","andrew ryan|handsome jack|vaas|ultimecia|kefka|the moon lord|wall of flesh","the nameless king|isshin|psycho mantis|nemesis|ornstein|seath|gwyn|margit|lavos"]},
+{q:"Name a Fortnite location or item",c:"GAMES",t:["tilted towers|scar|shield potion|chug jug|battle bus","pleasant park|retail row|salty springs|boogie bomb|slurp juice|med kit","loot lake|dusty depot|lazy lagoon|grappler|port a fort|shockwave|launch pad","the agency|misty meadows|frenzy farm|sweaty sands|pump shotgun|infinity blade|mythic","durr burger|happy hamlet|holly hedges|snobby shoals|chug splash|guided missile|zero point"]},
+// ---------- SCIENCE / SPACE / TECH (fun) ----------
+{q:"Name something that's radioactive",c:"SCIENCE",t:["uranium|plutonium|nuclear waste|radium","chernobyl|nuclear bomb|banana|godzilla|reactor","polonium|thorium|carbon 14|radon|tritium|cesium|cobalt 60","brazil nuts|granite|smoke detector|fiestaware|glow in the dark watch|x ray|fukushima","americium|francium|strontium 90|technetium|potassium 40|elephant's foot|demon core|spider man's spider"]},
+{q:"Name a famous computer virus or hack",c:"TECH",t:["iloveyou|wannacry|stuxnet|trojan horse","mydoom|melissa|code red|conficker|zeus|petya","notpetya|morris worm|sasser|blaster|slammer|cryptolocker","sony hack|equifax|solarwinds|mirai|heartbleed|log4j|target breach","brain|creeper|elk cloner|anna kournikova|storm worm|flame|nimda|klez|chernobyl virus"]},
+{q:"Name a famous scientist's discovery",c:"SCIENCE",t:["gravity|penicillin|electricity|evolution|relativity","dna|radioactivity|x rays|vaccines|light bulb|germ theory","pi|the atom|electron|periodic table|big bang|black holes|calculus","plate tectonics|insulin|oxygen|photosynthesis|neutron|pulsars|quarks","higgs boson|graphene|crispr|cosmic background radiation|quantum mechanics|blood circulation|vitamin c"]},
+// ---------- HISTORY (quirky) ----------
+{q:"Name a famous castle",c:"PLACES",t:["neuschwanstein|windsor|edinburgh|cinderella's castle|hogwarts","buckingham palace|bran castle/dracula's castle|tower of london|versailles|alhambra|himeji","balmoral|warwick|leeds|blarney|eilean donan|prague castle|mont saint michel","chateau de chambord|hohenzollern|osaka castle|matsumoto|krak des chevaliers|conwy|caernarfon","bodiam|alnwick|glamis|dover|chillon|peles|malbork|predjama|segovia alcazar|castel sant'angelo"]},
+{q:"Name a famous treasure or lost treasure",c:"HISTORY",t:["el dorado|holy grail|king tut's tomb|blackbeard's treasure","atlantis|ark of the covenant|amber room|one piece|crown jewels","hope diamond|lost dutchman's mine|fabergé eggs|yamashita's gold|templar treasure","oak island|nazi gold|treasure of lima|forrest fenn's treasure|beale ciphers|kruger millions","koh i noor|black prince's ruby|patiala necklace|florentine diamond|honjo masamune|ivan's library|money pit"]},
+// ---------- MUSIC / ART ----------
+{q:"Name a song with a color in the title",c:"MUSIC",t:["yellow submarine|purple rain|yellow|blue suede shoes|black or white","back in black|paint it black|blue da ba dee|red red wine|lady in red|green light","blue|white christmas|red|yellow|golden|green onions|gold digger|orange crush","black hole sun|nights in white satin|brown eyed girl|white rabbit|black magic woman|pink","mr blue sky|blue monday|yellow ledbetter|forever in blue jeans|black dog|red rain|white wedding|silver springs"]},
+{q:"Name a song with a name in the title",c:"MUSIC",t:["billie jean|jolene|hey jude|roxanne|stan","sweet caroline|layla|angie|gloria|mickey|michelle","jessie's girl|jenny 8675309|dani california|rhiannon","eleanor rigby|bennie and the jets|delilah|valerie|daniel|ruby|lola|sara|maria","peggy sue|rosanna|cecilia|kayleigh|veronica|annie|alison|clementine|proud mary|johnny b goode"]},
+// ---------- GEOGRAPHY (fun ones) ----------
+{q:"Name a country with a circle or sun on its flag",c:"GEOGRAPHY",t:["japan|bangladesh","argentina|uruguay|palau|kiribati","laos|macedonia/north macedonia|taiwan|philippines|kazakhstan","malawi|niger|rwanda|kyrgyzstan|namibia","antigua and barbuda|nepal"]},
+{q:"Name a country with a dragon, bird or lion on its flag",c:"GEOGRAPHY",t:["mexico|albania|wales|sri lanka","bhutan|egypt|serbia|montenegro","zambia|kazakhstan|moldova","fiji|ecuador|spain","paraguay|bolivia|kiribati"]},
+{q:"Name a city with 'San' or 'Santa' in its name",c:"GEOGRAPHY",t:["san francisco|san diego|san antonio|santa monica|san jose","santa barbara|san juan|santa fe|santiago|san salvador","santa cruz|san sebastian|santo domingo|san marino|santa clara|san bernardino","san luis obispo|santa ana|santa rosa|santa clarita|san pedro|san mateo|santa maria","san cristobal|santa marta|san miguel de allende|santander|san gimignano|sanremo|santorini"]},
+// ---------- objective, Krillion-style ----------
+{q:"Name a country whose name ends in 'stan'",c:"GEOGRAPHY",t:["afghanistan|pakistan","kazakhstan","uzbekistan|kyrgyzstan","tajikistan","turkmenistan"]},
+{q:"Name a country that borders only one other country",c:"GEOGRAPHY",t:["canada|portugal|south korea","ireland|united kingdom/uk|denmark|haiti|dominican republic","monaco|san marino|vatican city/vatican|lesotho","gambia/the gambia|qatar|papua new guinea","brunei|timor leste/east timor"]},
+{q:"Name a US state that borders Canada",c:"GEOGRAPHY",t:["washington|new york|michigan|maine|alaska|montana","minnesota|vermont|north dakota","idaho|new hampshire","ohio","pennsylvania"]},
+{q:"Name a US state that ends in the letter A",c:"GEOGRAPHY",t:["california|florida|georgia|alabama|alaska|arizona|virginia","indiana|iowa|louisiana|minnesota|montana|nevada|north carolina|south carolina","oklahoma|pennsylvania|nebraska|west virginia","north dakota","south dakota"]},
+{q:"Name a US state named after a person",c:"GEOGRAPHY",t:["washington|virginia|georgia","west virginia|maryland|louisiana","pennsylvania|north carolina|south carolina","new york","delaware"]},
+{q:"Name a country whose capital starts with the same letter",c:"GEOGRAPHY",t:["mexico|brazil|panama|guatemala|kuwait|luxembourg|singapore|monaco","sweden|belgium|south korea|algeria|tunisia|vatican city/vatican|san marino|djibouti","andorra|belize|brunei|barbados|maldives","mozambique|niger|sri lanka","marshall islands|sao tome and principe"]},
+{q:"Name a country that drives on the left",c:"GEOGRAPHY",t:["united kingdom/uk/england|australia|japan|india|ireland|new zealand","south africa|thailand|indonesia|malaysia|singapore|pakistan|jamaica","kenya|bangladesh|sri lanka|cyprus|malta|bahamas|hong kong|uganda|tanzania|zimbabwe","zambia|botswana|namibia|mozambique|nepal|bhutan|brunei|barbados|trinidad and tobago|guyana|fiji","suriname|malawi|lesotho|eswatini/swaziland|mauritius|seychelles|maldives|papua new guinea|samoa|tonga|solomon islands|timor leste|macau"]},
+{q:"Name a capital city that isn't its country's biggest city",c:"GEOGRAPHY",t:["washington dc/washington|ottawa|canberra|brasilia","beijing|ankara|bern|wellington|new delhi","pretoria|abuja|islamabad|hanoi|rabat|quito","astana|naypyidaw|dodoma|yamoussoukro|sucre|la paz|putrajaya","porto novo|sri jayawardenepura kotte|belmopan|gitega|ngerulmud|palikir|thimphu"]},
+{q:"Name a country that no longer exists",c:"HISTORY",t:["soviet union/ussr|yugoslavia|czechoslovakia|east germany","prussia|ottoman empire|roman empire|west germany|austria-hungary|persia","rhodesia|zaire|burma|siam|ceylon|byzantine empire|holy roman empire","south vietnam|gran colombia|republic of texas|kingdom of hawaii/hawaii|serbia and montenegro|tibet|babylon","united arab republic|sikkim|biafra|tanganyika|zanzibar|dahomey|upper volta|ceylon|new granada|kingdom of sardinia"]},
+{q:"Name a country in the European Union",c:"GEOGRAPHY",t:["france|germany|italy|spain|netherlands|belgium","portugal|ireland|greece|austria|sweden|poland|denmark|finland","czech republic/czechia|hungary|romania|croatia|bulgaria|luxembourg","slovakia|slovenia|lithuania|latvia|estonia","malta|cyprus"]},
+{q:"Name a sea (not an ocean)",c:"GEOGRAPHY",t:["mediterranean|caribbean|red sea/red|black sea/black|dead sea/dead","caspian|north sea|baltic|arabian|south china sea|bering","coral|tasman|aegean|adriatic|yellow sea|sea of japan|east china sea|irish sea","ionian|tyrrhenian|sargasso|barents|okhotsk|andaman|java|celebes|sulu|philippine sea","ligurian|weddell|ross|kara|laptev|beaufort|banda|arafura|labrador|white sea|azov|marmara|salton|galilee"]},
+{q:"Name a chemical element named after a place",c:"SCIENCE",t:["americium|californium|francium|germanium|polonium","europium|berkelium|scandium|gallium|copper","strontium|magnesium|ruthenium|hafnium|lutetium|rhenium","yttrium|ytterbium|erbium|terbium|holmium|thulium","darmstadtium|dubnium|hassium|nihonium|moscovium|tennessine|livermorium"]},
+{q:"Name an element whose symbol doesn't match its English name",c:"SCIENCE",t:["gold|iron|silver|sodium","lead|potassium|mercury","tin|tungsten","antimony","copper"]},
+{q:"Name an element with a one-letter symbol",c:"SCIENCE",t:["hydrogen|oxygen|carbon|nitrogen","sulfur|potassium|iodine|uranium","fluorine|phosphorus|boron","tungsten|vanadium","yttrium"]},
+{q:"Name an element that's a gas at room temperature",c:"SCIENCE",t:["oxygen|hydrogen|helium|nitrogen","neon|chlorine|argon","fluorine|radon","krypton|xenon","oganesson"]},
+{q:"Name a moon of another planet",c:"SPACE",t:["titan|europa|io|ganymede|phobos","callisto|deimos|enceladus|triton|charon","mimas|rhea|iapetus|miranda|oberon|titania","dione|tethys|hyperion|phoebe|ariel|umbriel|amalthea","nereid|proteus|puck|pandora|prometheus|himalia|janus|epimetheus|metis|thebe|larissa"]},
+{q:"Name a bone in the human body",c:"ANATOMY",t:["femur|skull|ribs/rib|spine|tibia","humerus|radius|ulna|fibula|pelvis|jaw|kneecap","clavicle/collarbone|scapula/shoulder blade|sternum|patella|mandible|vertebrae","coccyx/tailbone|sacrum|metacarpals|phalanges|carpals|tarsals|metatarsals|maxilla","hyoid|stapes|incus|malleus|scaphoid|calcaneus|talus|cuboid|lunate|hamate|vomer|ethmoid|sphenoid"]},
+{q:"Name a Greek letter",c:"WORDS",t:["alpha|beta|omega|pi|delta","gamma|sigma|theta|lambda","epsilon|zeta|kappa|phi|mu","eta|iota|rho|tau|chi|psi","omicron|upsilon|xi|nu"]},
+{q:"Name a word that has 'ough' in it",c:"WORDS",t:["though|through|tough|rough|cough|thought","enough|dough|bought|brought|fought","thorough|borough|drought|ought|sought|plough","bough|trough|doughnut|throughout|nought","slough|hiccough|chough|lough|furlough|sough"]},
+{q:"Name a Pokemon type",c:"GAMES",t:["fire|water|grass|electric","psychic|dragon|ice|normal|flying","dark|ghost|fighting|poison|rock","ground|bug|fairy","steel|stellar"]},
+].forEach(add);
+// the plainest prompts come up less often in endless runs, so the interesting ones get more turns
+["Name a fruit","Name a vegetable","Name a color","Name a sport","Name a bird","Name a flower","Name a type of tree","Name a job","Name a pet","Name a farm animal","Name a piece of furniture","Name an item of clothing","Name a school subject","Name a room in a house","Name a human body part","Name an emotion","Name a type of weather","Name something red","Name something round","Name something that's yellow","Name something that's orange","Name a thing that's orange","Name a thing that's purple","Name something that's cold","Name something that's sweet","Name something that's in a fridge","Name something in a refrigerator","Name something that has wings","Name something that flies","Name a type of bread","Name a nut","Name a language","Name a movie","Name a TV show","Name a toy","Name a hobby","Name something that's always cold","Name something that's round and orange","Name something that has stripes","Name something with stripes","Name a musical instrument","Name a vegetable","Name a dessert","Name a sauce or condiment"].forEach(q=>{const p=PROMPTS.find(x=>x.q===q);if(p&&p.w==null)p.w=.35;});
+}
 
 </script>
 <script>
@@ -1555,7 +1634,7 @@ function casSet(v,won){v=Math.max(0,Math.floor(v));store.set("otc.cas.chips",v);
 function casBet(){return Math.max(1,Math.min(casChips()||1,store.get("otc.cas.bet",25)));}
 const CAS_GAMES=[
   ["bj","🂡","BLACKJACK","Beat the dealer to 21. Blackjack pays 3:2."],
-  ["vp","🃏","TEXAS HOLD'EM","No-limit hold'em against three cupid bots."],
+  ["vp","🃏","TEXAS HOLD'EM","No-limit hold'em against three cupid bots. Read their faces: CUPID can't hide a thing, ATOM wears a poker face, NOVA bluffs with hers."],
   ["sl","🎰","ATOM SLOTS","5 lines, 3 reels. Three ⚛ is the jackpot."],
   ["ro","🎡","ROULETTE","Red, black, odds, evens or one lucky number."],
   ["cr","🚀","CUPID ROCKET","The multiplier climbs until it crashes. Cash out in time."],
@@ -1618,7 +1697,15 @@ function bjEnd(){const G=CAS.bj;G.phase="done";const pv=bjVal(G.p),dv=bjVal(G.d)
   if(pay)casSet(casChips()+pay,pay-G.bet);if(pay>G.bet){sfx.ok(3);burst(20);}else if(!pay)sfx.miss();G.msg=msg;bj();}
 // ---------- TEXAS HOLD'EM (you vs three cupid bots) ----------
 // The big blind is your chosen bet. Your bets come out of your chips; the bots play with house money.
-const HE_BOTS=[{n:"CUPID",ic:"💘",tight:.0,bluff:.10},{n:"ATOM",ic:"⚛",tight:.08,bluff:.05},{n:"NOVA",ic:"🌟",tight:-.06,bluff:.16}];
+// read = how often their face shows what they really hold · flip = the rest of the time they act the opposite (else a blank poker face)
+const HE_BOTS=[{n:"CUPID",ic:"💘",tight:.0,bluff:.10,read:.75,flip:0},{n:"ATOM",ic:"⚛",tight:.08,bluff:.05,read:.35,flip:0},{n:"NOVA",ic:"🌟",tight:-.06,bluff:.16,read:.45,flip:1}];
+// poker faces: each street every bot shows a face. Readable bots give away their hand; others bluff with their face
+const HE_FACE=[["😟","trash",["sighs","frowns at their cards","shoulders drop"]],["😬","weak",["fidgets","glances away","a bead of sweat"]],["😐","meh",["blank stare","shrugs"]],
+  ["🙂","good",["relaxed","nods slightly","sits up"]],["😏","strong",["smirks","stacks chips eagerly","leans in"]]];
+function heFace(p,lv,fake){const F=HE_FACE[Math.max(0,Math.min(4,lv))];p.face=F[0];p.mood=F[1];p.tell=F[2][Math.random()*F[2].length|0];p.fake=!!fake;}
+function heFaces(G){for(const p of G.seats){if(p.you||p.fold)continue;const opp=Math.max(1,heLive(G).length-1),e=heEquity(p.hole,G.board,opp,90),fair=1/(opp+1);
+  const lv=e>fair*1.9?4:e>fair*1.35?3:e>fair*.85?2:e>fair*.5?1:0;p.eq=e;
+  if(Math.random()<p.read)heFace(p,lv);else if(p.flip)heFace(p,4-lv,1);else{p.face="😶";p.mood="poker";p.tell="poker face";p.fake=1;}}}
 const HE_CAT=["HIGH CARD","PAIR","TWO PAIR","THREE OF A KIND","STRAIGHT","FLUSH","FULL HOUSE","FOUR OF A KIND","STRAIGHT FLUSH"];
 function heEval5(h){const rs=h.map(c=>c.r).sort((a,b)=>b-a),fl=h.every(c=>c.s===h[0].s),cnt={};rs.forEach(r=>cnt[r]=(cnt[r]||0)+1);
   const g=Object.entries(cnt).map(([r,n])=>[n,+r]).sort((a,b)=>b[0]-a[0]||b[1]-a[1]),uniq=g.length===5;
@@ -1639,7 +1726,7 @@ function heNew(){const bb=Math.max(2,casBet()),c=casChips();if(c<bb)return toast
   G.bb=bb;G.sb=Math.max(1,Math.floor(bb/2));G.btn=(G.btn+1)%4;G.hands++;const d=casDeck();G.d=d;G.board=[];G.street=0;G.msg="";G.done=false;G.raises=0;G.log=[];
   G.log=[];G.seats=[{you:1,n:"YOU"},...HE_BOTS.map(b=>({...b}))].map((p,i)=>({...p,i,hole:[d.pop(),d.pop()],in:0,round:0,fold:false,act:"",allin:false}));
   const sbI=(G.btn+1)%4,bbI=(G.btn+2)%4;hePut(G,sbI,G.sb,"SMALL BLIND");hePut(G,bbI,G.bb,"BIG BLIND");G.cur=G.bb;G.minR=G.bb;G.turn=(G.btn+3)%4;G.need=new Set([0,1,2,3]);
-  G.phase="play";heNext(G);}
+  G.phase="play";heFaces(G);heNext(G);}
 function hePut(G,i,amt,label){const p=G.seats[i];if(p.you){const c=casChips();if(amt>=c){amt=c;p.allin=true;}casSet(c-amt);}p.in+=amt;p.round+=amt;if(label)p.act=label;}
 const hePot=G=>G.seats.reduce((a,p)=>a+p.in,0);
 const heLive=G=>G.seats.filter(p=>!p.fold);
@@ -1659,13 +1746,13 @@ function heBot(G,i){const p=G.seats[i],opp=heLive(G).length-1,call=G.cur-p.round
   const e=heEquity(p.hole,G.board,Math.max(1,opp),G.street===0?110:150),odds=call>0?call/(pot+call):0,r=Math.random(),strong=.62-.07*(opp-1)+p.tight;
   const size=f=>G.cur+Math.max(G.minR,Math.round(pot*f/G.sb)*G.sb);
   if(e>strong&&G.raises<(e>.85?3:2)&&r<.6)return heAct(G,i,"raise",size(e>.8?.75:.5));
-  if(e>odds+.06+p.tight||call===0&&r>p.bluff){if(call===0&&G.raises===0&&r<p.bluff*1.5)return heAct(G,i,"raise",size(.4));return heAct(G,i,"call");}
+  if(e>odds+.06+p.tight||call===0&&r>p.bluff){if(call===0&&G.raises===0&&r<p.bluff*1.5){if(e<.4){if(Math.random()<p.read){p.face="😅";p.mood="weak";p.tell="nervous laugh";}else heFace(p,4,1);}return heAct(G,i,"raise",size(.4));}return heAct(G,i,"call");}
   if(call===0)return heAct(G,i,"call");
   if(r<p.bluff*.6&&call<=G.bb*2)return heAct(G,i,"call");return heAct(G,i,"fold");}
 function heStreet(G){G.seats.forEach(p=>{p.round=0;if(!p.fold&&!p.allin)p.act="";});G.cur=0;G.minR=G.bb;G.raises=0;G.street++;
   if(G.street===1)G.board.push(G.d.pop(),G.d.pop(),G.d.pop());else if(G.street<=3)G.board.push(G.d.pop());
   if(G.street>3)return heShow(G);
-  G.need=new Set(G.seats.filter(p=>!p.fold&&!p.allin).map(p=>p.i));G.turn=(G.btn+1)%4;
+  heFaces(G);G.need=new Set(G.seats.filter(p=>!p.fold&&!p.allin).map(p=>p.i));G.turn=(G.btn+1)%4;
   // nobody left who can still bet? run the board out
   G.log.push(["— "+["","FLOP","TURN","RIVER"][G.street]+" —",""]);
   if(G.need.size<=1&&heLive(G).some(p=>p.allin)){vp();const t0=tok;return setTimeout(()=>{if(tok===t0&&CAS.vp===G)heStreet(G);},1800);}
@@ -1681,6 +1768,8 @@ function heShow(G){G.phase="done";G.done=true;const live=heLive(G);let win;
 function vp(){const G=CAS.vp||(CAS.vp={btn:-1,hands:0});const me=G.seats&&G.seats[0],play=G.phase==="play",myTurn=play&&G.wait&&G.turn===0;
   const call=me?G.cur-me.round:0,pot=G.seats?hePot(G):0,chips=casChips();
   const seat=(p,pos)=>`<div class="hes ${p.fold?"fold":""} ${play&&G.turn===p.i?"turn":""} ${G.done&&G.winners&&G.winners.includes(p.i)?"win":""}"><div class="hen">${p.ic} ${p.n}${G.btn===p.i?` <em class="btn">D</em>`:""}</div>
+    ${(()=>{const end=G.done,f=p.fold?["😴","folded"]:end?(G.winners&&G.winners.includes(p.i)?["😄","happy"]:["😤","mad"]):p.face?[p.face,p.mood]:null;
+      return f?`<div class="hef ${f[1]}" data-ak="f${p.i}${f[0]}${G.hands}${G.street}" data-an="enter" data-d="0">${f[0]}</div><div class="het">${p.fold?"out":end?(G.winners&&G.winners.includes(p.i)?"grinning":"grumbles"):esc(p.tell||"")}</div>`:"";})()}
     <div class="hand mini">${p.hole.map((c,j)=>casCard(c,{back:!(p.show||G.done&&!p.fold&&heLive(G).length>1),k:`b${p.i}${j}${G.hands}${p.show?"s":""}`})).join("")}</div>
     <div class="hea" data-ak="a${p.i}${p.act}${G.hands}" data-an="enter" data-d="0">${p.act||"&nbsp;"}</div>${p.in?`<div class="hein">🪙 ${p.in.toLocaleString()}</div>`:""}</div>`;
   const myName=me&&G.board.length>=3?heName(heBest([...me.hole,...G.board])):me&&me.hole[0].r===me.hole[1].r?"POCKET PAIR":"";
@@ -4402,7 +4491,7 @@ function mgStart(id){store.set("otc.lastArc",id==="rush"?"cup":id);
   if(sv&&sv.v===1&&sv.m){MG.paused=true;const o=$("mgo");o.hidden=false;
     o.innerHTML=`<div class="glass card center"><div class="lbl">GAME IN PROGRESS</div><div class="big" style="color:#ff8fe0">${sv.m.score||0}</div><div class="hint">saved ${new Date(sv.at).toLocaleString()}</div>
       <div class="row" style="justify-content:center;margin-top:10px"><button class="pbtn c m-nova" data-act="mgCont">▶ CONTINUE</button><button class="pbtn" data-act="mgNew">NEW GAME</button></div></div>`;}
-  c.addEventListener("pointerdown",mgPtr);c.addEventListener("pointermove",mgPtr);c.addEventListener("pointerup",mgPtr);c.addEventListener("wheel",e=>{if(MG&&MG.G.wheel&&MG.G.wheel(MG,e.deltaY))e.preventDefault();},{passive:false});
+  c.addEventListener("pointerdown",mgPtr);c.addEventListener("pointermove",mgPtr);c.addEventListener("pointerup",mgPtr);c.addEventListener("wheel",e=>{if(MG&&MG.G.wheel&&MG.G.wheel(MG,e.deltaY,e))e.preventDefault();},{passive:false});
 }
 // ---- saving games in progress (every few seconds, and when you quit or leave the page)
 const mgSaveKey=id=>"otc.mgsave."+id;
@@ -4645,13 +4734,21 @@ MGAMES.stack={name:"CUPIDIUM STACKER",w:160,h:240,blurb:"A 3D tower of crystal f
   camera(m){const top=m.blocks[m.blocks.length-1],zw=Math.min(this.zs(top),m.cur?this.zs(m.cur):1);m.zoom+=(zw-m.zoom)*.07;
     const K=this.K*m.zoom,tx=top.x+top.w/2,tz=top.z+top.d/2,n=m.blocks.length;
     m.ox+=(-(tx-tz)*.866*K-m.ox)*.08;const want=Math.max(0,96-(168+(tx+tz)*.5*K-n*this.bh(m)));m.cam+=(want-m.cam)*.08;
-    const V=m.view;if(V){V.want=Math.max(0,Math.min(m.cam,V.want));V.off+=(V.want-V.off)*.18;}
+    const V=m.view;if(V){const E=this.vExt(m),vm=this.vMin(m);V.z=V.z||1;V.zw=Math.max(vm,Math.min(1,V.zw||1));V.z+=(V.zw-V.z)*.2;
+      const mid=(E[0]+E[1])/2-120;V.want=Math.max(Math.min(0,mid),Math.min(Math.max(m.cam,mid),V.want));if(V.zw<=vm+1e-3&&V.drag==null)V.want=mid;V.off+=(V.want-V.off)*.18;}
     m.alt+=(n-1-m.alt)*.05;},
-  key(m,k,down,first,raw){if(m.over){if(!m.view||!down)return;if(k==="dn")m.view.want+=40;else if(k==="u")m.view.want-=40;else if(k==="sp"||k==="ent"){$("mgo").hidden=false;}return;}
+  key(m,k,down,first,raw){if(m.over){if(!m.view||!down)return;if(k==="dn")m.view.want+=40;else if(k==="u")m.view.want-=40;else if(raw==="-"||raw==="_")this.vZoom(m,.8);else if(raw==="="||raw==="+")this.vZoom(m,1.25);else if(k==="sp"||k==="ent"){$("mgo").hidden=false;}return;}
     if(!down||!first)return;if(m.cal){if(k==="sp"||k==="ent")this.calTap(m);return;}if(m.choose){const i="1234".indexOf(raw);if(i>=0&&m.choose[i])this.pick(m,m.choose[i]);return;}if(k==="sp"||k==="ent")this.drop(m);},
-  wheel(m,dy){if(!m.over||!m.view)return false;m.view.want+=dy*.4;return true;},
-  ptr(m,x,y,t){if(m.over){const V=m.view;if(!V)return;if(t==="pointerdown"){if(x>m.W-46&&y<20){$("mgo").hidden=false;return;}V.drag=y;V.moved=0;}
-      else if(t==="pointermove"&&V.drag!=null){const d=y-V.drag;V.drag=y;V.want-=d;V.off-=d;V.moved+=Math.abs(d);}else if(t==="pointerup")V.drag=null;return;}
+  // tower view: how far out you can zoom (enough to fit the whole tower on screen)
+  // the tower's top and bottom on screen (ignoring the current scroll)
+  vExt(m){const n=m.blocks.length,top=m.blocks[n-1],b0=m.blocks[0],o=m.view?m.view.off:0;
+    let ty=1e9;m.blocks.forEach((b,i)=>{ty=Math.min(ty,this.proj(m,b.x,b.z,i+1)[1]);});ty+=o-6;const by=this.proj(m,b0.x+b0.w,b0.z+b0.d,-4)[1]+o+4;return[ty,by];},
+  vMin(m){const E=this.vExt(m);return Math.min(1,226/Math.max(1,E[1]-E[0]));},
+  vZoom(m,f){const V=m.view;if(!V)return;V.zw=Math.max(this.vMin(m),Math.min(1,(V.zw||1)*f));},
+  wheel(m,dy,e){if(!m.over||!m.view)return false;if(e&&e.ctrlKey)this.vZoom(m,dy>0?.9:1/.9);else m.view.want+=dy*.4/(m.view.z||1);return true;},
+  ptr(m,x,y,t){if(m.over){const V=m.view;if(!V)return;if(t==="pointerdown"){if(x>m.W-46&&y<20){$("mgo").hidden=false;return;}
+        if(y>m.H-36&&y<m.H-18){if(x>m.W-58&&x<m.W-42)return this.vZoom(m,.7);if(x>m.W-40&&x<m.W-24)return this.vZoom(m,1/.7);if(x>m.W-22)return void(V.zw=this.vMin(m));}V.drag=y;V.moved=0;}
+      else if(t==="pointermove"&&V.drag!=null){const d=(y-V.drag)/(V.z||1);V.drag=y;V.want-=d;V.off-=d;V.moved+=Math.abs(d);}else if(t==="pointerup")V.drag=null;return;}
     if(t!=="pointerdown")return;if(m.cal)return this.calTap(m);if(m.choose){const i=Math.floor((y-76)/36);if(x>=14&&x<=146&&i>=0&&i<m.choose.length&&y>=76)this.pick(m,m.choose[i]);return;}this.drop(m);},
   update(m,dt){for(const ch of m.chips){ch.vy+=.0009*dt;ch.y+=ch.vy*dt;}m.chips=m.chips.filter(ch=>ch.y<80);
     if(m.dead){if(m.t-m.dead>900){mgEnd("IT FELL!",`${m.deadTxt||""}<br><button class="pbtn sm" data-act="stackView" style="margin-top:8px">👀 VIEW YOUR TOWER</button>`);}return;}
@@ -4783,17 +4880,19 @@ MGAMES.stack={name:"CUPIDIUM STACKER",w:160,h:240,blurb:"A 3D tower of crystal f
     for(let k=0;k<26;k++){const ex=(k*37+Math.sin(t*.002+k)*6)%m.W,ey=m.H-((t*.05+k*53)%m.H);x.globalAlpha=Math.max(0,ey/m.H);mR(x,ex,ey,1,1,k%2?"#fdba74":"#fde047");}x.globalAlpha=1;},
   draw(m,x,t,dt){t=t||0;dt=dt||0;const h=m.blocks.length-1;this.camera(m);this.bg(m,x,t);
     // one solid pedestal straight under the first floor (same footprint, so the start is even)
+    const V=m.view,vz=V?V.z||1:1;if(V){x.save();x.translate(80,120);x.scale(vz,vz);x.translate(-80,-120);}
     const b0=m.blocks[0];this.box(m,x,{x:b0.x,z:b0.z,w:b0.w,d:b0.d,ped:4},-1,0,t);
-    m.blocks.forEach((b,i)=>{const p=this.proj(m,b.x+b.w/2,b.z+b.d/2,i);if(p[1]>m.H+200||p[1]<-200)return;this.box(m,x,b,i,0,t);});
+    m.blocks.forEach((b,i)=>{const p=this.proj(m,b.x+b.w/2,b.z+b.d/2,i),py=120+(p[1]-120)*vz;if(py>m.H+200||py<-200)return;this.box(m,x,b,i,0,t);});
     for(const a of m.atoms){const[sx,sy]=this.proj(m,a.x,a.z,a.lv+1);const y=sy-4+Math.sin(t*.005+a.x)*1.5;if(y<-10||y>m.H)continue;mD(x,sx,sy+1,1.5,"#00000044");
       if(a.relic){const Q=this.REL[a.relic];mGlow(x,sx,y,8,Q.c,.5+.2*Math.sin(t*.01));x.fillStyle=Q.c;x.beginPath();x.moveTo(sx,y-4);x.lineTo(sx+3,y);x.lineTo(sx,y+4);x.lineTo(sx-3,y);x.closePath();x.fill();mR(x,sx-1,y-2,1,1,"#fff");}
       else mAtom(x,sx,y,a.gold?3.2:2.6,a.gold?"#fde047":CUPC,t);}
     if(!m.over&&!m.dead){const top=m.blocks[m.blocks.length-1],L=m.blocks.length;if(m.lock>0)this.box(m,x,{x:top.x,z:top.z,w:top.w,d:top.d},L,0,t,true);
       this.box(m,x,Object.assign({lock:m.lock>0?1:0,boost:m.boost>0?1:0},m.cur),L,0,t);}
-    for(const ch of m.chips){x.globalAlpha=Math.max(0,1-ch.y/80);this.box(m,x,ch,ch.i,ch.y,t);x.globalAlpha=1;}
+    for(const ch of m.chips){x.globalAlpha=Math.max(0,1-ch.y/80);this.box(m,x,ch,ch.i,ch.y,t);x.globalAlpha=1;}if(V)x.restore();
     if(!m.over){this.vfx(m,x,t);this.boostFx(m,x,t);if(this.vfxOn())this.arrowFx(m,x,t);}
     mFx(m,x,dt);mPops(m,x,dt);
-    if(m.over){if(m.view){mT(x,"DRAG / SCROLL TO SEE YOUR TOWER",m.W/2,m.H-8,"#e9d5ff",5);mRR(x,m.W-46,3,43,14,3,"#241b40");mT(x,"▲ SCORE",m.W-24.5,10,"#ff8fe0",5);mT(x,`${h} FLOORS`,6,10,"#e9d5ff",6,"left");}return;}
+    if(m.over){if(m.view){mT(x,"DRAG / SCROLL · − + TO ZOOM",m.W/2-10,m.H-8,"#e9d5ff",5);
+      [["−",m.W-50],["+",m.W-32],["FIT",m.W-12]].forEach(([s2,bx])=>{mRR(x,bx-8,m.H-35,16,16,3,"#241b40");mT(x,s2,bx,m.H-27,"#ff8fe0",s2==="FIT"?5:9);});mRR(x,m.W-46,3,43,14,3,"#241b40");mT(x,"▲ SCORE",m.W-24.5,10,"#ff8fe0",5);mT(x,`${h} FLOORS`,6,10,"#e9d5ff",6,"left");}return;}
     if(m.t-m.flash<600){x.globalAlpha=1-(m.t-m.flash)/600;mT(x,"PERFECT!",m.W/2,40,"#c4b5fd",12);x.globalAlpha=1;}
     if(m.msg&&m.t-m.msg.t<1800){x.globalAlpha=Math.min(1,(1800-(m.t-m.msg.t))/300);mT(x,m.msg.txt,m.W/2,58,m.msg.c,m.msg.txt.length>30?5:m.msg.txt.length>22?6:8);x.globalAlpha=1;}
     mT(x,`${h} FLOORS`,m.W/2,12,"#e9d5ff",8);
@@ -5872,7 +5971,7 @@ const ACT={
     toast(a?(a==="random"?"A random power-up will be picked for you":`Always picks ${G.POW[a].nm}`):"You'll choose power-ups");},
   stackVfx:()=>{const on=!MGAMES.stack.vfxOn();store.set("otc.stack.vfx",on);const b=$("stVfx");if(b)b.textContent=`✨ EFFECTS: ${on?"ON":"OFF"}`;toast(on?"Effects on":"Effects off");},
   stackFocus:()=>{const on=!MGAMES.stack.focusOn();store.set("otc.stack.focus",on);const b=$("stFocus");if(b)b.textContent=`🎯 FOCUS: ${on?"ON":"OFF"}`;toast(on?"Focus mode: plain background":"Backgrounds on");},
-  stackView:()=>{if(MG&&MG.id==="stack"){$("mgo").hidden=true;MG.view={off:0,want:0};}},
+  stackView:()=>{if(MG&&MG.id==="stack"){$("mgo").hidden=true;MG.view={off:0,want:0,z:1,zw:1};}},
   stackSync:()=>{if(MG&&MG.id==="stack"&&!MG.over){MG.G.calStart(MG);MG.paused=false;$("mgo").hidden=true;}},
   catchN:b=>{MGAMES.catch.humans=+b.dataset.n;mgStart("catch");},theme3:b=>{setTheme(b.dataset.t);landing();},cup:()=>cupIntro(),cupGo:()=>startCup(),daily:()=>startSolo("daily"),practice:()=>startSolo("practice"),endless:()=>runAsk("endless"),rendless:()=>runAsk("rendless"),diffGo:b=>{const d=b.dataset.d;store.set("otc.endDiff",d);$("modal").hidden=true;window.__diffOK=d;const g=b.dataset.g==="1";b.dataset.m==="rendless"?startREndless(false,g):startEndless(false,g);},blitz:()=>startBlitz(),
   runCont:b=>{closeModal();b.dataset.m==="rendless"?startREndless(true,false):startEndless(true,false);},runNew:b=>{closeModal();b.dataset.m==="rendless"?startREndless(false,false):startEndless(false,false);},
@@ -6151,7 +6250,7 @@ function leaderboards(back){LBV.back=back||LBV.back||"landing";
   lbRender();}
 function lbRender(){const box=$("lbBox");if(!box)return;const key=lbKeyFor(LBV.k),rows=LB.b[key]||[];
   box.innerHTML=`<div class="glass card"><h3 style="font-size:13px">${esc(lbName(LBV.k))}${LBV.k==="daily"||LBV.k==="dailyGeo"||/^cp[A-Z]/.test(LBV.k)?" · "+today():""}</h3>
-    ${rows.length?`<ol class="lbl2">${rows.map((r,i)=>`<li class="${r.i===LB.id?"me":""}"><span class="rk">${["🥇","🥈","🥉"][i]||"#"+(i+1)}</span><b>${esc(r.n)}</b><span class="sc">${r.s.toLocaleString()}</span>${store.get("otc.dev",false)&&r.i!==LB.id?`<span class="lbmod"><button class="pbtn sm" title="remove this score" data-act="modRm" data-i="${esc(r.i)}" data-key="${esc(key)}" data-n="${esc(r.n)}">🗑</button><button class="pbtn sm" title="ban this player" data-act="modBan" data-i="${esc(r.i)}" data-n="${esc(r.n)}">🚫</button></span>`:""}</li>`).join("")}</ol>`
+    ${rows.length?`<ol class="lbl2">${rows.map((r,i)=>`<li class="${r.i===LB.id?"me":""}"><span class="rk">${["🥇","🥈","🥉"][i]||"#"+(i+1)}</span><b>${esc(r.n)}</b><span class="sc">${r.s.toLocaleString()}</span></li>`).join("")}</ol>`
       :`<p class="hint">No scores yet. Be the first!</p>`}</div>`;}
 // the board opens on whatever you were just looking at (data-k), e.g. the arcade opens on the last game you played
 Object.assign(ACT,{leaderboards:b=>{const d=(b&&b.dataset)||{};let k=d.k==="lastArc"?store.get("otc.lastArc","cup"):d.k;if(k){LBV.k=k;LBV.sec=null;}else if(d.s&&d.s!==LBV.sec){LBV.sec=d.s;LBV.k=null;}leaderboards(d.back);},lbTab:b=>{LBV.k=b.dataset.k;leaderboards();},lbSec:b=>{LBV.sec=b.dataset.s;leaderboards();},
@@ -6198,7 +6297,7 @@ async function devOpen(){if(!store.get("otc.dev",false)){const code=prompt("Deve
       <p class="hint">This device has <b>${(typeof casChips==="function"?casChips():0).toLocaleString()}</b> chips.</p>
       <div class="row" style="gap:6px;flex-wrap:wrap"><input id="devAmt" type="number" min="0" placeholder="amount" style="width:120px">
         <button class="pbtn sm c m-nova" data-act="devChips" data-m="give">GIVE</button><button class="pbtn sm" data-act="devChips" data-m="take">REMOVE</button><button class="pbtn sm" data-act="devChips" data-m="set">SET TO</button></div>
-      <div class="row" style="gap:6px;flex-wrap:wrap;margin-top:8px"><select id="devWho" style="flex:1;min-width:160px"><option value="${esc(LB.id)}">${esc(lbMe()||"me")} (you, this device)</option>${Object.entries(people).filter(([i])=>i!==LB.id).sort((a,b)=>b[1].last-a[1].last).map(([i,p])=>`<option value="${esc(i)}">${esc(p.n||"(no name) "+i.slice(0,4))}</option>`).join("")}</select>
+      <div class="row" style="gap:6px;flex-wrap:wrap;margin-top:8px"><select id="devWho" style="flex:1;min-width:160px"><option value="" selected disabled>Select…</option><option value="${esc(LB.id)}">${esc(lbMe()||"me")} (you, this device)</option>${Object.entries(people).filter(([i])=>i!==LB.id).sort((a,b)=>b[1].last-a[1].last).map(([i,p])=>`<option value="${esc(i)}">${esc(p.n||"(no name) "+i.slice(0,4))}</option>`).join("")}</select>
         <button class="pbtn sm c m-sun" data-act="devGift" data-m="give">SEND TO PLAYER</button><button class="pbtn sm" data-act="devGift" data-m="take">TAKE FROM PLAYER</button></div>
       <p class="hint">Sending works on the GitHub version: the player gets it the next time their game is open.</p></div>`);
   box.insertAdjacentHTML("afterbegin",`<div class="glass card" id="devMod"></div>`);DEVPEOPLE=people;devModCard();
@@ -6208,10 +6307,11 @@ function devModCard(){const e=$("devMod");if(!e)return;const key=devKeyJwk(store
   e.innerHTML=`<h3 style="font-size:13px">🚫 MODERATION</h3>
     <p class="hint">${key?"✓ Developer key saved on this device. Bans and gifts you send are signed, so nobody can fake them.":"Paste your developer key (from <b>cupidium-dev-key.txt</b>) once on this device. Without it you can't ban or send chips."}</p>
     ${key?"":`<div class="row" style="gap:6px"><input id="devKeyIn" type="password" placeholder="OIC-DEVKEY:…" style="flex:1;min-width:160px"><button class="pbtn sm c m-nova" data-act="devKeySave">SAVE KEY</button></div>`}
-    <div class="row" style="gap:6px;flex-wrap:wrap;margin-top:8px"><select id="devBanWho" style="flex:1;min-width:160px">${Object.entries(pp).filter(([i])=>i!==LB.id&&!modBanned(i)).sort((a,b)=>b[1].last-a[1].last).map(([i,p])=>`<option value="${esc(i)}" data-n="${esc(p.n||"")}">${esc(p.n||"(no name) "+i.slice(0,4))}</option>`).join("")}</select>
+    <div class="row" style="gap:6px;flex-wrap:wrap;margin-top:8px"><select id="devBanWho" style="flex:1;min-width:160px"><option value="" selected disabled>Select…</option>${Object.entries(pp).filter(([i])=>i!==LB.id&&!modBanned(i)).sort((a,b)=>b[1].last-a[1].last).map(([i,p])=>`<option value="${esc(i)}" data-n="${esc(p.n||"")}">${esc(p.n||"(no name) "+i.slice(0,4))}</option>`).join("")}</select>
       <button class="pbtn sm" data-act="modBanSel">🚫 BAN</button></div>
-    <p class="hint" style="margin-top:8px">Banned players: their scores disappear from every board and they can't post new ones. You can also tap 🗑 (remove one score) or 🚫 (ban) next to anyone on a leaderboard.</p>
+    <p class="hint" style="margin-top:8px">Banned players: their scores disappear from every board and they can't post new ones. Below, 🗑 removes one score and 🚫 bans that player.</p>
     ${bans.length?`<div class="devt">${bans.map(b=>`<div><b>${esc(b[1]||"(no name)")}</b><small class="hint">device ${esc(b[0])}</small><button class="pbtn sm" data-act="modUnban" data-i="${esc(b[0])}">UNBAN</button></div>`).join("")}</div>`:`<p class="hint">Nobody is banned.</p>`}
+    <h3 style="font-size:12px;margin-top:10px">LEADERBOARD SCORES</h3><div style="max-height:320px;overflow:auto">${Object.keys(LB.b).filter(k=>LB.b[k].length&&!(/^(daily(Geo)?|cp[A-Z]\w*):/.test(k)&&!k.endsWith(":"+today()))).sort().map(k=>`<p class="hint" style="margin:8px 0 2px"><b>${esc(lbName(k.split(":")[0]))}</b>${k.includes(":")?" · "+esc(k.split(":")[1]):""}</p><ol class="lbl2">${LB.b[k].map((r,i)=>`<li class="${r.i===LB.id?"me":""}"><span class="rk">#${i+1}</span><b>${esc(r.n)}</b><span class="sc">${r.s.toLocaleString()}</span>${r.i!==LB.id?`<span class="lbmod"><button class="pbtn sm" title="remove this score" data-act="modRm" data-i="${esc(r.i)}" data-key="${esc(k)}" data-n="${esc(r.n)}">🗑</button><button class="pbtn sm" title="ban this player" data-act="modBan" data-i="${esc(r.i)}" data-n="${esc(r.n)}">🚫</button></span>`:""}</li>`).join("")}</ol>`).join("")||`<p class="hint">No scores yet.</p>`}</div>
     ${key?`<div class="row" style="margin-top:6px"><button class="pbtn sm" data-act="devKeyForget">FORGET KEY ON THIS DEVICE</button></div>`:""}`;}
 Object.assign(ACT,{
   devKeySave:async()=>{const v=($("devKeyIn")||{}).value||"";const j=devKeyJwk(v);if(!j||j.x!==DEV_PUB.x||j.y!==DEV_PUB.y)return toast("That isn't the right developer key");
