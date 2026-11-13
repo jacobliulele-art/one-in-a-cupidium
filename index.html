@@ -1603,6 +1603,69 @@ Object.assign(ADDB,{
   p.no=new Set([...(p.no||[]),...bad.map(norm)]);const bs=new Set(bad);p.t=p.t.map(t=>(t||"").split("|").filter(a=>!bs.has(a.split("/")[0].trim())).join("|"));p.idx=null;}}
 {const i=PROMPTS.findIndex(x=>x.q==="Name an Australian state or territory");if(i>=0)PROMPTS.splice(i,1);}
 
+// ---- famous duos: a much bigger word bank (anime, games, cartoons, music, sports, history, brands) and either order works
+{const DUO=["luffy and zoro","chopper and usopp","usopp and chopper","sanji and zoro","luffy and ace","nami and robin","luffy and usopp","naruto and sasuke","naruto and hinata","goku and vegeta","goku and krillin","gon and killua","edward and alphonse/ed and al/elric brothers","light and l","tanjiro and nezuko","zenitsu and inosuke","eren and mikasa","deku and bakugo","itadori and gojo","yuji and megumi","ash and pikachu","jessie and james","spike and jet","mugen and jin","saitama and genos","denji and power","kaneki and touka","senku and chrome","anya and loid","frieren and fern","natsu and happy","ichigo and rukia","shinji and asuka","sailor moon and tuxedo mask","totoro and mei",
+"sonic and tails","sonic and knuckles","mario and luigi","mario and peach","link and zelda","ratchet and clank","jak and daxter","banjo and kazooie","master chief and cortana","joel and ellie","kratos and atreus","sly and bentley","crash and coco","kirby and meta knight","diddy and donkey kong","pac man and ms pac man","steve and alex","cuphead and mugman","ness and lucas","fox and falco","snake and otacon","nathan drake and sully",
+"tom and jerry","bugs and daffy","rocky and bullwinkle","ren and stimpy","beavis and butthead","pinky and the brain","phineas and ferb","rick and morty","mordecai and rigby","finn and jake","wallace and gromit","chip and dale","lilo and stitch","woody and buzz","mike and sully","shrek and donkey","timon and pumbaa","mickey and minnie","donald and daisy","scooby and shaggy","spongebob and patrick","squidward and spongebob","ed edd n eddy","dexter and dee dee","courage and muriel","sylvester and tweety","wile e coyote and road runner","ash and misty","bert and ernie","statler and waldorf","kermit and miss piggy","fred and barney","yogi and boo boo","popeye and olive oyl","garfield and odie","calvin and hobbes","asterix and obelix","tintin and snowy","winnie the pooh and piglet","peter pan and tinker bell","aladdin and genie","simba and nala","flynn and rapunzel","anna and elsa","marlin and dory","carl and russell","wall-e and eve","gru and the minions","po and tigress","hiccup and toothless","sid and manny",
+"batman and robin","batman and joker","superman and lois","spider-man and mary jane","han and chewie","han solo and chewbacca","r2-d2 and c-3po/r2d2 and c3po","luke and leia","kirk and spock","frodo and sam","sherlock and watson/holmes and watson","mulder and scully","starsky and hutch","thelma and louise","bill and ted","harold and kumar","wayne and garth","jay and silent bob","dumb and dumber","harry and lloyd","marty and doc","walter and jesse","jesse and walter","sam and dean","troy and abed","turk and jd","jd and turk","ross and rachel","chandler and joey","jim and pam","michael and dwight","leslie and ben","jake and amy","phil and claire","sheldon and leonard","barney and ted","kenan and kel","drake and josh","zack and cody","hannah and lilly","carly and sam","shawn and gus","riggs and murtaugh","cagney and lacey","tango and cash","jules and vincent","bonnie and clyde","romeo and juliet","jack and rose","danny and sandy","johnny and baby","noah and allie","edward and bella","katniss and peeta","harry and ron","fred and george","sonny and cher",
+"key and peele","penn and teller","cheech and chong","abbott and costello","laurel and hardy","martin and lewis","ant and dec","rhett and link","smosh","tim and eric","nichols and may","the smothers brothers","mike and ike",
+"simon and garfunkel","hall and oates","daft punk","outkast","the white stripes","the carpenters","eurythmics","wham","tears for fears","pet shop boys","twenty one pilots","macklemore and ryan lewis","the chainsmokers","the black keys","ike and tina","kanye and jay z","the everly brothers","brooks and dunn","florida georgia line","big and rich","sam and dave","milli vanilli","salt-n-pepa/salt n pepa","kris kross","eric b and rakim","run the jewels","the neptunes","the righteous brothers","the indigo girls","the judds","sugarland","dan and shay","chloe x halle","marshmello and anne-marie","the kid laroi and justin bieber","lennon and mccartney","jagger and richards","elton john and bernie taupin","the proclaimers","air supply","the ting tings","matt and kim","she and him","beach house","the kills","chromeo","justice","cascada","sofi tukker","the fugees",
+"shaq and kobe","jordan and pippen","serena and venus","stockton and malone","brady and gronk","peyton and eli","manning brothers","messi and suarez","messi and ronaldo","xavi and iniesta","bird and magic","steph and klay/splash brothers","venus and serena","the bryan brothers","torvill and dean","may and walsh","jimmy and kyle",
+"lewis and clark","marx and engels","watson and crick","the wright brothers","romulus and remus","adam and eve","antony and cleopatra","napoleon and josephine","siegfried and roy","gilbert and sullivan","rodgers and hammerstein","jobs and wozniak","ben and jerry","procter and gamble","hewlett and packard","dolce and gabbana","smith and wesson","harley and davidson","rolls and royce","marks and spencer","johnson and johnson","barnes and noble","black and decker","arm and hammer","ernst and young","lewis and clark","stanley and livingstone","sacco and vanzetti","leopold and loeb","burke and hare","castor and pollux","apollo and artemis","zeus and hera","cupid and psyche","hansel and gretel","jack and jill","punch and judy","salt and pepper","peanut butter and jelly","mac and cheese","milk and cookies","fish and chips","yin and yang","sun and moon","rock and roll","bread and butter","thunder and lightning","bacon and eggs"];
+ for(const q of["Name a famous duo","Name a famous duo from TV or movies"])for(const p of PROMPTS.filter(x=>x.q===q)){const have=new Set(p.t.join("|").split("|").flatMap(a=>a.split("/")).map(a=>norm(a)));
+   const add=DUO.filter(d=>!d.split("/").some(a=>have.has(norm(a))));
+   // newer, rarer pairs go in the rare tiers
+   const half=Math.floor(add.length/2);p.t[3]=[p.t[3],add.slice(0,half).join("|")].filter(Boolean).join("|");p.t[4]=[p.t[4],add.slice(half).join("|")].filter(Boolean).join("|");p.idx=null;}}
+// "x and y" answers also match "y and x" and "x & y" (the & gets stripped to "x y")
+{const orig=buildIndex;buildIndex=function(p){if(p.idx)return p.idx;const idx=orig(p);if(/duo|pair|couple|partners/i.test(p.q)){const seen=new Set(idx.flatMap(e=>e.keys));
+  for(const e of idx)for(const k of e.keys.slice()){const mm=k.match(/^(.+?) and (.+)$/);if(!mm)continue;for(const v of[mm[2]+" and "+mm[1],mm[1]+" "+mm[2],mm[2]+" "+mm[1]])if(!seen.has(v)){seen.add(v);e.keys.push(v);}}}return idx;};}
+
+// ===== bigger word banks for prompts that ran short (lists go roughly common -> rare) =====
+{const MORE={
+"Name a famous treasure or lost treasure":"holy grail|el dorado|ark of the covenant|crown jewels|king tut's treasure|blackbeard's treasure|captain kidd's treasure|atlantis|amber room|lost dutchman's gold mine|treasure of the san jose|nazi gold|confederate gold|montezuma's treasure|inca gold|king john's treasure|treasure of priam|the money pit|oak island treasure|the copper scroll|the hope diamond|the cullinan diamond|the koh-i-noor|the honjo masamune|the irish crown jewels|the florentine diamond|the lost library of ivan the terrible|the treasure of lobengula|the tucker cross|the patiala necklace|the jules rimet trophy|the beale treasure|the dead sea scrolls|the sutton hoo treasure|the staffordshire hoard|the hoxne hoard|the mildenhall treasure|the treasure of guarrazar|the nuestra señora de atocha|the whydah gally|the treasure of lima|forrest fenn's treasure|the golden owl|the fabergé eggs|the imperial easter eggs",
+"Name a famous fictional school":"hogwarts|xavier's school for gifted youngsters|springfield elementary|rydell high|bayside high|east high|sunnydale high|west beverly high|degrassi|hill valley high|ridgemont high|shermer high|monsters university|sky high|ua high|ouran high|nevermore academy|starfleet academy|camp half-blood|beauxbatons|durmstrang|ilvermorny|brakebills|malory towers|st trinians|grange hill|constance billard|north shore high|rushmore academy|welton academy|south park elementary|bikini bottom boating school|mrs puff's boating school|wayside school|james k polk elementary|bronson alcott high|liberty high|mckinley high|dillon high|hope's peak academy|karasuno high|shujin academy|yokai academy|kunugigaoka junior high|class 3-e|jujutsu high|ninja academy|konoha academy|totsuki academy|seiin high|garreg mach monastery|bullworth academy|blackwell academy|alfea|tokyo jujutsu high|duel academy|sweet valley high|hogwarts school of witchcraft and wizardry|jedi academy|battle school|the institute|xavier institute|the academy of the arts|pokemon academy|naranja academy|uva academy|blue lock",
+"Name an animal with a long neck":"giraffe|swan|ostrich|camel|llama|alpaca|flamingo|heron|goose|emu|crane|stork|okapi|gerenuk|egret|cormorant|anhinga|vulture|turkey|snake-necked turtle|brachiosaurus|diplodocus|apatosaurus|plesiosaur|elasmosaurus|tanystropheus|giraffe weevil|giraffe gazelle|sauropod|mamenchisaurus|argentinosaurus|darter|grebe|loon|ibis|spoonbill|rhea|cassowary|secretary bird|horse|vicuna|guanaco|dromedary|bactrian camel|mute swan|black swan|whooping crane|great blue heron|marabou stork",
+"Name an animal that hibernates":"bear|hedgehog|bat|groundhog|squirrel|chipmunk|frog|turtle|snake|bee|ladybug|dormouse|marmot|skunk|raccoon|toad|snail|woodchuck|prairie dog|badger|lizard|fat-tailed dwarf lemur|alpine marmot|arctic ground squirrel|echidna|bumblebee|box turtle|garter snake|wood frog|common poorwill|jumping mouse|ground squirrel|black bear|brown bear|grizzly bear|polar bear|little brown bat|hamster|ladybird|painted turtle|rattlesnake|salamander|newt|mosquito|wasp queen|monarch caterpillar|mourning cloak butterfly|leopard frog|spring peeper|tenrec|pygmy possum|honey possum|mountain pygmy possum",
+"Name something that's radioactive":"uranium|plutonium|radium|nuclear waste|chernobyl|polonium|thorium|carbon-14|radon|tritium|cesium-137|cobalt-60|strontium-90|iodine-131|americium|francium|technetium|potassium-40|banana|brazil nut|granite|smoke detector|glow in the dark watch|fiestaware|uranium glass|vaseline glass|x-ray|nuclear reactor|fukushima|atomic bomb|nuclear submarine|elephant's foot|demon core|kitty litter|cat litter|tobacco|coal ash|old radium dial clock|gas lantern mantle|radioactive spider|godzilla|the hulk|thorium lantern mantles|depleted uranium|fallout|spent fuel rod|yellowcake|pitchblende|autunite|torbernite|carnotite",
+"Name a sport that uses a net":"volleyball|tennis|badminton|basketball|soccer|hockey|table tennis|ping pong|pickleball|water polo|netball|lacrosse|handball|beach volleyball|ice hockey|field hockey|sepak takraw|footvolley|spikeball|roundnet|teqball|goalball|korfball|padel|squash|bossaball|polo|tchoukball|floorball|bandy|hurling|camogie|gaelic football|futsal|rugby|wheelchair basketball|sitting volleyball|underwater hockey|canoe polo|quidditch|kin-ball|shinty|ringette|rinkball|fishing|butterfly catching|trapeze|circus",
+"Name a famous computer virus or hack":"iloveyou|wannacry|stuxnet|mydoom|melissa|code red|conficker|zeus|petya|notpetya|morris worm|sasser|blaster|sql slammer|cryptolocker|mirai|heartbleed|log4j|log4shell|solarwinds|equifax breach|sony hack|target breach|yahoo breach|anna kournikova|storm worm|flame|nimda|klez|chernobyl virus|brain|creeper|elk cloner|stagefright|spectre|meltdown|wannacry ransomware|ryuk|revil|darkside|colonial pipeline|kaseya|pegasus|duqu|regin|shamoon|emotet|trickbot|zeus botnet|blackhole|samsam|locky|cryptowall|bad rabbit|loveletter|sobig|bagle|netsky|koobface|tinba|carbanak|operation aurora|ashley madison hack|linkedin breach|twitter bitcoin hack|playstation network outage|moonlight maze|titan rain|ghostnet",
+"Name a famous scientist's discovery":"gravity|penicillin|evolution|relativity|electricity|dna|radioactivity|x-rays|vaccines|germ theory|the atom|the electron|the periodic table|the big bang|black holes|calculus|plate tectonics|insulin|oxygen|photosynthesis|the neutron|the proton|pulsars|quarks|the higgs boson|graphene|crispr|cosmic microwave background|quantum mechanics|blood circulation|vitamin c|heliocentrism|the cell|bacteria|natural selection|the laws of motion|universal gravitation|the photoelectric effect|electromagnetism|thermodynamics|the speed of light|polio vaccine|smallpox vaccine|pasteurization|anesthesia|the double helix|nuclear fission|the expanding universe|dark matter|exoplanets|gravitational waves|the theory of everything|superconductivity|antibiotics|blood types|mendel's genetics|the moons of jupiter|saturn's rings|halley's comet|the laws of planetary motion|buoyancy|archimedes principle|hydrogen|nitrogen|helium|the neutrino|the positron|antimatter|stem cells|prions|the ozone hole|continental drift",
+"Name a song with a color in the title":"yellow submarine|purple rain|yellow|blue suede shoes|black or white|back in black|paint it black|blue (da ba dee)|red red wine|lady in red|green light|white christmas|red|golden|gold digger|black hole sun|nights in white satin|brown eyed girl|white rabbit|black magic woman|mr blue sky|blue monday|yellow ledbetter|forever in blue jeans|black dog|white wedding|silver springs|pink|purple haze|green onions|orange crush|blue moon|true colors|black velvet|red light|green eyes|blue jeans|the boy is mine|silver lining|golden hour|rainbow|black beatles|blue bayou|blue christmas|red solo cup|white flag|gold|blue eyes|pink pony club|red house|brown sugar|black parade|welcome to the black parade|green river|blue in green|red rubber ball|scarlet begonias|black widow|yellow brick road|goodbye yellow brick road|bleed it out|lavender haze|blue ain't your color|white iverson|pink + white|green day|silver|golden slumbers|black betty|blue velvet|red flag|rhinestone cowboy|deep purple|purple people eater|blue skies|gold rush|white room|black star|red barchetta",
+"Name a famous person who was assassinated":"john f kennedy|abraham lincoln|martin luther king jr|julius caesar|gandhi|malcolm x|john lennon|franz ferdinand|robert kennedy|james garfield|william mckinley|indira gandhi|yitzhak rabin|benazir bhutto|anwar sadat|harvey milk|tupac|notorious big|selena|shinzo abe|olof palme|leon trotsky|rasputin|huey long|medgar evers|caligula|philip ii of macedon|thomas becket|spencer perceval|park chung-hee|patrice lumumba|alexander ii|archduke franz ferdinand|rajiv gandhi|liaquat ali khan|anna politkovskaya|jo cox|boris nemtsov|pim fortuyn|theo van gogh|jovenel moise|king faisal|thomas sankara|amilcar cabral|steve biko|chris hani|ngo dinh diem|aung san|anastasio somoza|rafael trujillo|lord mountbatten|henry iv of france|gustav iii|umberto i|empress elisabeth|carlos i of portugal|nicholas ii|tsar nicholas",
+"Name a famous video game boss":"bowser|ganon|ganondorf|ender dragon|wither|dr robotnik|eggman|sephiroth|king dedede|ridley|mother brain|dr wily|glados|the lich king|malenia|radahn|ornstein and smough|sans|andrew ryan|handsome jack|vaas|kefka|ultimecia|moon lord|wall of flesh|the nameless king|isshin|psycho mantis|nemesis|gwyn|margit|lavos|majora's mask|dark link|king boo|petey piranha|giygas|porky|bowser jr|kraid|metal sonic|shadow|wario|k rool|king k rool|the fallen|diablo|illidan|deathwing|arthas|g-man|nihilanth|cyberdemon|icon of sin|the spider mastermind|the bloodborne moon presence|orphan of kos|gehrman|ludwig|lady maria|sister friede|the soul of cinder|artorias|manus|sif|the hollow knight|radiance|nightmare king grimm|pure vessel|hornet|calamitas|eye of cthulhu|skeletron|plantera|duke fishron|the warden|elder guardian|the twins|golem|herobrine|spamton|jevil|asgore|flowey|photoshop flowey|undyne|mettaton|cuphead devil|king dice|the devil",
+"Name a Studio Ghibli film":"spirited away|my neighbor totoro|howl's moving castle|princess mononoke|kiki's delivery service|ponyo|castle in the sky|nausicaa of the valley of the wind|the wind rises|grave of the fireflies|whisper of the heart|the cat returns|arrietty|the secret world of arrietty|from up on poppy hill|when marnie was there|the tale of the princess kaguya|porco rosso|only yesterday|pom poko|my neighbors the yamadas|ocean waves|tales from earthsea|earwig and the witch|the boy and the heron|the red turtle|on your mark|ghiblies|the night of taneyamagahara|mei and the kittenbus",
+"Name a fictional character who is a mouse or rat":"mickey mouse|minnie mouse|jerry|remy|stuart little|speedy gonzales|splinter|pinky|the brain|scabbers|peter pettigrew|despereaux|basil|mighty mouse|fievel|templeton|reepicheep|danger mouse|bernard|bianca|gus|jaq|ratigan|nicodemus|mrs brisby|timothy|roquefort|rizzo|ben|angelina ballerina|maisy|geronimo stilton|frisby|matthias|martin the warrior|mrs frisby|nibbles|tuffy|itchy|mr jingles|algernon|chuck e cheese|mr ratburn|emile|django|gadget hackwrench|monterey jack|pikachu|rattata|raticate|dedenne|pachirisu|mighty|hamtaro|stilton|ralph s mouse|the rats of nimh|the mouse king|sniffles|professor ratigan|templeton the rat|rat king|ratty|roddy|rita",
+"Name a fictional character with red hair":"ariel|ron weasley|merida|anne of green gables|annie|pippi longstocking|ginny weasley|jessica rabbit|black widow|poison ivy|mary jane watson|wilma flintstone|kim possible|jean grey|daphne blake|chucky|ronald mcdonald|pepper potts|wendy|lucy ricardo|ygritte|sansa stark|archie andrews|ginger|raggedy ann|misty|chuckie finster|red sonja|princess fiona|nami|asuka langley|kushina|erza scarlet|shanks|gaara|kurama|rias gremory|kenshin himura|lina inverse|ruby rose|scarlet witch|wanda maximoff|starfire|batgirl|barbara gordon|weasley twins|fred weasley|george weasley|molly weasley|percy weasley|charlie weasley|bill weasley|rose weasley|lily potter|reno|celica|claire redfield|jinx|vi|miss fortune|katarina|iori yagami",
+"Name a song with a name in the title":"billie jean|jolene|hey jude|roxanne|stan|sweet caroline|layla|angie|gloria|mickey|michelle|jessie's girl|jenny|rhiannon|eleanor rigby|bennie and the jets|delilah|valerie|daniel|ruby|lola|sara|maria|peggy sue|rosanna|cecilia|kayleigh|veronica|annie's song|alison|clementine|proud mary|johnny b goode|dani california|hey there delilah|sweet jane|brandy|mandy|amanda|beth|carrie|barbara ann|help me rhonda|lucy in the sky with diamonds|polly|sally|mustang sally|layla|ziggy stardust|major tom|rocket man|stacy's mom|hey ya|jeremy|jack and diane|rosalita|candy|leroy brown|bad bad leroy brown|mr jones|james dean|marilyn monroe|elvis|kim|chiquitita|fernando|dancing queen|bobby mcgee|me and bobby mcgee|ode to billie joe|virginia|caroline|mary|joanne|john|emma|olivia|vienna|esmeralda|matilda|dirty diana|diana|ben|mr robinson|mrs robinson|uptown girl|harry|jackie|tina|marley|abigail",
+"Name a moon of another planet":"titan|europa|io|ganymede|phobos|deimos|callisto|enceladus|triton|charon|mimas|rhea|iapetus|miranda|oberon|titania|dione|tethys|hyperion|phoebe|ariel|umbriel|amalthea|nereid|proteus|puck|pandora|prometheus|himalia|janus|epimetheus|metis|thebe|larissa|adrastea|leda|elara|lysithea|carme|ananke|sinope|pasiphae|atlas|pan|daphnis|calypso|telesto|helene|cordelia|ophelia|bianca|cressida|desdemona|juliet|portia|rosalind|belinda|caliban|sycorax|naiad|thalassa|despina|galatea|halimede|nix|hydra|kerberos|styx|dysnomia|hi'iaka|namaka|weywot|vanth|actaea|ilmare",
+"Name an animal that's poisonous or venomous":"snake|spider|scorpion|jellyfish|cobra|rattlesnake|black widow|box jellyfish|poison dart frog|bee|wasp|platypus|stingray|pufferfish|blue-ringed octopus|cone snail|komodo dragon|lionfish|gila monster|stonefish|tarantula hawk|brown recluse|funnel-web spider|taipan|black mamba|green mamba|cane toad|slow loris|solenodon|shrew|hooded pitohui|sea snake|irukandji|bullet ant|fire salamander|king cobra|viper|adder|coral snake|copperhead|cottonmouth|fer-de-lance|bushmaster|boomslang|puff adder|saw-scaled viper|gaboon viper|krait|sydney funnel-web|wandering spider|brazilian wandering spider|redback spider|sea wasp|portuguese man o war|cone shell|textile cone|geography cone|fire ant|hornet|asian giant hornet|murder hornet|centipede|giant centipede|deathstalker scorpion|bark scorpion|arizona bark scorpion|mexican beaded lizard|golden poison frog|newt|rough-skinned newt|toad|pitohui|ifrit bird|spur-winged goose|vampire bat|stonefish|scorpionfish|weever fish|catfish|caterpillar|puss caterpillar|saddleback caterpillar|blister beetle|monarch butterfly|kissing bug|cone worm|bristle worm|flower urchin|crown of thorns starfish",
+"Name a famous castle":"neuschwanstein|windsor castle|edinburgh castle|cinderella castle|hogwarts|bran castle|dracula's castle|tower of london|versailles|alhambra|himeji castle|balmoral|warwick castle|leeds castle|blarney castle|eilean donan|prague castle|mont saint michel|chateau de chambord|hohenzollern castle|osaka castle|matsumoto castle|krak des chevaliers|conwy castle|caernarfon castle|bodiam castle|alnwick castle|glamis castle|dover castle|chillon castle|peles castle|malbork castle|predjama castle|alcazar of segovia|castel sant'angelo|neuschwanstein castle|hearst castle|bojnice castle|kronborg|frederiksborg|corvin castle|spis castle|bled castle|trakai castle|olavinlinna|rosenborg|moszna castle|hunyad castle|chateau de chenonceau|chateau frontenac|casa loma|castle howard|bamburgh castle|stirling castle|urquhart castle|dunnottar castle|caerphilly castle|harlech castle|beaumaris castle|kilkenny castle|bunratty castle|cashel|rock of cashel|kasteel de haar|burg eltz|eltz castle|lichtenstein castle|heidelberg castle|wartburg|marksburg|schwerin castle|chateau de pierrefonds|carcassonne|chateau de chantilly|cesky krumlov castle|wawel castle|castle of good hope|nijo castle|kumamoto castle|hikone castle|edo castle|shuri castle|forbidden city|potala palace|amber fort|mehrangarh|red fort|golconda fort|sigiriya|castle grayskull|bowser's castle|princess peach's castle|castle black|winterfell|minas tirith|helm's deep|beast's castle|camelot",
+"Name a type of pie":"apple|cherry|pumpkin|pecan|blueberry|key lime|lemon meringue|banana cream|chicken pot pie|sweet potato|peach|shepherd's pie|strawberry rhubarb|chocolate cream|coconut cream|mince|pot pie|cottage pie|blackberry|banoffee|boston cream|shoofly|chess|mud pie|meat pie|pork pie|grasshopper|steak and kidney|stargazy|buttermilk|sugar cream|whoopie pie|tourtiere|bean pie|humble pie|rhubarb|strawberry|raspberry|mixed berry|cranberry|apricot|plum|pear|mango|lemon|lime|orange|pineapple|coconut custard|custard|egg custard|french silk|chocolate|peanut butter|oreo|cookies and cream|s'mores|pizza pie|fish pie|cheese and onion|steak pie|cornish pasty|empanada|quiche|spanakopita|tarte tatin|galette|frangipane|bakewell tart|treacle tart|mississippi mud pie|derby pie|kentucky derby pie|marlborough pie|vinegar pie|mock apple pie|chiffon pie|black bottom pie|transparent pie|sugar pie|maple pie|butter tart|razzleberry|gooseberry|elderberry|huckleberry|lingonberry|loganberry|boysenberry|marionberry|saskatoon|cherry crumble|dutch apple|apple crumb|caramel apple|bumbleberry",
+"Name a word that starts with 'un'":"under|unicorn|uncle|unhappy|undo|unique|unit|universe|union|unless|until|unite|unusual|umbrella|unicycle|uniform|unlucky|unknown|unbelievable|unfair|unzip|unanimous|unravel|unearth|unscathed|underdog|undertaker|uncanny|unicameral|unkempt|unwieldy|ungainly|unctuous|unflappable|unrequited|unbeknownst|unfathomable|unable|unafraid|unaware|unbalanced|unbearable|unbeaten|unbroken|uncertain|unclear|uncommon|unconscious|uncover|undead|underground|underwater|underwear|understand|undertake|undress|uneasy|unemployed|uneven|unexpected|unfold|unfortunate|unfriendly|ungrateful|unhealthy|unheard|unholy|unicode|unify|unimportant|uninstall|unintentional|uninvited|universal|university|unjust|unkind|unleash|unlike|unlikely|unlimited|unload|unlock|unmask|unnatural|unnecessary|unofficial|unpack|unplug|unpopular|unreal|unrest|unruly|unsafe|unseen|unselfish|unsettled|unsure|untidy|untie|untold|untouchable|untrue|unused|unveil|unwanted|unwell|unwind|unwise|unworthy|unwrap|unyielding|ungulate|unguent|unison|unalienable|unadulterated|unabashed|unbridled|uncouth|undulate|unfurl|unhinged|unmoored|unprecedented|unscrupulous|unsung|unwavering",
+"Name an animal you'd find in Australia":"kangaroo|koala|wombat|emu|platypus|dingo|tasmanian devil|crocodile|kookaburra|wallaby|cockatoo|echidna|quokka|cassowary|possum|goanna|frilled lizard|huntsman spider|box jellyfish|bilby|numbat|sugar glider|lyrebird|cane toad|taipan|funnel-web spider|galah|budgie|thorny devil|quoll|bandicoot|potoroo|cuscus|tree kangaroo|dugong|ibis|bin chicken|lorikeet|rainbow lorikeet|redback spider|saltwater crocodile|great white shark|tiger snake|brown snake|eastern brown snake|blue-tongued lizard|bearded dragon|magpie|australian magpie|black swan|pelican|fairy penguin|little penguin|wedge-tailed eagle|emu-wren|bowerbird|satin bowerbird|crimson rosella|rosella|corella|cockatiel|zebra finch|gouldian finch|kakadu|pademelon|bettong|rock wallaby|quokka|antechinus|dunnart|marsupial mole|tasmanian tiger|thylacine|flying fox|fruit bat|stingray|blue-ringed octopus|stonefish|cone snail|great barrier reef fish|clownfish|green sea turtle|humpback whale|platypus|lace monitor|perentie|death adder|inland taipan|mulga snake|red-bellied black snake|frilled-neck lizard|shingleback|cassowary",
+"Name an excuse for not doing your homework":"my dog ate it|i forgot|i left it at home|i was sick|my computer crashed|the wifi was down|i lost it|my little brother ripped it|i had practice|i didn't understand it|i was at a funeral|my printer broke|it blew away|i did it but forgot it|the power went out|i was busy|i had a doctor's appointment|my mom threw it out|i spilled water on it|i thought it was due tomorrow|i didn't know we had homework|my backpack got stolen|a bird took it|i left it on the bus|my cat sat on it|aliens abducted it|i was helping my grandma|i had a family emergency|my house flooded|i fell asleep|my laptop died|google docs didn't save|it got deleted|i was saving the world|my hamster ate it|it's in my other backpack|the dog threw up on it|i turned it in online|the website was down|i was too tired|i had a game|i had a tournament|i had a concert|my car broke down|i got locked out|i was babysitting|my sister used it as a coloring book|the baby drooled on it|i used it to start a fire|my teacher never assigned it|i did the wrong page|i finished it in my head|i was protesting homework|i accidentally recycled it|it fell in the toilet|it went through the wash|the cat peed on it|a tornado took it|my pen ran out|i ran out of paper|i was grounded from my computer",
+"Name a bone in the human body":"femur|skull|ribs|spine|tibia|humerus|radius|ulna|fibula|pelvis|jaw|kneecap|clavicle|collarbone|scapula|shoulder blade|sternum|patella|mandible|vertebrae|coccyx|tailbone|sacrum|metacarpals|phalanges|carpals|tarsals|metatarsals|maxilla|hyoid|stapes|incus|malleus|scaphoid|calcaneus|heel bone|talus|cuboid|navicular|cuneiform|lunate|triquetrum|pisiform|trapezium|trapezoid|capitate|hamate|vomer|ethmoid|sphenoid|frontal bone|parietal bone|temporal bone|occipital bone|nasal bone|lacrimal bone|zygomatic bone|cheekbone|palatine bone|inferior nasal concha|atlas|axis|cervical vertebrae|thoracic vertebrae|lumbar vertebrae|ilium|ischium|pubis|hip bone|breastbone|sesamoid|cranium",
+"Name a compound word":"sunflower|football|rainbow|butterfly|cupcake|basketball|toothbrush|popcorn|snowman|bedroom|pancake|firefly|starfish|grasshopper|skateboard|notebook|airplane|watermelon|backpack|doorbell|fireworks|homework|wheelchair|lighthouse|honeymoon|earthquake|thunderstorm|bookworm|jellyfish|scarecrow|moonlight|butterscotch|dragonfly|cobweb|hedgehog|ladybug|daydream|mailbox|nightmare|wristwatch|eyebrow|turtleneck|baseball|bathroom|bedtime|birthday|blackboard|bookshelf|cowboy|cupboard|downtown|driveway|earring|everything|eyeball|fingernail|fireplace|flashlight|footprint|goldfish|haircut|handshake|headphones|horseshoe|keyboard|lifeguard|mailman|motorcycle|necklace|newspaper|outside|pinecone|playground|rattlesnake|sandcastle|seashell|sidewalk|snowflake|spaceship|staircase|sunglasses|sunshine|superman|teapot|toothpaste|underground|waterfall|weekend|wildfire|windmill|woodpecker|yourself|bulldozer|carpool|checkmate|clockwise|deadline|dishwasher|doorknob|dumbbell|earthworm|fishbowl|flowerpot|gingerbread|grapefruit|hamburger|heartbeat|honeybee|hotdog|jackpot|kneecap|lipstick|meatball|milkshake|nutcracker|overboard|paycheck|peppermint|quicksand|raincoat|scoreboard|shipwreck|skyscraper|snapshot|softball|stopwatch|suitcase|tailgate|thumbtack|timeline|touchdown|treehouse|typewriter|uplift|videotape|wallpaper|wishbone|workshop",
+"Name a word that ends in '-nk'":"pink|drink|think|sink|bank|skunk|monk|honk|wink|blink|stink|tank|thank|trunk|junk|link|clunk|plank|chunk|spunk|ink|mink|bunk|drank|shrunk|prank|frank|swank|dunk|punk|flunk|rink|slink|clink|brink|crank|flank|hunk|plink|kerplunk|gunk|debunk|chipmunk|hoodwink|kink|lank|shank|yank|zonk|bonk|blank|clank|dank|rank|sank|spank|stank|swank|crank|shrank|stunk|sunk|slunk|drunk|bunk|flunk|plunk|chunk|skink|shrink|slink|stink|kink|oink|wonk|conk|honk|bonk|zonk|clonk|plonk|gonk|bunk bed|think tank|fish tank|piggy bank|kitchen sink|hijink|kerplink|rethink|overthink|outrank|riverbank|sandbank|snowbank|databank|gangplank|countersink|cufflink|downlink|uplink|hyperlink|weblink",
+"Name a word with a 'j' in it":"jump|jelly|jungle|jacket|juice|jar|enjoy|major|object|pajamas|banjo|ninja|rajah|jigsaw|jinx|jockey|jalapeno|journey|jovial|juxtapose|injury|adjective|hijack|majesty|fjord|jeopardy|jubilant|jettison|cajole|conjure|marjoram|sojourn|jejune|mahjong|hajj|bijou|dojo|jodhpurs|jam|jazz|jeans|jeep|jet|jewel|job|jog|join|joke|jolly|jot|joy|judge|jug|juggle|july|june|junk|jury|just|jaguar|january|japan|javelin|jaw|jealous|jellyfish|jester|jingle|jigsaw|jitterbug|jive|jumbo|jumper|junction|jupiter|jurassic|justice|juvenile|ajar|banjo|cajun|dejected|eject|fajita|frijoles|gjetost|hallelujah|injection|jujube|jujitsu|kilojoule|majority|object|overjoyed|pajama|project|reject|rejoice|subject|tajine|trajectory|unjust|vajra|veejay|deejay|bluejay|blue jay|joystick|jackpot|jackal|jackrabbit|jalopy|jamboree|janitor|jasmine|jaunt|jaywalk|jeer|jelly bean|jerky|jersey|jiffy|joust|jowl",
+"Name a SpongeBob character":"spongebob|patrick|squidward|mr krabs|sandy|plankton|gary|karen|mrs puff|pearl|larry the lobster|mermaid man|barnacle boy|flying dutchman|king neptune|bubble bass|man ray|dirty bubble|squilliam|fred|patchy the pirate|potty the parrot|old man jenkins|nat peterson|harold|french narrator|doodlebob|the hash-slinging slasher|plankton's cousins|mama krabs|grandma squarepants|patrick's parents|harold squarepants|margaret squarepants|kevin the sea cucumber|the alaskan bull worm|painty the pirate|tom|scooter|bubble buddy|jellyfish|rock|mr fish|the strangler|shubie|sheldon|perch perkins|realistic fish head|purple doctor fish|the krusty krab|dennis|kevin|squidina|princess mindy|king triton|sea bear|abrasive sidekick|captain magma|dutchman's wife|pearl krabs|stanley squarepants|blackjack squarepants|gary the snail|rubber chicken",
+"Name something you put on a hot dog":"ketchup|mustard|relish|onions|chili|cheese|sauerkraut|mayo|pickles|jalapenos|bacon|coleslaw|tomatoes|hot sauce|sriracha|bbq sauce|ranch|peppers|sport peppers|celery salt|nacho cheese|guacamole|avocado|salsa|kimchi|pineapple|cream cheese|peanut butter|potato chips|crushed chips|fried onions|french fried onions|grilled onions|caramelized onions|pickle spear|tomato wedges|everything bagel seasoning|teriyaki|seaweed|furikake|wasabi mayo|chimichurri|pico de gallo|mac and cheese|baked beans|egg|fried egg|curry ketchup|curry sauce|remoulade|crispy onions|banana peppers|giardiniera|horseradish|thousand island|honey mustard|dijon mustard|spicy brown mustard|yellow mustard|chili cheese|corn|potato sticks|shoestring potatoes",
+"Name a word that's spelled the same backwards as another word":"stop|pots|god|dog|live|evil|star|rats|stressed|desserts|reward|drawer|parts|strap|diaper|repaid|lived|devil|keep|peek|net|ten|tops|spot|wolf|flow|snoops|spoons|knits|stink|regal|lager|deliver|reviled|denim|mined|sloops|spools|redraw|straw|warts|gateman|nametag|smart|trams|moor|room|tip|pit|nap|pan|pal|lap|war|raw|bat|tab|but|tub|gum|mug|nut|tun|rat|tar|pat|tap|mat|tam|gab|bag|pin|nip|ton|not|now|won|pool|loop|pots|tops|bus|sub|time|emit|tide|edit|reed|deer|wets|stew|sleek|keels|avid|diva|leper|repel|lager|regal|maps|spam|drab|bard|step|pets|swap|paws|trap|part|spit|tips|snap|pans|smug|gums|gulp|plug|laud|dual|loot|tool|doom|mood|reel|leer|brag|garb|sinned|dennis|redips|spider|liar|rail",
+"Name a reason you'd get detention":"talking in class|being late|skipping class|cheating|fighting|chewing gum|using your phone|not doing homework|being rude|cursing|bullying|throwing things|running in the hall|dress code violation|vaping|smoking|sleeping in class|disrupting class|talking back|lying|stealing|vandalism|graffiti|pulling a prank|forging a signature|ditching|cutting class|eating in class|passing notes|texting|playing video games|wearing a hat|being out of uniform|plagiarism|copying homework|starting a food fight|pulling the fire alarm|tardiness|hall pass abuse|leaving class without permission|throwing paper airplanes|spitballs|making fun of the teacher|swearing|calling names|breaking a rule|not listening|being disrespectful|horsing around|playing on the computer|sneaking out|faking sick|forgetting your id|wearing headphones|bringing a pet to school|setting off a stink bomb|hacking the school computer",
+"Name something terrible to step on":"lego|nail|glass|thumbtack|dog poop|bee|gum|slug|snail|rock|hot sand|ice|tack|needle|broken glass|jellyfish|sea urchin|bananas peel|banana peel|thorn|cactus|splinter|hot coal|fire ant|ant hill|scorpion|snake|spider|cockroach|toy car|marble|jacks|pine cone|sweetgum ball|sticker burr|goathead|wasp|hornet|wet sock|puddle|cat vomit|hairball|cat|dog's tail|tail|someone's toe|toe|mouse trap|rake|landmine|lego brick|charger cable|hot pavement|wet floor|frog|toad|worm|crab|stingray|coral|oyster shell|barnacle|staple|pushpin|bottle cap|crayon|grape|tomato|egg|mud|a plug|cheese grater",
+"Name a famous waterfall":"niagara falls|angel falls|victoria falls|iguazu falls|yosemite falls|horseshoe falls|bridal veil falls|multnomah falls|havasu falls|skogafoss|gullfoss|seljalandsfoss|dettifoss|kaieteur falls|plitvice|krka|rhine falls|reichenbach falls|sutherland falls|tugela falls|jog falls|dudhsagar falls|kegon falls|nachi falls|huangguoshu|detian falls|ban gioc|kuang si|erawan falls|tad fane|sekumpul|tegenungan|wallaman falls|jim jim falls|twin falls|shoshone falls|snoqualmie falls|palouse falls|burney falls|vernal falls|nevada falls|ruby falls|cumberland falls|tahquamenon falls|taughannock falls|ramona falls|wailua falls|akaka falls|rainbow falls|montmorency falls|kakabeka falls|helmcken falls|takakkaw falls|virginia falls|blue nile falls|murchison falls|ouzoud falls|mardalsfossen|vettisfossen|langfoss|latefossen|tamul falls|basaseachic|salto del angel|gocta|catarata gocta|kaieteur|baatara gorge|ruacana|epupa falls|augrabies falls|mosi-oa-tunya|devil's pool|the falls",
+"Name something you'd find under a couch cushion":"coins|crumbs|remote|popcorn|phone|keys|pen|hair tie|candy wrapper|lego|chips|money|toys|pencil|lint|dust|hair|food|earrings|bobby pin|chapstick|lip balm|socks|cheerios|fruit snacks|goldfish crackers|receipt|button|paper clip|charger|earbuds|airpods|batteries|dog treat|cat toy|bottle cap|gum|tissue|guitar pick|game controller|dice|playing cards|marble|crayon|toothpick|spoon|fork|cookie|pizza crust|french fry|raisins|m&ms|skittles|cereal|pet hair|hamster|lost homework|a sock|gift card|lighter|glasses|sunglasses|ring|necklace|bracelet|watch|nail clipper|tv guide|magazine|crumpled note|sticker|barbie shoe|hot wheels car|puzzle piece|pokemon card",
+"Name a famous bridge":"golden gate bridge|brooklyn bridge|tower bridge|london bridge|sydney harbour bridge|rialto bridge|ponte vecchio|charles bridge|bridge of sighs|millau viaduct|akashi kaikyo bridge|tsing ma bridge|oresund bridge|great belt bridge|forth bridge|severn bridge|humber bridge|clifton suspension bridge|tyne bridge|millennium bridge|chain bridge|széchenyi chain bridge|pont du gard|pont neuf|pont alexandre iii|stari most|bosphorus bridge|helix bridge|marina bay bridge|banpo bridge|rainbow bridge|seto ohashi|danyang kunshan bridge|hong kong zhuhai macau bridge|lupu bridge|chengyang bridge|zhaozhou bridge|howrah bridge|pamban bridge|bandra worli sea link|sheikh zayed bridge|vasco da gama bridge|25 de abril bridge|ponte 25 de abril|kintai bridge|capilano suspension bridge|confederation bridge|mackinac bridge|chesapeake bay bridge|lake pontchartrain causeway|verrazzano bridge|george washington bridge|manhattan bridge|williamsburg bridge|bay bridge|sunshine skyway|seven mile bridge|new river gorge bridge|royal gorge bridge|hoover dam bridge|tacoma narrows bridge|galloping gertie|eads bridge|natchez trace bridge|rainbow bridge niagara|peace bridge|ambassador bridge|deception pass bridge|ponte de rialto|khaju bridge|si-o-se-pol|iron bridge|devil's bridge|rakotzbrücke|glass bridge|golden bridge|cau vang|dragon bridge|bridge on the river kwai|bridge of the americas|puente de la mujer",
+"Name a nickname for grandma":"nana|granny|grandma|gran|grammy|gigi|mimi|meemaw|mamaw|nanny|oma|abuela|lola|bubbe|bubby|nonna|yiayia|baba|babushka|halmeoni|obaachan|nai nai|po po|lao lao|ama|ammamma|dadi|nani|teta|sitti|nene|avo|vovo|mormor|farmor|mummo|savta|grand-mere|mamie|mémé|oma|omi|ouma|bibi|nkuku|kuku|tutu|lola|lolo|mommom|mom mom|honey|lovey|birdie|bunny|cookie|sugar|glamma|glam-ma|g-ma|grams|gram|grandmother|granmama|big mama|madea|muzzy|nonnie|nan|nanna|nannie|gammy|gaga|lala|mema|momo|nonie|tita|yaya|mamita|mama",
+"Name a word that's also a name":"rose|lily|daisy|ruby|grace|hope|joy|bill|frank|jack|mark|art|bob|pat|rob|sue|faith|summer|autumn|amber|violet|penny|crystal|dawn|holly|iris|ivy|grant|chase|hunter|will|drew|sandy|candy|rusty|sky|river|stone|forest|cliff|dale|glen|guy|ray|neil|sterling|bud|chip|dusty|wade|gale|rod|lance|ginger|honey|cherry|storm|heath|hazel|olive|dolly|sage|wren|reed|april|may|june|august|august|max|sunny|sonny|melody|harmony|destiny|trinity|piper|willow|meadow|brook|jasmine|pearl|opal|jade|ruby|ember|blaze|ace|duke|king|prince|earl|baron|major|august|carol|sally|peg|nick|sam|jimmy|billy|bobby|jo|kit|tad|bea|cy|al|ali|eve|abby|barry|basil|bertha|bob|bonnie|buck|carmen|chuck|colt|dash|dean|dot|ernest|fern|flora|gene|gus|hank|jasper|jet|jewel|kitty|lee|lily|marina|mason|miles|misty|nat|noel|norm|rocky|rowan|ruby|sky|skip|spike|stew|tank|ted|terry|tracy|victor|walker",
+"Name something that's round and orange":"orange|basketball|pumpkin|sun|tangerine|clementine|mandarin|cantaloupe|traffic cone|jack o lantern|peach|apricot|persimmon|kumquat|carrot slice|mars|egg yolk|yolk|cheese ball|cheese puff|candy|orange gumball|gumball|life preserver|buoy|ping pong ball|reese's cup|orange m&m|tic tac|basketball hoop|sunset|harvest moon|goldfish bowl|fishbowl|goldfish|clownfish|jupiter|nasturtium|marigold|tiger lily|squash|butternut squash|sweet potato slice|orange juice lid|bottle cap|button|pill|vitamin|tangelo|blood orange|satsuma|mango|papaya|cantaloupe|melon|orange soda can|fanta can|hula hoop|frisbee|ball|bouncy ball|pom pom|tennis ball|lifesaver|pez|starburst|sunkist|cheez-it|nerd ball|cheese wheel|cheddar|carrot coin|sweet potato|pumpkin pie|orange slice"};
+ const norm2=s=>norm(String(s).split("/")[0]);
+ for(const q in MORE){const ps=PROMPTS.filter(x=>x.q===q);for(const p of ps){const have=new Set(p.t.join("|").split("|").flatMap(a=>a.split("/")).map(a=>norm(a)).filter(Boolean));
+   const add=[...new Set(MORE[q].split("|").map(a=>a.trim()).filter(a=>a&&!a.split("/").some(k=>have.has(norm(k)))))];if(!add.length)continue;
+   // whatever's new is a less obvious answer, so it lands in the middle and rare tiers
+   const third=Math.ceil(add.length/3);while(p.t.length<5)p.t.push("");
+   p.t[2]=[p.t[2],add.slice(0,third).join("|")].filter(Boolean).join("|");p.t[3]=[p.t[3],add.slice(third,third*2).join("|")].filter(Boolean).join("|");p.t[4]=[p.t[4],add.slice(third*2).join("|")].filter(Boolean).join("|");p.idx=null;}}}
+
 </script>
 <script>
 // Word lists for Daily Cuepon (from SCOWL / wordlist-english; common words only)
@@ -3159,7 +3222,7 @@ function playRound(p,o){
     if(m&&m.suggest){asking={yes:()=>{asking=null;accept(m.e);},no:()=>{asking=null;fb.innerHTML="";DECLINED={t:norm(txt),d:norm(m.e.display)};judgeIt(txt);}};askFix(fb,m.e,asking.yes,asking.no);return;}
     judgeIt(txt);
   };
-  let appealed=false;
+  let appeals=0;const AP_MAX=3;
   const judgeIt=async txt=>{
     if(locked||checking)return;
     if(!o.judge)return reject("NOT ON THE LIST. TRY ANOTHER.");
@@ -3170,20 +3233,22 @@ function playRound(p,o){
     if(r&&r.error){reject("COULDN'T CHECK IT: "+esc(r.error));if(!N){fb.insertAdjacentHTML("beforeend",` <button class="pbtn sm c m-sun" id="cntIt">COUNT IT ANYWAY</button>`);$("cntIt").onclick=()=>finish({display:txt.toLowerCase(),tier:2,keys:[norm(txt)],ai:true,manual:true});}return;}
     if(r&&r.invalid&&r.noCheck&&o.manual){fb.innerHTML=`<span class="err">NOT IN THE WORD BANK.</span> <span class="hint">AI checking is off here (Settings ⚙).</span> <button class="pbtn sm c m-sun" id="cntIt">COUNT IT ANYWAY</button>`;
       sfx.bad();$("cntIt").onclick=()=>{const e={display:txt.toLowerCase(),tier:2,keys:[norm(txt)],ai:true,manual:true};finish(e);};inp.select();return;}
-    if(r&&r.invalid&&aiReady()&&!appealed){reject("NOT VALID"+(r.why?": "+esc(r.why):""));
-      fb.insertAdjacentHTML("beforeend",` <button class="pbtn sm c m-sun" id="apBtn">🙋 IT'S REAL!</button>`);
-      $("apBtn").onclick=()=>{appealed=true;checking=true;inp.disabled=true;go.disabled=true;
-        fb.innerHTML=`<span class="hint">Where's "${esc(txt)}" from? (e.g. One Piece, a game, another language)</span><div class="row" style="justify-content:center;margin-top:6px"><input id="apCtx" maxlength="80" placeholder="it's from…" style="max-width:260px"><button class="pbtn sm c m-nova" id="apGo">CHECK AGAIN</button><button class="pbtn sm" id="apNo">NEVER MIND</button></div>`;
-        const ci=$("apCtx");ci.focus();const back=()=>{checking=false;inp.disabled=false;go.disabled=false;inp.focus();};
-        $("apNo").onclick=()=>{back();fb.innerHTML="";};
-        const run=async()=>{const hint=ci.value.trim();if(!hint)return ci.focus();fb.innerHTML=`CHECKING AGAIN… <span class="hint">(clock paused)</span>`;
-          const r2=await appealJudge(p,txt,hint);if(my!==tok||locked)return;back();
-          if(r2&&r2.display){toast("Appeal accepted ✓");return finish(r2);}reject(r2&&r2.error?"CHECK FAILED: "+esc(r2.error):"STILL NOT VALID"+(r2&&r2.why?": "+esc(r2.why):""));};
-        $("apGo").onclick=run;ci.onkeydown=e=>{e.stopPropagation();if(e.key==="Enter"){e.preventDefault();run();}else if(e.key==="Escape"){back();fb.innerHTML="";}};};return;}
+    if((r&&r.invalid||!r)&&aiReady()&&appeals<AP_MAX){reject(r?"NOT VALID"+(r.why?": "+esc(r.why):""):"NOT ON THE LIST");offerAp();return;}
     if(r&&r.invalid)return reject("NOT VALID"+(r.why?": "+esc(r.why):""));
     if(r&&r.display&&r.fixAsk){asking={yes:()=>{asking=null;finish(r.orig);},no:()=>{asking=null;reject("OK, TRY ANOTHER.");}};askFix(fb,r.orig,asking.yes,asking.no);return;}
     if(r&&r.display)return finish(r.orig||r);
     reject("NOT ON THE LIST. TRY ANOTHER.");
+    // up to 3 "IT'S REAL!" appeals per prompt; a failed one can be tried again with a better hint
+    function offerAp(){if(appeals>=AP_MAX)return;const left=AP_MAX-appeals;
+      fb.insertAdjacentHTML("beforeend",` <button class="pbtn sm c m-sun" id="apBtn">🙋 IT'S REAL! <small>(${left} left)</small></button>`);
+      $("apBtn").onclick=()=>{appeals++;checking=true;inp.disabled=true;go.disabled=true;
+        fb.innerHTML=`<span class="hint">Where's "${esc(txt)}" from? (e.g. One Piece, a game, another language)</span><div class="row" style="justify-content:center;margin-top:6px"><input id="apCtx" maxlength="80" placeholder="it's from…" style="max-width:260px"><button class="pbtn sm c m-nova" id="apGo">CHECK AGAIN</button><button class="pbtn sm" id="apNo">NEVER MIND</button></div>`;
+        const ci=$("apCtx");ci.focus();const back=()=>{checking=false;inp.disabled=false;go.disabled=false;inp.focus();};
+        $("apNo").onclick=()=>{back();fb.innerHTML="";appeals--;offerAp();};
+        const run=async()=>{const hint=ci.value.trim();if(!hint)return ci.focus();fb.innerHTML=`CHECKING AGAIN… <span class="hint">(clock paused)</span>`;
+          const r2=await appealJudge(p,txt,hint);if(my!==tok||locked)return;back();
+          if(r2&&r2.display){toast("Appeal accepted ✓");return finish(r2);}reject(r2&&r2.error?"CHECK FAILED: "+esc(r2.error):"STILL NOT VALID"+(r2&&r2.why?": "+esc(r2.why):""));offerAp();};
+        $("apGo").onclick=run;ci.onkeydown=e=>{e.stopPropagation();if(e.key==="Enter"){e.preventDefault();run();}else if(e.key==="Escape"){back();fb.innerHTML="";appeals--;offerAp();}};};}
   };
   go.onclick=submit;inp.onkeydown=ev=>{if(ev.key==="Enter"){ev.preventDefault();submit();}
     else if(asking&&ev.key==="Escape"){ev.preventDefault();asking.no();}
@@ -4644,7 +4709,7 @@ MGAMES.heist={name:"CUPIDIUM HEIST",w:200,h:130,blurb:"Sneak the cupidium vial o
 
 // ---------- 3. CUPIDIUM STACKER ----------
 MGAMES.stack={name:"CUPIDIUM STACKER",w:160,h:240,blurb:"A 3D tower of crystal floors. Drop each floor perfectly, catch cupidium atoms, pick power-ups and climb from the deep sea to outer space.",
-  controls:"SPACE / ENTER or tap to drop. Whatever hangs over the edge is sliced off. Every 3 atoms you pick a power-up (1-4 or tap): LOCK, SLOW-MO, MEND (big growth for 2 floors) or BOOST (×2.5 points for 5 floors, no growth). No atoms appear while LOCK, SLOW-MO or BOOST is on. 3+ perfects grow your floor (no size limit, the camera zooms out). 5 in a row = ONE IN A CUPIDIUM, 10 = GOD OF CUPIDIUM, 20 = CUPID'S ARROW (triples the floor). When it falls, VIEW YOUR TOWER to scroll through it.",
+  controls:"SPACE / ENTER or tap to drop. Whatever hangs over the edge is sliced off. Every 3 atoms you pick a power-up (1-4 or tap): LOCK (2 auto-perfect floors, -20% pts), SLOW-MO (3 charges, slower the higher you go, -10% pts), MEND (2 charges, perfects grow +15) or BOOST (3 charges, ×2.5 points rising to ×10 above floor 100, no growth). SLOW-MO, MEND and BOOST only lose a charge when you miss a perfect. No atoms appear while LOCK, SLOW-MO or BOOST is on. ROCKET (R or the top-left button) costs 1500 pts (2500 after floor 50): the floor flies 2-4× faster and a perfect drop is an instant GOD OF CUPIDIUM. 3+ perfects grow your floor (no size limit, the camera zooms out). 5 in a row = ONE IN A CUPIDIUM, 10 = GOD OF CUPIDIUM, 20 = CUPID'S ARROW (triples the floor). When it falls, VIEW YOUR TOWER to scroll through it.",
   K:.64,BH:6,BASE:80,overKey:true,
   autoMode(){const a=store.get("otc.stack.auto","");return a===true?"random":a||"";},
   autoLabel(a){return a==="lock"?"ALWAYS LOCK":a==="slow"?"ALWAYS SLOW-MO":a==="mend"?"ALWAYS MEND":a==="boost"?"ALWAYS BOOST":a==="random"?"RANDOM":"ASK ME";},
@@ -4653,8 +4718,17 @@ MGAMES.stack={name:"CUPIDIUM STACKER",w:160,h:240,blurb:"A 3D tower of crystal f
   get dom(){const a=this.autoMode(),l=store.get("otc.stack.lat",null);
     return`<div class="row" style="justify-content:center;gap:8px;margin-bottom:6px;flex-wrap:wrap"><button class="pbtn sm" data-act="stackAuto" id="stAuto">POWER-UPS: ${this.autoLabel(a)}</button><button class="pbtn sm" data-act="stackSync" id="stSync">🎵 SYNC${l!=null?` (${l} ms)`:""}</button>
       <button class="pbtn sm" data-act="stackVfx" id="stVfx">✨ EFFECTS: ${this.vfxOn()?"ON":"OFF"}</button><button class="pbtn sm" data-act="stackFocus" id="stFocus">🎯 FOCUS: ${this.focusOn()?"ON":"OFF"}</button></div>`;},
-  POW:{lock:{nm:"CUPIDIUM LOCK",d:"2 floors line up perfectly · -15% pts",c:"#5eead4"},slow:{nm:"SLOW-MO",d:"4 floors at half speed · -15% pts",c:"#a78bfa"},
-    mend:{nm:"MEND",d:"2 floors grow big (+10 or 3× growth)",c:"#86efac"},boost:{nm:"BOOST",d:"5 floors of ×2.5 points · no growth",c:"#f87171"}},
+  POW:{lock:{nm:"LOCK",d:"2 auto-perfect floors · -20% pts",c:"#5eead4"},slow:{nm:"SLOW-MO",d:"3 charges · slower up high · -10% pts",c:"#a78bfa"},
+    mend:{nm:"MEND",d:"2 charges · perfects grow +15",c:"#86efac"},boost:{nm:"BOOST",d:"3 charges · ×2.5 up to ×10 pts",c:"#f87171"}},
+  // BOOST pays more the taller the tower; SLOW-MO gets slower so it stays useful up high
+  boostX(L){return L>=100?10:L>=50?5:L>=25?3:2.5;},
+  slowX(L){return L>=80?.25:L>=50?.4:.5;},
+  rocketX(L){return L<25?4:L<50?3:2;},
+  rocketCost(L){return L<50?1500:2500;},
+  // ROCKET: bought with points, not picked. One quick drop; a perfect one is an instant GOD OF CUPIDIUM
+  rocket(m){if(m.over||m.dead||m.choose||m.cal||m.arrow||!m.cur||m.cur.rocket)return;const L=m.blocks.length,cost=this.rocketCost(L);
+    if(m.lock>0)return this.say(m,"NO ROCKETS DURING LOCK","#fca5a5");if(m.score<cost)return this.say(m,`ROCKET COSTS ${cost} PTS`,"#fca5a5");
+    m.score-=cost;m.cur.rocket=1;mPop(m,80,80,"-"+cost,"#fca5a5");this.say(m,`ROCKET! ×${this.rocketX(L)} SPEED · PERFECT = GOD`,"#fb923c");mShake(m,250,2);sfx.ok(4);},
   REL:{magnet:{nm:"MAGNET",d:"atoms are easier to catch",c:"#f472b6",ic:"🧲"},grip:{nm:"WIDE GRIP",d:"perfects are easier",c:"#facc15",ic:"✋"},
     lucky:{nm:"LUCKY STAR",d:"gold atoms are much more common",c:"#fde047",ic:"⭐"},twin:{nm:"TWIN ATOMS",d:"atoms are worth double",c:"#67e8f9",ic:"✦"}},
   init(m){m.blocks=[{x:-40,z:-40,w:80,d:80,i:0}];m.cam=0;m.ox=0;m.zoom=1;m.alt=0;m.perf=0;m.flash=-1e4;m.chips=[];m.atoms=[];m.cupM=0;m.lock=0;m.slow=0;m.mend=0;m.boost=0;
@@ -4672,32 +4746,36 @@ MGAMES.stack={name:"CUPIDIUM STACKER",w:160,h:240,blurb:"A 3D tower of crystal f
     m.atoms.push({lv,x:top.x+pw+Math.random()*Math.max(1,top.w-pw*2),z:top.z+pd+Math.random()*Math.max(1,top.d-pd*2),gold,relic,born:m.t});},
   say(m,txt,c){m.msg={txt,c,t:m.t};},
   pick(m,k){if(!m.choose)return;m.choose=null;const P=this.POW[k];if(!P)return;
-    if(k==="lock")m.lock=2;else if(k==="slow")m.slow=4;else if(k==="mend")m.mend=2;else if(k==="boost"){m.boost=5;mShake(m,300,2);}
+    if(k==="lock")m.lock=2;else if(k==="slow")m.slow=3;else if(k==="mend")m.mend=2;else if(k==="boost"){m.boost=3;mShake(m,300,2);}
     this.say(m,P.nm+"!",P.c);sfx.ok(4);},
   grow(nb,g){nb.x-=g/2;nb.w+=g;nb.z-=g/2;nb.d+=g;nb.grew=1;},
   drop(m){if(m.over||m.dead||m.choose||m.cal||m.arrow)return;const top=m.blocks[m.blocks.length-1],c=m.cur,ax=c.ax,P=ax==="x"?"x":"z",S=ax==="x"?"w":"d";
     const lat=store.get("otc.stack.lat",0)||0;if(lat>0&&m.hist&&m.hist.length){const want=performance.now()-lat;let best=null;for(const h of m.hist)if(!best||Math.abs(h[0]-want)<Math.abs(best[0]-want))best=h;if(best&&best[2]===m.blocks.length)c[P]=best[1];}
-    const locked=m.lock>0,slowed=m.slow>0,boosted=m.boost>0,mended=m.mend>0;if(locked){c.x=top.x;c.z=top.z;m.lock--;}if(slowed)m.slow--;if(boosted)m.boost--;if(mended)m.mend--;
-    const mult=boosted?2.5:(locked||slowed)?.85:1,z=this.zs(top);let pts=0;
-    const l=Math.max(top[P],c[P]),r=Math.min(top[P]+top[S],c[P]+c[S]),ov=r-l,L=m.blocks.length;
+    // a rocket drop stands alone: the other power-ups don't apply to it and don't use a charge
+    const rocketed=!!c.rocket,locked=m.lock>0,slowed=!rocketed&&m.slow>0,boosted=!rocketed&&m.boost>0,mended=!rocketed&&m.mend>0,z0=this.zs(top);if(locked){c.x=top.x;c.z=top.z;m.lock--;}
+    const perfect=locked||Math.abs(c[P]-top[P])<=(m.rel.grip?4.5:2.5)/z0;
+    // SLOW-MO, BOOST and MEND only use a charge when the drop isn't perfect
+    if(!perfect){if(slowed)m.slow--;if(boosted)m.boost--;if(mended)m.mend--;}
+    const L=m.blocks.length,mult=boosted?this.boostX(L):locked?.8:slowed?.9:1,z=z0;let pts=0;
+    const l=Math.max(top[P],c[P]),r=Math.min(top[P]+top[S],c[P]+c[S]),ov=r-l;
     if(ov<=0){m.chips.push({x:c.x,z:c.z,w:c.w,d:c.d,i:L,vy:0,y:0});m.dead=m.t;sfx.miss();
       m.deadTxt=`${L-1} floors · ${m.got} cupidium${m.oic?` · ${m.oic}× one in a cupidium`:""}${m.god?` · ${m.god}× GOD OF CUPIDIUM`:""}${m.arrows?` · ${m.arrows}× CUPID'S ARROW`:""}`;return;}
     let nb;
-    if(locked||Math.abs(c[P]-top[P])<=(m.rel.grip?4.5:2.5)/z){// locks count as perfects too
+    if(perfect){// locks count as perfects too
       m.perf++;nb={x:top.x,z:top.z,w:top.w,d:top.d,i:L,gold:1};if(locked)nb.lock=1;
       pts+=25+(m.perf>5?(m.perf-5)*10:0);m.flash=m.t;sfx.ok(5);
       // the longer the streak, the more the floor grows · MEND makes it much bigger · BOOST stops growth
-      let g=m.perf>=3?Math.min(14,2+(m.perf-2)*2):0;if(mended)g=Math.max(10,g*3);
+      let g=m.perf>=3?Math.min(14,2+(m.perf-2)*2):0;if(mended)g=Math.max(15,g*3);
       if(boosted)g=0;if(g>0){this.grow(nb,g);mPop(m,80,70,`+${Math.round(g)} SIZE`,mended?"#86efac":"#5eead4");}
       if(m.perf%20===0){m.arrows++;pts+=6000;nb.cupidium=1;nb.god=1;nb.arrow=1;m.arrow={t0:m.t,i:L,done:0};
         this.say(m,m.arrows>1?`CUPID'S ARROW ×${m.arrows}!`:"CUPID'S ARROW!","#ff4d6d");burst(160);}
-      else if(m.perf%10===0){m.god++;pts+=3000;nb.cupidium=1;nb.god=1;this.say(m,m.god>1?`GOD OF CUPIDIUM ×${m.god}!`:"GOD OF CUPIDIUM!","#ff8ad0");burst(120);mShake(m,500,3);m.fxq.push({k:"god",t:m.t,i:L});}
-      else if(m.perf%5===0){m.oic++;pts+=1000;nb.cupidium=1;this.say(m,m.oic>1?`ONE IN A CUPIDIUM ×${m.oic}!`:"ONE IN A CUPIDIUM!","#ff8fe0");burst(50);m.fxq.push({k:"oic",t:m.t});}}
+      else if(m.perf%10===0||rocketed){m.god++;if(rocketed)this.say(m,"ROCKET PERFECT!","#fb923c");pts+=3000;nb.cupidium=1;nb.god=1;this.say(m,m.god>1?`GOD OF CUPIDIUM ×${m.god}!`:"GOD OF CUPIDIUM!","#ff8ad0");burst(120);mShake(m,500,3);m.fxq.push({k:"god",t:m.t,i:L});}
+      if(m.perf%5===0&&m.perf%10!==0&&m.perf%20!==0&&!rocketed){m.oic++;pts+=1000;nb.cupidium=1;this.say(m,m.oic>1?`ONE IN A CUPIDIUM ×${m.oic}!`:"ONE IN A CUPIDIUM!","#ff8fe0");burst(50);m.fxq.push({k:"oic",t:m.t});}}
     else{nb=ax==="x"?{x:l,w:ov,z:top.z,d:top.d,i:L}:{z:l,d:ov,x:top.x,w:top.w,i:L};m.perf=0;pts+=10;sfx.ok(2);
       const cut=c[S]-ov,cs=c[P]<top[P]?c[P]:r;m.chips.push(ax==="x"?{x:cs,w:cut,z:c.z,d:c.d,i:L,vy:0,y:0}:{z:cs,d:cut,x:c.x,w:c.w,i:L,vy:0,y:0});
       if(mended&&!boosted){this.grow(nb,6);mPop(m,80,70,"+6 SIZE","#86efac");}}
     if(boosted)nb.boost=1;
-    const got=Math.round(pts*mult);m.score+=got;if(mult!==1&&got>30)mPop(m,80,80,`+${got}${boosted?" ×2.5":""}`,boosted?"#fca5a5":"#cbd5e1");
+    const got=Math.round(pts*mult);m.score+=got;if(mult!==1&&got>30)mPop(m,80,80,`+${got}${boosted?" ×"+mult:""}`,boosted?"#fca5a5":"#cbd5e1");
     else if(pts>=1000)mPop(m,80,80,"+"+got,"#ff8fe0");
     m.blocks.push(nb);if(m.arrow&&!m.arrow.done&&!this.vfxOn())this.hitArrow(m);
     // whatever floats over this floor (lock drops can't collect atoms, but they do pick up relics)
@@ -4743,7 +4821,7 @@ MGAMES.stack={name:"CUPIDIUM STACKER",w:160,h:240,blurb:"A 3D tower of crystal f
       const mid=(E[0]+E[1])/2-120;V.want=Math.max(Math.min(0,mid),Math.min(Math.max(m.cam,mid),V.want));if(V.zw<=vm+1e-3&&V.drag==null)V.want=mid;V.off+=(V.want-V.off)*.18;}
     m.alt+=(n-1-m.alt)*.05;},
   key(m,k,down,first,raw){if(m.over){if(!m.view||!down)return;if(k==="dn")m.view.want+=40;else if(k==="u")m.view.want-=40;else if(raw==="-"||raw==="_")this.vZoom(m,.8);else if(raw==="="||raw==="+")this.vZoom(m,1.25);else if(k==="sp"||k==="ent"){$("mgo").hidden=false;}return;}
-    if(!down||!first)return;if(m.cal){if(k==="sp"||k==="ent")this.calTap(m);return;}if(m.choose){const i="1234".indexOf(raw);if(i>=0&&m.choose[i])this.pick(m,m.choose[i]);return;}if(k==="sp"||k==="ent")this.drop(m);},
+    if(!down||!first)return;if(m.cal){if(k==="sp"||k==="ent")this.calTap(m);return;}if(m.choose){const i="1234".indexOf(raw);if(i>=0&&m.choose[i])this.pick(m,m.choose[i]);return;}if(raw==="r")return this.rocket(m);if(k==="sp"||k==="ent")this.drop(m);},
   // tower view: how far out you can zoom (enough to fit the whole tower on screen)
   // the tower's top and bottom on screen (ignoring the current scroll)
   vExt(m){const n=m.blocks.length,top=m.blocks[n-1],b0=m.blocks[0],o=m.view?m.view.off:0;
@@ -4754,13 +4832,13 @@ MGAMES.stack={name:"CUPIDIUM STACKER",w:160,h:240,blurb:"A 3D tower of crystal f
   ptr(m,x,y,t){if(m.over){const V=m.view;if(!V)return;if(t==="pointerdown"){if(x>m.W-46&&y<20){$("mgo").hidden=false;return;}
         if(y>m.H-36&&y<m.H-18){if(x>m.W-58&&x<m.W-42)return this.vZoom(m,.7);if(x>m.W-40&&x<m.W-24)return this.vZoom(m,1/.7);if(x>m.W-22)return void(V.zw=this.vMin(m));}V.drag=y;V.moved=0;}
       else if(t==="pointermove"&&V.drag!=null){const d=(y-V.drag)/(V.z||1);V.drag=y;V.want-=d;V.off-=d;V.moved+=Math.abs(d);}else if(t==="pointerup")V.drag=null;return;}
-    if(t!=="pointerdown")return;if(m.cal)return this.calTap(m);if(m.choose){const i=Math.floor((y-76)/36);if(x>=14&&x<=146&&i>=0&&i<m.choose.length&&y>=76)this.pick(m,m.choose[i]);return;}this.drop(m);},
+    if(t!=="pointerdown")return;if(m.cal)return this.calTap(m);if(m.choose){const i=Math.floor((y-76)/36);if(x>=14&&x<=146&&i>=0&&i<m.choose.length&&y>=76)this.pick(m,m.choose[i]);return;}if(x<50&&y<17)return this.rocket(m);this.drop(m);},
   update(m,dt){for(const ch of m.chips){ch.vy+=.0009*dt;ch.y+=ch.vy*dt;}m.chips=m.chips.filter(ch=>ch.y<80);
     if(m.dead){if(m.t-m.dead>900){mgEnd("IT FELL!",`${m.deadTxt||""}<br><button class="pbtn sm" data-act="stackView" style="margin-top:8px">👀 VIEW YOUR TOWER</button>`);}return;}
     if(m.cal)return this.calUpdate(m);if(m.choose)return;
     if(m.arrow){const el=m.t-m.arrow.t0;if(el>=900&&!m.arrow.done)this.hitArrow(m);if(el>1500)m.arrow=null;else return;}
     m.hist=m.hist||[];{const P0=m.cur.ax==="x"?"x":"z";m.hist.push([performance.now(),m.cur[P0],m.blocks.length]);if(m.hist.length>40)m.hist.shift();}
-    const n=m.blocks.length,c=m.cur,z=this.zs(m.blocks[n-1]),sp=(.05+n*.0035)*dt*(m.lock>0?.6:1)*(m.slow>0?.5:1)*1.25/z,P=c.ax==="x"?"x":"z";c[P]+=c.dir*sp;
+    const n=m.blocks.length,c=m.cur,z=this.zs(m.blocks[n-1]),sp=(.05+n*.0035)*dt*(c.rocket?this.rocketX(n):(m.lock>0?.6:1)*(m.slow>0?this.slowX(n):1))*1.25/z,P=c.ax==="x"?"x":"z";c[P]+=c.dir*sp;
     if(c.lo==null)this.range(m);if(c[P]>c.hi&&c.dir>0)c.dir=-1;if(c[P]<c.lo&&c.dir<0)c.dir=1;},
   col(i,f){const h=(320-i*9)%360;return`hsl(${h},${f===0?78:f===1?65:60}%,${f===0?72:f===1?56:44}%)`;},
   box(m,x,b,i,dy,t,ghost){const P=(X,Z,lv)=>{const p=this.proj(m,X,Z,lv);p[1]+=dy||0;return p;};
@@ -4892,7 +4970,11 @@ MGAMES.stack={name:"CUPIDIUM STACKER",w:160,h:240,blurb:"A 3D tower of crystal f
       if(a.relic){const Q=this.REL[a.relic];mGlow(x,sx,y,8,Q.c,.5+.2*Math.sin(t*.01));x.fillStyle=Q.c;x.beginPath();x.moveTo(sx,y-4);x.lineTo(sx+3,y);x.lineTo(sx,y+4);x.lineTo(sx-3,y);x.closePath();x.fill();mR(x,sx-1,y-2,1,1,"#fff");}
       else mAtom(x,sx,y,a.gold?3.2:2.6,a.gold?"#fde047":CUPC,t);}
     if(!m.over&&!m.dead){const top=m.blocks[m.blocks.length-1],L=m.blocks.length;if(m.lock>0)this.box(m,x,{x:top.x,z:top.z,w:top.w,d:top.d},L,0,t,true);
-      this.box(m,x,Object.assign({lock:m.lock>0?1:0,boost:m.boost>0?1:0},m.cur),L,0,t);}
+      this.box(m,x,Object.assign({lock:m.lock>0?1:0,boost:m.boost>0?1:0},m.cur),L,0,t);
+      if(m.cur.rocket){// two little thrusters on the back edge of the moving floor
+        const c=m.cur,zz=m.zoom||1,X=c.ax==="x",back=c.dir>0?(X?c.x:c.z):(X?c.x+c.w:c.z+c.d),sd=-c.dir;
+        for(const f of[.28,.72]){const wx=X?back:c.x+c.w*f,wz=X?c.z+c.d*f:back,[sx,sy]=this.proj(m,wx,wz,L+.5);mR(x,sx-2,sy-2,4,4,"#475569");mR(x,sx-1,sy-1,2,2,"#94a3b8");
+          for(let k=1;k<=6;k++){const fl=k*(3+Math.random()*2)/zz,[fx,fy]=this.proj(m,X?wx+sd*fl:wx,X?wz:wz+sd*fl,L+.5);mD(x,fx,fy,Math.max(.6,2.6-k*.35),k<3?"#fde047":k<5?"#fb923c":"#ef4444");}}}}
     for(const ch of m.chips){x.globalAlpha=Math.max(0,1-ch.y/80);this.box(m,x,ch,ch.i,ch.y,t);x.globalAlpha=1;}if(V)x.restore();
     if(!m.over){this.vfx(m,x,t);this.boostFx(m,x,t);if(this.vfxOn())this.arrowFx(m,x,t);}
     mFx(m,x,dt);mPops(m,x,dt);
@@ -4904,10 +4986,12 @@ MGAMES.stack={name:"CUPIDIUM STACKER",w:160,h:240,blurb:"A 3D tower of crystal f
     if(m.perf>1){const n5=5-(m.perf%5),n10=10-(m.perf%10),n20=20-(m.perf%20);mT(x,`PERFECT x${m.perf} · ${n20<=5?n20+" to 💘":n10<=5?n10+" to 👑":n5+" to ✦"}`,m.W/2,23,"#c4b5fd",6);}
     for(let i=0;i<3;i++){mD(x,8+i*8,m.H-8,3,"#0b1020");mD(x,8+i*8,m.H-8,2.4,i<m.cupM?CUPC:"#3b2a55");}
     const rel=Object.keys(m.rel);rel.forEach((k,i)=>{const Q=this.REL[k];mD(x,40+i*9,m.H-8,3,Q.c);});
+    if(!m.choose&&!m.cal){const L=m.blocks.length,cost=this.rocketCost(L),on=m.cur&&m.cur.rocket,can=m.score>=cost&&m.lock<=0&&!m.arrow;
+      mRR(x,3,3,46,13,3,on?"#7c2d12":can?"#3b1d0f":"#1e1b2e");mT(x,on?"ROCKET ON!":"ROCKET (R)",26,8,on?"#fde047":can?"#fb923c":"#6b7280",5);mT(x,on?`×${this.rocketX(L)} SPEED`:`${cost} PTS`,26,13.5,on?"#fdba74":can?"#fde68a":"#6b7280",4);}
     const pw=[m.lock>0&&[`LOCK ×${m.lock}`,"#5eead4"],m.slow>0&&[`SLOW ×${m.slow}`,"#a78bfa"],m.mend>0&&[`MEND ×${m.mend}`,"#86efac"],m.boost>0&&[`BOOST ×${m.boost}`,"#fca5a5"]].filter(Boolean);
     pw.forEach(([s,c],i)=>mT(x,s,m.W-4,m.H-8-i*8,c,6,"right"));
     if(m.cal)return this.calDraw(m,x,t);
-    if(m.choose){x.globalAlpha=.75;mR(x,0,0,m.W,m.H,"#0a0820");x.globalAlpha=1;mT(x,"PICK A POWER-UP",m.W/2,64,"#5eead4",8);
+    if(m.choose){x.globalAlpha=.75;mR(x,0,0,m.W,m.H,"#0a0820");x.globalAlpha=1;mT(x,"PICK A POWER-UP",m.W/2,58,"#5eead4",8);mT(x,"perfect drops don't use a charge",m.W/2,68,"#c4b5fd",4.5);
       m.choose.forEach((k,i)=>{const P=this.POW[k],y=76+i*36;mRR(x,14,y,132,32,4,"#241b40");mR(x,14,y,3,32,P.c);mT(x,`${i+1}  ${P.nm}`,22,y+10,P.c,7,"left");mT(x,P.d,22,y+23,"#e9d5ff",5,"left");});}}};
 // ---------- 4. CUPIDIUM RHYTHM ----------
 MGAMES.rhythm={persist:false,name:"CUPIDIUM RHYTHM",w:200,h:210,blurb:"Hit the atoms on the beat. Fill the meter for pink fever mode.",controls:"Lanes: D F J K (or ← ↓ ↑ →), or tap a lane. Hit atoms as they cross the line.",
@@ -5920,7 +6004,7 @@ const ARCADE_CATS=[
   ["arcade","ARCADE",[["breaker","Brick breaker with power-ups."],["golf","9 holes of wacky mini golf."],["stack","Stack the tallest crystal tower."],["rhythm","Hit the atoms on the beat."]]],
   ["puzzle","PUZZLE",[["lab","Fuse elements up to cupidium."],["merge","Drop and merge atoms in a jar."],["isit","Real element or made up?"],["heist","Sneak the vial past the guards."]]],
   ["versus","VERSUS",[["fight","1v1, 2v2 or free-for-all brawls."],["catch","Grab the most atoms, bump rivals."]]],
-  ["more","MORE",[["miner","Drill deep for rare ore."]]]];
+  ["more","MORE",[["miner","Drill deep for rare ore."],["xc","Cross country career: train and race 5Ks."]]]];
 const ARCADE_NAMES={rush:"CUPIDIUM RUSH"};
 // small pixel icons for the arcade list
 const AICON={
@@ -5948,7 +6032,7 @@ function cupHub(cat){
     <div class="glass atabs">${ARCADE_CATS.map(([id,nm,gs])=>`<button class="${id===cat?"on":""}" data-act="atab" data-c="${id}">${nm}<small>${gs.length}</small></button>`).join("")}</div>
     <div class="arcade">${games.map(([id,bl])=>{const G=MGAMES[id],best=id==="rush"?store.get("otc.cupBest",0):mBest(id);
       return `<button class="glass agame" data-act="${id==="rush"?"cup":"mg"}" data-id="${id}"><canvas width="48" height="48" data-aicon="${id}"></canvas>
-        <span class="ainfo"><b>${(ARCADE_NAMES[id]||G.name).replace("CUPIDIUM ","")}</b><span>${bl}</span></span>${best?`<small>BEST<br>${best}</small>`:"<small>NEW</small>"}</button>`;}).join("")}</div>`);
+        <span class="ainfo"><b>${(ARCADE_NAMES[id]||G.name).replace("CUPIDIUM ","")}</b><span>${bl}</span></span>${best?`<small>BEST<br>${G.fmt?G.fmt(best):best}</small>`:"<small>NEW</small>"}</button>`;}).join("")}</div>`);
   document.querySelectorAll("[data-aicon]").forEach(c=>{const x=c.getContext("2d");x.setTransform(2,0,0,2,0,0);mR(x,0,0,24,24,"#1b1238");try{AICON[c.dataset.aicon](x);}catch(e){}});
 }
 // ---------- first screen ----------
@@ -6164,7 +6248,7 @@ Object.assign(ACT,{pollVote:b=>pollVote(b.dataset.o),pollAll:()=>{POLL.all=!POLL
 // board and re-shares a compact snapshot now and then, so boards survive the relay's 12-hour memory as long as
 // someone plays at least twice a day. Claude's version keeps your own scores only.
 const LB_TOPIC="oneinacupidium-lb-v2",DEV_TOPIC="oneinacupidium-visits-7k3q",LB_KEEP=10;
-const LB_NAMES={daily:"Daily (today)",dailyGeo:"🌍 Geo Daily (today)",endless:"Endless",rendless:"Rapid Endless",blitz:"Rapid Fire",endlessGeo:"🌍 Geo Endless",rendlessGeo:"🌍 Geo Rapid Endless",cup:"Cupidium Rush",casNow:"Casino · Current Chips",casPeak:"Casino · Peak Chips",casWin:"Casino · Biggest Win",cpWord:"Cuepdle (today)",cpConn:"Cuepnections (today)",cpBee:"Cupid Bee (today)"};
+const LB_NAMES={xc:"XC · Best 5K",daily:"Daily (today)",dailyGeo:"🌍 Geo Daily (today)",endless:"Endless",rendless:"Rapid Endless",blitz:"Rapid Fire",endlessGeo:"🌍 Geo Endless",rendlessGeo:"🌍 Geo Rapid Endless",cup:"Cupidium Rush",casNow:"Casino · Current Chips",casPeak:"Casino · Peak Chips",casWin:"Casino · Biggest Win",cpWord:"Cuepdle (today)",cpConn:"Cuepnections (today)",cpBee:"Cupid Bee (today)"};
 const lbName=k=>LB_NAMES[k]||(MGAMES[k]?MGAMES[k].name.replace("CUPIDIUM ","").replace(/^\w/,c=>c):k);
 const LB={b:store.get("otc.lb",{}),es:null,id:store.get("otc.pid",null)};
 if(!LB.id){LB.id=Math.random().toString(36).slice(2,10);store.set("otc.pid",LB.id);}
@@ -6255,7 +6339,7 @@ function leaderboards(back){LBV.back=back||LBV.back||"landing";
   lbRender();}
 function lbRender(){const box=$("lbBox");if(!box)return;const key=lbKeyFor(LBV.k),rows=LB.b[key]||[];
   box.innerHTML=`<div class="glass card"><h3 style="font-size:13px">${esc(lbName(LBV.k))}${LBV.k==="daily"||LBV.k==="dailyGeo"||/^cp[A-Z]/.test(LBV.k)?" · "+today():""}</h3>
-    ${rows.length?`<ol class="lbl2">${rows.map((r,i)=>`<li class="${r.i===LB.id?"me":""}"><span class="rk">${["🥇","🥈","🥉"][i]||"#"+(i+1)}</span><b>${esc(r.n)}</b><span class="sc">${r.s.toLocaleString()}</span></li>`).join("")}</ol>`
+    ${rows.length?`<ol class="lbl2">${rows.map((r,i)=>`<li class="${r.i===LB.id?"me":""}"><span class="rk">${["🥇","🥈","🥉"][i]||"#"+(i+1)}</span><b>${esc(r.n)}</b><span class="sc">${MGAMES[key]&&MGAMES[key].fmt?MGAMES[key].fmt(r.s):r.s.toLocaleString()}</span></li>`).join("")}</ol>`
       :`<p class="hint">No scores yet. Be the first!</p>`}</div>`;}
 // the board opens on whatever you were just looking at (data-k), e.g. the arcade opens on the last game you played
 Object.assign(ACT,{leaderboards:b=>{const d=(b&&b.dataset)||{};let k=d.k==="lastArc"?store.get("otc.lastArc","cup"):d.k;if(k){LBV.k=k;LBV.sec=null;}else if(d.s&&d.s!==LBV.sec){LBV.sec=d.s;LBV.k=null;}leaderboards(d.back);},lbTab:b=>{LBV.k=b.dataset.k;leaderboards();},lbSec:b=>{LBV.sec=b.dataset.s;leaderboards();},
@@ -6588,6 +6672,203 @@ setTheme(THEME);applyPalette();resize();updSnd();
 requestAnimationFrame(frame);
 landing();
 (async()=>{if(window.claude&&window.claude.use){try{SAMPLE=await window.claude.use("sample");}catch(e){SAMPLE=null;}}})();
+
+// ---------- CUPIDIUM XC: cross country career (train, upgrade, race 5Ks) ----------
+const XC_SHOES=[{id:"trainers",nm:"TRAINERS",lv:1,spd:0,acc:0,tr:0,c:"#94a3b8"},{id:"flats",nm:"RACING FLATS",lv:3,spd:.01,acc:1,tr:0,c:"#60a5fa"},
+  {id:"xc",nm:"XC SPIKES",lv:5,spd:.015,acc:1,tr:2,c:"#f59e0b",spike:1},{id:"carbon",nm:"CARBON SPIKES",lv:8,spd:.03,acc:2,tr:2,c:"#e5e7eb",spike:1},
+  {id:"cup",nm:"CUPIDIUM SPIKES",lv:12,spd:.05,acc:3,tr:3,c:"#ff5fd2",spike:1}];
+const XC_COURSES=[{id:"park",nm:"PARK LOOP",lv:1,hill:.25,mud:0,bot:3.22,sky:"#9bd8ff",gr:"#4ade80"},{id:"river",nm:"RIVER TRAIL",lv:2,hill:.45,mud:.15,bot:3.5,sky:"#a5d8ff",gr:"#34d399"},
+  {id:"hill",nm:"HILLTOP",lv:4,hill:1,mud:.05,bot:3.78,sky:"#bfdbfe",gr:"#65a30d"},{id:"mud",nm:"MUD BOWL",lv:6,hill:.5,mud:.5,bot:4.02,sky:"#cbd5e1",gr:"#4d7c0f"},
+  {id:"state",nm:"STATE CHAMPS",lv:9,hill:.65,mud:.2,bot:4.36,sky:"#fde2e4",gr:"#22c55e"},{id:"nat",nm:"NATIONALS",lv:13,hill:.75,mud:.3,bot:4.72,sky:"#fbcfe8",gr:"#16a34a"}];
+const XC_BOTS=["MAYA","LEO","PRIYA","OWEN","SOFIA","KAI","ZARA","ELI","NOOR","FINN","IVY","DREW","LUNA","JAX"];
+const XC_TS=20;// race seconds per real second
+const xcTime=s=>{if(s==null||!isFinite(s))return"--:--";s=Math.max(0,s);const mm=Math.floor(s/60),ss=Math.floor(s%60);return`${mm}:${String(ss).padStart(2,"0")}`;};
+MGAMES.xc={persist:false,name:"CUPIDIUM XC",w:240,h:150,blurb:"Cross country career: train, buy spikes and race 5Ks against tougher and tougher fields.",
+  controls:"Menus: tap or press 1-6 (Q / Esc to go back). RACE: hold SPACE or hold the screen to push (faster, burns stamina), let go to cruise and recover. Push in the last 600 m for your kick. B or the BICARB button = speed boost. Hills slow you down and mud is slippery: spikes give you traction. LONG RUN: hold/release to stay in the green zone (stamina). STRIDES: tap when the marker is in the green (acceleration). WORKOUT: hold the pace band through each rep (fitness, lowers your 5K time). Earn XP to unlock courses and shoes.",
+  // the leaderboard stores a best 5K as a number where bigger is better
+  fmt(s){return xcTime((36000-s)/10);},
+  C(){const d={lv:1,xp:0,coins:0,fit:0,stam:0,stamP:0,acc:0,accP:0,pins:0,plate:0,bicarb:1,shoe:"trainers",pr:null,wins:{},best:{},races:0};const c=Object.assign(d,store.get("otc.xc",{}));return c;},
+  save(m){store.set("otc.xc",m.C);},
+  shoe(C){return XC_SHOES.find(s=>s.id===C.shoe)||XC_SHOES[0];},
+  base(C){return 3.47+2.6*(1-Math.exp(-C.fit/12));},
+  accel(C){const s=this.shoe(C);return C.acc+s.acc+(s.spike?C.plate:0);},
+  trac(C){const s=this.shoe(C);return s.tr+(s.spike?C.pins:0);},
+  pool(C){return 100+C.stam*15;},
+  pred(C){return 5000/(this.base(C)*(1+this.shoe(C).spd));},
+  need(lv){return 80+lv*60;},
+  init(m){m.C=this.C();m.scr="hub";m.msg=null;m.hold=0;this.hud(m);},
+  hud(m){const C=m.C;mgHud(`LV ${C.lv} · ${C.coins} 🪙 · PR ${xcTime(C.pr)}`);},
+  say(m,t,c){m.msg={t,c:c||"#fde047",at:m.t};},
+  addXP(m,n){const C=m.C,out=[];C.xp+=Math.round(n);while(C.xp>=this.need(C.lv)){C.xp-=this.need(C.lv);C.lv++;out.push(C.lv);
+      const cs=XC_COURSES.filter(c=>c.lv===C.lv).map(c=>c.nm),sh=XC_SHOES.filter(s=>s.lv===C.lv).map(s=>s.nm);
+      toast(`🏃 LEVEL ${C.lv}!${cs.length?" New course: "+cs.join(", "):""}${sh.length?" New shoes: "+sh.join(", "):""}`);sfx.ok(5);}
+    return out;},
+  go(m,scr){m.scr=scr;m.sel=0;m.hold=0;this.hud(m);},
+  // ---------------- menus ----------------
+  HUB:[["🏁 RACE","race"],["🛤 LONG RUN","long"],["⚡ STRIDES","strides"],["⏱ WORKOUT","work"],["👟 SHOES","shoes"],["🛒 SHOP","shop"]],
+  hubBtn(i){return{x:8+(i%2)*116,y:56+Math.floor(i/2)*26,w:108,h:22};},
+  rowY(i){return 24+i*20;},
+  pick(m,i){const s=m.scr;
+    if(s==="hub"){const b=this.HUB[i];if(!b)return;const k=b[1];if(k==="race")return this.go(m,"courses");if(k==="shoes"||k==="shop")return this.go(m,k);return this.startTrain(m,k);}
+    if(s==="courses"){const c=XC_COURSES[i];if(!c)return;if(m.C.lv<c.lv){sfx.miss();return this.say(m,`UNLOCKS AT LEVEL ${c.lv}`,"#fca5a5");}return this.startRace(m,i);}
+    if(s==="shoes"){const sh=XC_SHOES[i];if(!sh)return;if(m.C.lv<sh.lv){sfx.miss();return this.say(m,`UNLOCKS AT LEVEL ${sh.lv}`,"#fca5a5");}m.C.shoe=sh.id;this.save(m);sfx.ok(3);return this.say(m,`WEARING ${sh.nm}`,sh.c);}
+    if(s==="shop"){const it=this.shopItems(m)[i];if(!it)return;if(it.no){sfx.miss();return this.say(m,it.no,"#fca5a5");}if(m.C.coins<it.cost){sfx.miss();return this.say(m,"NOT ENOUGH COINS","#fca5a5");}
+      m.C.coins-=it.cost;it.buy();this.save(m);sfx.ok(4);this.hud(m);return this.say(m,"BOUGHT "+it.nm,"#86efac");}},
+  shopItems(m){const C=m.C,sp=this.shoe(C).spike;return[
+    {nm:"BICARB",d:`speed boost for races · have ${C.bicarb}/3`,cost:40,no:C.bicarb>=3?"YOU CAN CARRY 3":null,buy:()=>C.bicarb++},
+    {nm:`SPIKE PINS ${C.pins}/5`,d:"+1 traction on hills and mud",cost:90+C.pins*70,no:C.pins>=5?"MAXED":!sp?"WEAR SPIKES FIRST (LV 5)":null,buy:()=>C.pins++},
+    {nm:`SPIKE PLATE ${C.plate}/5`,d:"+1 acceleration",cost:90+C.plate*70,no:C.plate>=5?"MAXED":!sp?"WEAR SPIKES FIRST (LV 5)":null,buy:()=>C.plate++}];},
+  back(m){if(m.scr==="race"||m.scr==="long"||m.scr==="strides"||m.scr==="work"){if(m.res)return;return;}this.go(m,"hub");},
+  key(m,k,down,first,raw){if(!down){if(k==="sp"||k==="u")m.hold=0;return;}
+    if(k==="sp"||k==="u"){if(first&&this.tap(m,null,null))return;m.hold=1;return;}
+    if(!first)return;
+    if(raw==="escape"||raw==="q"||raw==="backspace")return this.back(m);
+    if(raw==="b"&&m.scr==="race")return this.bicarb(m);
+    if(k==="ent")return this.tap(m,null,null);
+    const n="123456".indexOf(raw);if(n>=0&&!m.R&&!m.T&&!m.res)this.pick(m,n);},
+  ptr(m,x,y,t){if(t==="pointerup"){m.hold=0;return;}if(t!=="pointerdown")return;
+    if(this.tap(m,x,y))return;
+    if(m.scr==="race"||m.scr==="long"||m.scr==="work"){m.hold=1;return;}
+    if(["courses","shoes","shop"].includes(m.scr)&&x<44&&y<16)return this.go(m,"hub");
+    if(m.scr==="hub"){for(let i=0;i<6;i++){const b=this.hubBtn(i);if(x>=b.x&&x<=b.x+b.w&&y>=b.y&&y<=b.y+b.h)return this.pick(m,i);}return;}
+    if(["courses","shoes","shop"].includes(m.scr)){const i=Math.floor((y-this.rowY(0)+2)/20);if(i>=0&&y>=this.rowY(0)-2)this.pick(m,i);}},
+  // taps that mean "continue" / one-shot actions; returns true when handled
+  tap(m,x,y){if(m.res){if(m.t-m.res.at<700)return true;m.res=null;m.R=null;m.T=null;this.go(m,"hub");return true;}
+    if(m.scr==="strides"&&m.T&&m.T.go)return this.strideHit(m),true;
+    if(m.scr==="race"&&m.R&&x!=null&&x>m.W-58&&y>m.H-20){this.bicarb(m);return true;}
+    return false;},
+  // ---------------- race ----------------
+  course(ci,wins){const c=XC_COURSES[ci],R=rng("xc"+c.id),seg=[];let s=0,y=0;
+    while(s<5000){const flat=s<300||s>4600;const len=Math.min(5000-s,120+R()*220),g=flat?0:(R()-.5)*2*.065*c.hill,mud=!flat&&R()<c.mud;seg.push({s,e:s+len,g,mud,y0:y});y+=g*len;s+=len;}return seg;},
+  seg(m,x){const S=m.R.seg;let lo=0,hi=S.length-1;while(lo<hi){const md=(lo+hi+1)>>1;if(S[md].s<=x)lo=md;else hi=md-1;}return S[lo];},
+  elev(m,x){x=Math.max(0,Math.min(5000,x));const g=this.seg(m,x);return g.y0+(x-g.s)*g.g;},
+  tm(g,mud,T){let f=g>0?1-g*4*(1-T*.03):1+(-g)*2.5*(.6+T*.05);if(mud)f*=1-.2*Math.max(0,1-T*.08);return f;},
+  startRace(m,ci){const C=m.C,c=XC_COURSES[ci],w=C.wins[c.id]||0,R=rng("xcb"+c.id+w+Date.now()%997);
+    const names=XC_BOTS.slice().sort(()=>R()-.5),prof=["rabbit","steady","kicker","surger","steady","kicker","rabbit"];
+    const bots=prof.map((p,i)=>({n:names[i],x:0,v:0,ph:R()*6,c:["#60a5fa","#f97316","#a3e635","#facc15","#22d3ee","#c084fc","#f87171"][i],prof:p,base:c.bot+w*.07+(-.15+R()*.4),T:ci*1.2,fin:null}));
+    m.R={ci,c,w,seg:this.course(ci),bots,me:{x:0,v:0,ph:0,sta:this.pool(C),bonk:0,fin:null,bic:0,used:0},clock:0,start:m.t+2400,camE:0};m.scr="race";m.hold=0;tone(440,.1,"square",.04);},
+  bicarb(m){const R=m.R;if(!R||m.t<R.start||R.me.fin!=null)return;const C=m.C;if(R.me.bic>0)return;if(C.bicarb<=0)return this.say(m,"NO BICARB · BUY SOME IN THE SHOP","#fca5a5");
+    if(R.me.used>=2)return this.say(m,"MAX 2 BICARB PER RACE","#fca5a5");C.bicarb--;R.me.used++;R.me.bic=120;this.save(m);this.say(m,"BICARB! SPEED BOOST","#67e8f9");sfx.ok(4);mBurst(m,60,100,14,["#67e8f9","#fff"],.8);},
+  botStep(m,b,rs){const R=m.R;if(b.fin!=null)return;const g=this.seg(m,b.x);let f=1;
+    if(b.prof==="rabbit")f=b.x<1500?1.07:.975;else if(b.prof==="kicker")f=b.x<4200?.985:1.12;else if(b.prof==="surger")f=(b.x%700)<150?1.06:.99;
+    const vt=b.base*f*this.tm(g.g,g.mud,b.T)*(1+.015*Math.sin(R.clock*.05+b.ph));b.v+=(vt-b.v)*Math.min(1,.6*rs);b.x+=b.v*rs;b.ph+=b.v*rs*.35;
+    if(b.x>=5000)b.fin=R.clock-(b.x-5000)/Math.max(.1,b.v);},
+  raceStep(m,rs){const R=m.R,C=m.C,me=R.me;R.clock+=rs;
+    if(me.fin==null){const g=this.seg(m,me.x),sh=this.shoe(C),kick=me.x>4400,push=m.hold&&!me.bonk;
+      let f=me.bonk?.86:push?(kick?1.17:1.10):1;if(me.bic>0){f+=.08;me.bic-=rs;}
+      const vt=this.base(C)*(1+sh.spd)*f*this.tm(g.g,g.mud,this.trac(C));me.v+=(vt-me.v)*Math.min(1,(.25+.06*this.accel(C))*rs);me.x+=me.v*rs;me.ph+=me.v*rs*.35;
+      let d=push?(kick?.9:.45)*(1+Math.max(0,g.g)*8):-.08+Math.max(0,g.g)*3.3;if(me.bic>0&&d>0)d*=.3;me.sta=Math.max(0,Math.min(this.pool(C),me.sta-d*rs));
+      if(me.sta<=0&&!me.bonk){me.bonk=1;this.say(m,"BONKED! EASE OFF TO RECOVER","#fca5a5");sfx.bad();}if(me.bonk&&me.sta>=25)me.bonk=0;
+      if(me.x>=5000){me.fin=R.clock-(me.x-5000)/Math.max(.1,me.v);this.finish(m);}}
+    for(const b of R.bots)this.botStep(m,b,rs);},
+  place(m){const R=m.R,me=R.me;return 1+R.bots.filter(b=>b.x>me.x).length;},
+  finish(m){const R=m.R,C=m.C,me=R.me;for(let k=0;k<4000&&R.bots.some(b=>b.fin==null);k++){R.clock+=.5;for(const b of R.bots)this.botStep(m,b,.5);}
+    const pl=1+R.bots.filter(b=>b.fin<me.fin).length,c=R.c,N=R.bots.length+1;
+    const xp=40+(N+1-pl)*12+R.ci*12,coins=(pl<=3?[60,35,20][pl-1]:10)+R.ci*10;C.coins+=coins;C.races++;
+    const lines=[`${["🥇 1ST","🥈 2ND","🥉 3RD"][pl-1]||pl+"TH"} OF ${N} · ${xcTime(me.fin)}`];
+    if(pl===1){C.wins[c.id]=(C.wins[c.id]||0)+1;lines.push(`WIN #${C.wins[c.id]} AT ${c.nm} · NEXT FIELD IS FASTER`);}
+    const bk=C.best[c.id];if(!bk||me.fin<bk.t||pl<bk.p)C.best[c.id]={t:Math.min(me.fin,bk?bk.t:1e9),p:Math.min(pl,bk?bk.p:99)};
+    if(C.pr==null||me.fin<C.pr){C.pr=me.fin;lines.push(`NEW 5K PR! ${xcTime(me.fin)}`);const sc=Math.max(1,36000-Math.round(me.fin*10));if(sc>mBest("xc"))store.set("otc.cg.xc",sc);lbSubmit("xc",sc);mBurst(m,m.W/2,40,40,["#ff8fe0","#fde047","#fff"],1.4);}
+    const ups=this.addXP(m,xp);lines.push(`+${xp} XP · +${coins} COINS`);if(ups.length)lines.push(`LEVEL UP! NOW LEVEL ${C.lv}`);
+    const tab=[{n:"YOU",t:me.fin,me:1},...R.bots.map(b=>({n:b.n,t:b.fin}))].sort((a,b)=>a.t-b.t);
+    this.save(m);this.hud(m);m.res={title:pl===1?"YOU WON!":"FINISHED",lines,tab,at:m.t};pl<=3?sfx.ok(5):sfx.ok(2);},
+  // ---------------- training ----------------
+  startTrain(m,k){m.scr=k;m.hold=0;
+    if(k==="long")m.T={k,t0:m.t+1500,dur:20000,e:.3,ev:0,inz:0,tot:0};
+    else if(k==="work")m.T={k,t0:m.t+1500,dur:4*10000,e:.2,ev:0,inz:0,tot:0};
+    else if(k==="strides"){m.T={k,i:0,n:6,pos:0,dir:1,go:0,next:m.t+1200,hits:[],score:0};this.strideSetup(m);}},
+  zone(m){const T=m.T,el=m.t-T.t0;if(T.k==="long"){const c=.5+.25*Math.sin(el*.0009)+.1*Math.sin(el*.0023);return{c,h:.13+m.C.stam*.004,rep:1};}
+    const ph=el%10000,rep=ph<7000;return rep?{c:.78+.08*Math.sin(el*.002),h:.09,rep:1,n:Math.floor(el/10000)+1}:{c:.28,h:.14,rep:0,n:Math.floor(el/10000)+1};},
+  trainStep(m,dt){const T=m.T;if(m.t<T.t0)return;const el=m.t-T.t0;
+    if(el>=T.dur){if(!m.res)this.trainDone(m);return;}
+    // effort has a little momentum, like steering a real pace
+    T.ev=Math.max(-.0011,Math.min(.0011,T.ev*.97+(m.hold?.000004:-.0000035)*dt));T.e=Math.max(0,Math.min(1,T.e+T.ev*dt));if(T.e<=0||T.e>=1)T.ev*=.5;
+    const z=this.zone(m);if(T.k==="long"||z.rep){T.tot+=dt;if(Math.abs(T.e-z.c)<=z.h)T.inz+=dt;}},
+  trainDone(m){const T=m.T,C=m.C,pct=T.tot?T.inz/T.tot:0,lines=[`${Math.round(pct*100)}% IN THE ZONE`];
+    if(T.k==="long"){C.stamP+=pct*.5;let up=0;while(C.stamP>=1&&C.stam<12){C.stamP-=1;C.stam++;up=1;}if(C.stam>=12)C.stamP=0;
+      lines.push(up?`STAMINA UP! NOW ${C.stam}/12`:`STAMINA ${C.stam}/12 · ${Math.round(C.stamP*100)}% TO NEXT`);const xp=15+Math.round(pct*20),co=5+Math.round(pct*10);C.coins+=co;this.addXP(m,xp);lines.push(`+${xp} XP · +${co} COINS`);}
+    else{const before=this.pred(C);C.fit+=.6*pct;const after=this.pred(C);lines.push(`PREDICTED 5K ${xcTime(before)} → ${xcTime(after)}`);const xp=25+Math.round(pct*25),co=8+Math.round(pct*12);C.coins+=co;this.addXP(m,xp);lines.push(`+${xp} XP · +${co} COINS`);}
+    this.save(m);this.hud(m);m.res={title:T.k==="long"?"LONG RUN DONE":"WORKOUT DONE",lines,at:m.t};sfx.ok(4);},
+  strideSetup(m){const T=m.T;T.pos=0;T.dir=1;T.win=.35+Math.random()*.3;T.ww=Math.max(.05,.13-this.accel(m.C)*.006);T.sp=.00055+T.i*.00012;},
+  strideHit(m){const T=m.T;if(!T.go)return;const d=Math.abs(T.pos-T.win);let r="MISS",v=0,c="#fca5a5";if(d<=T.ww*.3){r="PERFECT!";v=.25;c="#fde047";}else if(d<=T.ww){r="GOOD";v=.12;c="#86efac";}
+    T.hits.push(r);T.score+=v;T.go=0;T.i++;T.flash={r,c,at:m.t};v?sfx.ok(v>.2?5:3):sfx.miss();if(v)mBurst(m,120,96,10,[c,"#fff"],.8);
+    if(T.i>=T.n){setTimeout(()=>{if(MG===m&&m.T===T)this.strideDone(m);},500);}else{T.next=m.t+900;this.strideSetup(m);}},
+  strideDone(m){const T=m.T,C=m.C;C.accP+=T.score;let up=0;while(C.accP>=1&&C.acc<12){C.accP-=1;C.acc++;up=1;}if(C.acc>=12)C.accP=0;
+    const good=T.hits.filter(h=>h!=="MISS").length,xp=10+good*4,co=3+good*2;C.coins+=co;this.addXP(m,xp);
+    this.save(m);this.hud(m);m.res={title:"STRIDES DONE",lines:[T.hits.map(h=>h==="PERFECT!"?"★":h==="GOOD"?"●":"✕").join(" "),up?`ACCELERATION UP! NOW ${C.acc}/12`:`ACCELERATION ${C.acc}/12 · ${Math.round(C.accP*100)}% TO NEXT`,`+${xp} XP · +${co} COINS`],at:m.t};sfx.ok(4);},
+  update(m,dt){if(m.res)return;
+    if(m.scr==="race"&&m.R){if(m.t<m.R.start)return;let rs=dt/1000*XC_TS;while(rs>0&&!m.res){const st=Math.min(rs,.5);this.raceStep(m,st);rs-=st;}return;}
+    if((m.scr==="long"||m.scr==="work")&&m.T)return this.trainStep(m,dt);
+    if(m.scr==="strides"&&m.T){const T=m.T;if(!T.go&&T.i<T.n&&m.t>=T.next)T.go=1;if(T.go){T.pos+=T.dir*T.sp*dt;if(T.pos>1){T.pos=1;T.dir=-1;}if(T.pos<0){T.pos=0;T.dir=1;}}}},
+  // ---------------- drawing ----------------
+  runner(x,X,Y,ph,c,me,lean){const s=Math.sin(ph),k=Math.cos(ph);mR(x,X-1,Y-11,3,3,"#fcd9b6");mR(x,X-1,Y-12,3,1,me?"#3b0764":"#1f2937");
+    mR(x,X-1,Y-8,3,4,c);mR(x,X-1,Y-8,3,1,"#ffffff66");
+    mR(x,X-1+Math.round(s*2),Y-4,1,4,"#fcd9b6");mR(x,X+1-Math.round(s*2),Y-4,1,4,"#e8c39e");mR(x,X-1+Math.round(s*2),Y-1,2,1,"#111827");mR(x,X+1-Math.round(s*2),Y-1,2,1,"#111827");
+    mR(x,X-2+Math.round(k*1.5),Y-7,1,3,"#fcd9b6");mR(x,X+2-Math.round(k*1.5),Y-7,1,3,"#e8c39e");if(me)mT(x,"▼",X,Y-16,"#ff8fe0",5);},
+  scenery(m,x,t,camX,camE,c){const W=m.W,H=m.H,g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,c?c.sky:"#9bd8ff");g.addColorStop(1,"#ecfeff");x.fillStyle=g;x.fillRect(0,0,W,H);
+    for(let i=0;i<5;i++){const cx=((i*71-camX*.05)%(W+60)+W+60)%(W+60)-30;mD(x,cx,20+i%3*8,6,"#ffffff");mD(x,cx+7,22+i%3*8,5,"#ffffff");}
+    for(let i=0;i<8;i++){const hx=((i*60-camX*.15)%(W+80)+W+80)%(W+80)-40;mD(x,hx,96,26,"#86b88f");}
+    for(let i=0;i<10;i++){const tx=((i*41-camX*.4)%(W+40)+W+40)%(W+40)-20;mR(x,tx,72,2,16,"#6b4423");mD(x,tx+1,70,6,"#2f6f3e");mD(x,tx-2,74,4,"#3f8f4e");}},
+  gy(m,wx,camE){return 112-(this.elev(m,wx)-camE)*1.1;},
+  drawRace(m,x,t){const R=m.R,me=R.me,C=m.C,mpp=.9,camX=me.x;R.camE+=(this.elev(m,me.x)-R.camE)*.1;const camE=R.camE;this.scenery(m,x,t,camX,camE,R.c);
+    const sx=wx=>60+(wx-camX)/mpp;
+    for(let X=0;X<m.W;X+=2){const wx=camX+(X-60)*mpp,y=this.gy(m,wx,camE),sg=wx>=0&&wx<=5000?this.seg(m,wx):null;
+      mR(x,X,y,2,m.H-y,R.c.gr);mR(x,X,y+4,2,m.H-y,"#15803d55");mR(x,X,y,2,3,sg&&sg.mud?"#6b4423":wx<0||wx>5000?"#86efac":"#d6b98c");if(sg&&sg.mud&&(X+((wx|0)%7))%9===0)mR(x,X,y+1,2,1,"#3f2a14");}
+    for(let k=0;k<=5;k++){const X=sx(k*1000);if(X<-10||X>m.W+10)continue;const y=this.gy(m,k*1000,camE);
+      if(k===0||k===5){mR(x,X-1,y-26,2,26,"#334155");mR(x,X+14,y-26,2,26,"#334155");mR(x,X-1,y-27,17,6,k?"#ff5fd2":"#3b82f6");mT(x,k?"FINISH":"START",X+7.5,y-24,"#fff",4);}
+      else{mR(x,X,y-12,1,12,"#334155");mR(x,X+1,y-12,6,4,"#facc15");mT(x,k+"K",X+4,y-10,"#111",3.5);}}
+    if(me.x>4300){for(let i=0;i<30;i++){const wx=4700+i*12,X=sx(wx);if(X<-4||X>m.W+4)continue;const y=this.gy(m,wx,camE);mR(x,X,y-14-((i*7)%4),3,5,["#f87171","#60a5fa","#fde047","#a78bfa"][i%4]);mD(x,X+1,y-16-((i*7)%4),1.4,"#fcd9b6");}}
+    const all=[...R.bots.map(b=>({...b,me:0})),{...me,c:"#ff5fd2",n:"YOU",me:1}].sort((a,b)=>a.me-b.me);
+    for(const r of all){const X=sx(Math.min(5000,r.x));if(X<-6||X>m.W+6)continue;this.runner(x,X,this.gy(m,r.x,camE),r.ph,r.c,r.me);if(!r.me&&Math.abs(X-60)<60)mT(x,r.n,X,this.gy(m,r.x,camE)-15,"#1f2937",3.5);}
+    // top bar: everyone's position
+    mR(x,8,6,m.W-16,3,"#1f2937aa");for(const b of R.bots)mR(x,8+(m.W-16)*Math.min(1,b.x/5000)-1,5,2,5,b.c);mR(x,8+(m.W-16)*Math.min(1,me.x/5000)-1.5,4,3,7,"#ff5fd2");
+    const pl=this.place(m),sfx2=["ST","ND","RD"][pl-1]||"TH";mT(x,`${(me.x/1000).toFixed(2)} KM  ·  ${xcTime(R.clock)}  ·  ${pl}${sfx2}`,m.W/2,16,"#0f172a",6);
+    mT(x,`${R.c.nm}${R.w?` · RACE ${R.w+1}`:""}`,m.W/2,24,"#334155",4.5);
+    // stamina, effort and bicarb
+    const P=this.pool(C);mRR(x,6,m.H-16,82,11,3,"#0f172acc");mR(x,8,m.H-14,78*me.sta/P,4,me.bonk?"#ef4444":me.sta/P<.3?"#f97316":"#22c55e");mT(x,me.bonk?"BONKED":m.hold?(me.x>4400?"KICK!":"PUSHING"):"CRUISING",47,m.H-7.5,me.bonk?"#fca5a5":m.hold?"#fde047":"#e2e8f0",4);
+    const can=C.bicarb>0&&me.used<2&&me.bic<=0;mRR(x,m.W-58,m.H-18,54,14,3,me.bic>0?"#0e7490":can?"#164e63":"#1f2937");mT(x,me.bic>0?"BICARB ON!":`BICARB ×${C.bicarb} (B)`,m.W-31,m.H-11,can||me.bic>0?"#a5f3fc":"#64748b",4.5);
+    if(me.x>4400&&me.fin==null&&((t/300)|0)%2)mT(x,"LAST 600 M · HOLD TO KICK",m.W/2,40,"#be185d",6);
+    if(m.t<R.start){const n=Math.ceil((R.start-m.t)/800);mT(x,n>0?String(n):"GO!",m.W/2,64,"#be185d",18);if(m.t%800<20)tone(n>1?440:880,.08,"square",.04);}
+    else if(m.t-R.start<600)mT(x,"GO!",m.W/2,64,"#be185d",18);},
+  drawTrain(m,x,t){const T=m.T,C=m.C,el=m.t-T.t0,camX=Math.max(0,el)*.03;this.scenery(m,x,t,camX,0,null);mR(x,0,112,m.W,m.H-112,"#4ade80");mR(x,0,112,m.W,3,"#d6b98c");
+    if(T.k==="strides"){mT(x,"STRIDES",m.W/2,14,"#0f172a",9);mT(x,`STRIDE ${Math.min(T.n,T.i+1)} / ${T.n} · tap when the marker is in the green`,m.W/2,26,"#334155",4.5);
+      const bx=30,bw=180,by=90;mRR(x,bx-2,by-2,bw+4,10,3,"#0f172a");mR(x,bx+bw*(T.win-T.ww),by,bw*T.ww*2,6,"#22c55e");mR(x,bx+bw*(T.win-T.ww*.3),by,bw*T.ww*.6,6,"#fde047");
+      if(T.go||T.i<T.n)mR(x,bx+bw*T.pos-1,by-3,2,12,"#ff5fd2");const ph=T.go?t*.03:t*.01;this.runner(x,40+(T.go?T.pos*120:0),112,ph,"#ff5fd2",1);
+      T.hits.forEach((h,i)=>mT(x,h==="PERFECT!"?"★":h==="GOOD"?"●":"✕",88+i*12,108,h==="MISS"?"#ef4444":h==="GOOD"?"#16a34a":"#ca8a04",7));
+      if(T.flash&&m.t-T.flash.at<600)mT(x,T.flash.r,m.W/2,76,T.flash.c,10);if(!T.go&&T.i<T.n)mT(x,"GET READY…",m.W/2,62,"#475569",6);return;}
+    const z=m.t>=T.t0?this.zone(m):{c:.5,h:.12,rep:1,n:1};this.runner(x,80,112,t*(.006+T.e*.02),"#ff5fd2",1);
+    mT(x,T.k==="long"?"LONG RUN":"5K WORKOUT",m.W/2,14,"#0f172a",9);
+    mT(x,T.k==="long"?"hold / release to stay in the green":z.rep?`REP ${Math.min(4,z.n)} / 4 · HOLD THE PACE BAND`:`RECOVERY · EASE OFF`,m.W/2,26,z.rep?"#334155":"#16a34a",4.5);
+    const gx=200,gy=34,gh=96;mRR(x,gx-3,gy-3,20,gh+6,3,"#0f172a");mR(x,gx,gy+gh*(1-z.c-z.h),14,gh*z.h*2,z.rep?"#22c55e":"#86efac");
+    const ey=gy+gh*(1-T.e),ok=Math.abs(T.e-z.c)<=z.h;mR(x,gx-4,ey-1,22,3,ok?"#fde047":"#ff5fd2");mT(x,"EFFORT",gx+7,gy+gh+10,"#334155",4);
+    const left=Math.max(0,T.dur-Math.max(0,el));mT(x,m.t<T.t0?"GET READY…":`${Math.ceil(left/1000)}s`,30,40,"#0f172a",8);mT(x,`${T.tot?Math.round(T.inz/T.tot*100):0}% in zone`,30,52,ok?"#16a34a":"#64748b",5);},
+  drawMenu(m,x,t){const C=m.C,W=m.W;this.scenery(m,x,t,t*.02,0,null);mR(x,0,118,W,40,"#4ade80");mR(x,0,118,W,3,"#d6b98c");this.runner(x,((t*.03)%(W+20))-10,118,t*.02,"#ff5fd2",0);
+    x.globalAlpha=.86;mR(x,0,0,W,m.H,"#0f172a");x.globalAlpha=1;
+    const back=()=>{mRR(x,3,3,40,12,3,"#1e293b");mT(x,"◀ BACK",23,9,"#e2e8f0",5);};
+    if(m.scr==="hub"){mT(x,"CUPIDIUM XC",W/2,12,"#ff8fe0",11);
+      const need=this.need(C.lv);mT(x,`LEVEL ${C.lv}`,10,26,"#fde047",6,"left");mR(x,52,23,90,4,"#334155");mR(x,52,23,90*C.xp/need,4,"#fde047");mT(x,`${C.xp}/${need} XP`,146,26,"#94a3b8",4.5,"left");mT(x,`${C.coins} COINS`,W-8,26,"#fcd34d",5,"right");
+      mT(x,`PR ${xcTime(C.pr)}  ·  PREDICTED ${xcTime(this.pred(C))}  ·  ${this.shoe(C).nm}`,W/2,37,"#e2e8f0",4.5);
+      mT(x,`STAMINA ${C.stam}  ·  ACCEL ${this.accel(C)}  ·  TRACTION ${this.trac(C)}  ·  BICARB ${C.bicarb}`,W/2,46,"#94a3b8",4.2);
+      this.HUB.forEach(([nm],i)=>{const b=this.hubBtn(i);mRR(x,b.x,b.y,b.w,b.h,4,i===0?"#831843":"#1e293b");mT(x,`${i+1}  ${nm}`,b.x+b.w/2,b.y+b.h/2+1,i===0?"#ffd1f0":"#e2e8f0",6);});}
+    else if(m.scr==="courses"){back();mT(x,"PICK A 5K",W/2,10,"#ff8fe0",8);
+      XC_COURSES.forEach((c,i)=>{const y=this.rowY(i),lock=C.lv<c.lv,w=C.wins[c.id]||0,b=C.best[c.id];mRR(x,8,y-2,W-16,18,3,lock?"#111827":"#1e293b");
+        mT(x,`${i+1}  ${c.nm}`,14,y+5,lock?"#475569":"#f8fafc",6,"left");
+        mT(x,lock?`🔒 LEVEL ${c.lv}`:`${c.hill>.6?"HILLY":"ROLLING"}${c.mud?" · MUD":""} · WINS ${w}${b?` · BEST ${xcTime(b.t)} (${b.p}${["ST","ND","RD"][b.p-1]||"TH"})`:""}`,14,y+12,lock?"#475569":"#94a3b8",4.2,"left");});}
+    else if(m.scr==="shoes"){back();mT(x,"SHOES",W/2,10,"#ff8fe0",8);
+      XC_SHOES.forEach((s,i)=>{const y=this.rowY(i),lock=C.lv<s.lv,on=C.shoe===s.id;mRR(x,8,y-2,W-16,18,3,on?"#3b0764":lock?"#111827":"#1e293b");mR(x,14,y+2,10,5,lock?"#334155":s.c);mR(x,14,y+7,12,2,lock?"#1f2937":"#0f172a");
+        mT(x,`${i+1}  ${s.nm}${on?"  ✓":""}`,32,y+5,lock?"#475569":"#f8fafc",6,"left");mT(x,lock?`🔒 LEVEL ${s.lv}`:`+${Math.round(s.spd*100)}% speed · +${s.acc} accel · +${s.tr} traction${s.spike?" · takes spike upgrades":""}`,32,y+12,lock?"#475569":"#94a3b8",4.2,"left");});}
+    else if(m.scr==="shop"){back();mT(x,"SHOP",W/2,10,"#ff8fe0",8);mT(x,`${C.coins} COINS`,W-8,10,"#fcd34d",5,"right");
+      this.shopItems(m).forEach((it,i)=>{const y=this.rowY(i);mRR(x,8,y-2,W-16,18,3,"#1e293b");mT(x,`${i+1}  ${it.nm}`,14,y+5,it.no?"#64748b":"#f8fafc",6,"left");mT(x,it.no||it.d,14,y+12,it.no?"#f87171":"#94a3b8",4.2,"left");
+        mT(x,`${it.cost} 🪙`,W-14,y+7,C.coins>=it.cost&&!it.no?"#fcd34d":"#64748b",6,"right");});}},
+  drawRes(m,x){const r=m.res,W=m.W;x.globalAlpha=.88;mR(x,0,0,W,m.H,"#0f172a");x.globalAlpha=1;mT(x,r.title,W/2,16,"#ff8fe0",11);
+    r.lines.forEach((l,i)=>mT(x,l,W/2,32+i*10,i===0?"#fde047":"#e2e8f0",5.5));
+    if(r.tab){const y0=36+r.lines.length*10;r.tab.forEach((q,i)=>{const col=i<4?0:1,row=i%4;mT(x,`${i+1}. ${q.n} ${xcTime(q.t)}`,W/2+(col?52:-52),y0+row*9,q.me?"#ff8fe0":"#94a3b8",4.8);});}
+    if(m.t-r.at>700)mT(x,"TAP / SPACE TO CONTINUE",W/2,m.H-8,"#64748b",4.5);},
+  draw(m,x,t,dt){t=t||0;if(m.scr==="race"&&m.R)this.drawRace(m,x,t);else if(m.T&&["long","work","strides"].includes(m.scr))this.drawTrain(m,x,t);else this.drawMenu(m,x,t);
+    if(m.res)this.drawRes(m,x);
+    if(m.msg&&m.t-m.msg.at<1800){x.globalAlpha=Math.min(1,(1800-(m.t-m.msg.at))/300);mRR(x,m.W/2-90,m.H/2+18,180,13,3,"#0f172aee");mT(x,m.msg.t,m.W/2,m.H/2+25,m.msg.c,5);x.globalAlpha=1;}
+    mFx(m,x,dt);mPops(m,x,dt);}};
+AICON.xc=x=>{mR(x,0,18,24,6,"#4ade80");mR(x,0,18,24,1,"#d6b98c");mR(x,10,4,4,4,"#fcd9b6");mR(x,10,8,4,5,"#ff5fd2");mR(x,8,13,2,5,"#fcd9b6");mR(x,14,13,2,5,"#e8c39e");mR(x,7,17,3,1,"#111");mR(x,14,17,3,1,"#111");mR(x,2,9,5,1,"#e9d5ff");mR(x,1,12,5,1,"#e9d5ff");};
 
 </script>
 
