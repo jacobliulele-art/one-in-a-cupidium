@@ -3895,7 +3895,8 @@ const fuelBar=()=>{const f=Math.max(0,S.fuel);return ` · ⛽ ${Math.round(f)}`;
 function fuelHTML(delta){const f=Math.max(0,S.fuel),c=f<25?"#f87171":f<50?"#fbbf24":"#4ade80";
   return `<div class="fuelbox"><div class="fuelbar"><i style="width:${Math.min(100,f)}%;background:${f>FUEL_MAX?"#38bdf8":c}"></i></div><span>⛽ FUEL ${Math.round(f)}${delta!=null?` <b style="color:${delta>=0?"#4ade80":"#f87171"}">${delta>=0?"+":""}${Math.round(delta)}</b>`:""}</span><small class="hint">${(()=>{const r=fuelRamp(),D=dD();return `🔥 burn ×${(r.loss*D.loss).toFixed(1)} · refill ×${(r.gain*D.gain).toFixed(2)} (gets harder the longer you go). `;})()}${S.mode==="rendless"?`Each prompt costs ${-FUEL_RAPID_BASE}+ fuel. Every answer adds some back: rarer answers add more.`:"Misses and common answers burn fuel. Rare answers refuel. Empty tank ends the run."}</small></div>`;}
 // the deeper the run, the faster fuel burns and the less rare answers refill it; the tank never holds more than FUEL_MAX
-const fuelRamp=()=>{const i=(S&&S.i)||0;return{loss:1+i/50,gain:Math.max(.35,1-i/150)};};
+// tops out at burn ×2 and refill ×0.7 (by prompt 200) so rare answers can always keep you going
+const fuelRamp=()=>{const i=Math.min(200,(S&&S.i)||0);return{loss:1+i/200,gain:1-i*.3/200};};
 function fuelAdd(d){if(S&&(S.mode==="endless"||S.mode==="rendless")){const D=dD(),Rp=fuelRamp();d=d<0?d*D.loss*Rp.loss:d*D.gain*Rp.gain;}d=Math.round(d);S.fuel=Math.max(0,Math.min(FUEL_MAX,(S.fuel==null?FUEL_MAX:S.fuel)+d));return d;}
 function geoMenu(){
   const n=PROMPTS.filter(isGeo).length,eb=store.get("oddball.endlessBestGeo",0),rb=store.get("otc.rendlessBestGeo",0),es=store.get("otc.endlessGeo",null),rs=store.get("otc.rendlessGeo",null);
@@ -4256,9 +4257,12 @@ function sseOpen(url,opt){opt=opt||{};const o={onmessage:null,onopen:null,onerro
 const RELAY="https://ntfy.sh/",rtopic=code=>"offthecharts-v1-room-"+code.toLowerCase();
 // Party rooms listen on several free relays at once and post to whichever one isn't rate-limiting this network,
 // so one busy relay (common on school/shared Wi-Fi) no longer blocks joining.
-const RELAYS=["https://ntfy.sh/","https://ntfy.4d2.org/","https://ntfy.envs.net/"];
+// your own relay (Cloudflare Worker) goes first when it's set; the free public ones stay as backups
+const BUILTIN_RELAY="https://cupidium-relay.jacob-liulele.workers.dev/";
+const relayFix=u=>{u=String(u||"").trim();if(!u)return"";if(!/^https?:\/\//.test(u))u="https://"+u;return u.replace(/\/+$/,"")+"/";};
+const relayList=()=>{const own=relayFix(store.get("otc.relayUrl","")||BUILTIN_RELAY);return[...new Set([own,"https://ntfy.sh/","https://ntfy.4d2.org/","https://ntfy.envs.net/"].filter(Boolean))];};
 function relayOpen(code,me,onMsg){
-  const tp=rtopic(code),seen=new Set(),seenQ=[];let dead=false,busy=false,cur=0,opened=false,openCb=null;const q=[];
+  const RELAYS=relayList(),tp=rtopic(code),seen=new Set(),seenQ=[];let dead=false,busy=false,cur=0,opened=false,openCb=null;const q=[];
   const ess=RELAYS.map(R=>{const es=sseOpen(R+tp+"/sse",{party:true});
     es.onopen=e=>{if(!opened){opened=true;openCb&&openCb(e);}};
     es.onmessage=ev=>{try{const j=JSON.parse(ev.data);if(j.event&&j.event!=="message")return;const m=JSON.parse(j.message);if(!m||m.f===me)return;
@@ -6474,6 +6478,10 @@ async function devOpen(){if(!store.get("otc.dev",false)){const code=prompt("Deve
         <button class="pbtn sm c m-sun" data-act="devGift" data-m="give">SEND TO PLAYER</button><button class="pbtn sm" data-act="devGift" data-m="take">TAKE FROM PLAYER</button></div>
       <p class="hint">Sending works on the GitHub version: the player gets it the next time their game is open.</p></div>`);
   box.insertAdjacentHTML("afterbegin",`<div class="glass card" id="devMod"></div>`);DEVPEOPLE=people;devModCard();
+  box.insertAdjacentHTML("afterbegin",`<div class="glass card" id="devRelay"><h3 style="font-size:13px">🛰 PARTY RELAY</h3>
+    <p class="hint">Your own Cloudflare relay for party rooms (tried first, the free ones are backups). ${BUILTIN_RELAY?"Built in: <b>"+esc(BUILTIN_RELAY)+"</b>. ":""}Setting one here only changes this device.</p>
+    <div class="row" style="gap:6px"><input id="relayIn" placeholder="cupidium-relay.yourname.workers.dev" value="${esc(store.get("otc.relayUrl",""))}" style="flex:1;min-width:160px"><button class="pbtn sm c m-nova" data-act="relaySave">SAVE + TEST</button></div>
+    <p class="hint" id="relayMsg">Using: ${relayList().map(esc).join(" → ")}</p></div>`);
   const dl=$("devLoad");if(dl)dl.remove();box.insertAdjacentHTML("afterbegin",`<p class="hint">${relayOK?"✓ Connected to the relay.":"⚠ Couldn't reach the relay from this device, so this only shows visits saved earlier."}</p>`);}
 let DEVDAY=null,DEVPEOPLE={};
 function devModCard(){const e=$("devMod");if(!e)return;const key=devKeyJwk(store.get("otc.devKey","")),bans=modBans(),pp=DEVPEOPLE||{};
@@ -6487,6 +6495,11 @@ function devModCard(){const e=$("devMod");if(!e)return;const key=devKeyJwk(store
     <h3 style="font-size:12px;margin-top:10px">LEADERBOARD SCORES</h3><div style="max-height:320px;overflow:auto">${Object.keys(LB.b).filter(k=>LB.b[k].length&&!(/^(daily(Geo)?|cp[A-Z]\w*):/.test(k)&&!k.endsWith(":"+today()))).sort().map(k=>`<p class="hint" style="margin:8px 0 2px"><b>${esc(lbName(k.split(":")[0]))}</b>${k.includes(":")?" · "+esc(k.split(":")[1]):""}</p><ol class="lbl2">${LB.b[k].map((r,i)=>`<li class="${r.i===LB.id?"me":""}"><span class="rk">#${i+1}</span><b>${esc(r.n)}</b><span class="sc">${r.s.toLocaleString()}</span>${r.i!==LB.id?`<span class="lbmod"><button class="pbtn sm" title="remove this score" data-act="modRm" data-i="${esc(r.i)}" data-key="${esc(k)}" data-n="${esc(r.n)}">🗑</button><button class="pbtn sm" title="ban this player" data-act="modBan" data-i="${esc(r.i)}" data-n="${esc(r.n)}">🚫</button></span>`:""}</li>`).join("")}</ol>`).join("")||`<p class="hint">No scores yet.</p>`}</div>
     ${key?`<div class="row" style="margin-top:6px"><button class="pbtn sm" data-act="devKeyForget">FORGET KEY ON THIS DEVICE</button></div>`:""}`;}
 Object.assign(ACT,{
+  relaySave:async()=>{const v=relayFix(($("relayIn")||{}).value),m=$("relayMsg");store.set("otc.relayUrl",v);if(!v){if(m)m.textContent="Cleared. Using: "+relayList().join(" → ");return;}
+    if(m)m.textContent="Testing…";const tp="otc-relaytest-"+Math.random().toString(36).slice(2,8);
+    try{const es=new EventSource(v+tp+"/sse");const got=new Promise((res,rej)=>{const t=setTimeout(()=>rej(new Error("no message came back")),6000);es.onmessage=e=>{try{const j=JSON.parse(e.data);if(j.event==="message"&&j.message==="ping"){clearTimeout(t);res();}}catch(x){}};});
+      await new Promise(r=>setTimeout(r,800));const r=await fetch(v+tp,{method:"POST",body:"ping"});if(!r.ok)throw new Error("HTTP "+r.status);await got;es.close();if(m)m.innerHTML="✓ Works! Using: "+relayList().map(esc).join(" → ");toast("Relay works ✓");}
+    catch(e){if(m)m.textContent="✗ "+(e.message||e)+" (saved anyway). Using: "+relayList().join(" → ");}},
   devKeySave:async()=>{const v=($("devKeyIn")||{}).value||"";const j=devKeyJwk(v);if(!j||j.x!==DEV_PUB.x||j.y!==DEV_PUB.y)return toast("That isn't the right developer key");
     store.set("otc.devKey",v.trim());try{const t=await devSign({t:"test",at:Date.now()});if(!await devVerify(t.p,t.sig))throw 0;toast("Developer key saved ✓");}catch(e){store.set("otc.devKey","");toast("That key didn't work");}devModCard();},
   devKeyForget:()=>{store.set("otc.devKey","");devModCard();toast("Key removed from this device");},
