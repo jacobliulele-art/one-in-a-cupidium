@@ -340,6 +340,7 @@ b,strong{font-weight:500}
 .mbtn small.fuelnote{display:block;font-size:8px;opacity:.7;margin-top:3px;letter-spacing:.06em}.fuelbox small{display:block;font-size:11px;margin-top:3px}
 #nameGate{position:fixed;inset:0;z-index:90;display:grid;place-items:center;padding:16px;background:rgba(5,4,20,.75);backdrop-filter:blur(2px)}#nameGate .card{animation:uiIn .3s ease-out both}
 .devt>div.devp{flex-wrap:wrap}.devp small{flex-basis:100%;font-size:11px;opacity:.85}
+.devmenu{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;width:100%;margin:6px 0 12px}.devmenu .pbtn{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:14px 16px;text-align:left}.devmenu .pbtn small{font-size:11px;text-transform:none;letter-spacing:0;color:inherit;opacity:.75}
 .lbsec{display:flex}.lbsec button{flex:1}.lbgroups{padding:6px 8px;display:flex;flex-direction:column;gap:6px}.lbg{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.lbgh{font-family:var(--head);font-size:9px;letter-spacing:.12em;opacity:.65;min-width:84px}.lbg .lbtabs{padding:0;flex:1}
 
 /* ---- casino ---- */
@@ -6344,7 +6345,7 @@ function landing(){
       <button class="glass lcard casl" data-act="casino"><b><span class="glow cup" style="padding:0 6px">CUPIDIUM CASINO</span></b><span>Blackjack, poker, slots, roulette and more. Play for cupidium chips.</span><em>🎰 ${(typeof casChips==="function"?casChips():1000).toLocaleString()} CHIPS</em></button>
       <button class="glass lcard cpl" data-act="cuepon"><b>DAILY CUEPON</b><span>Three new word puzzles every day, the same for everyone. Keep your streak.</span><em>${typeof cpDoneCount==="function"?cpDoneCount():0}/3 DONE TODAY</em></button>
     </div>
-    <div class="menubar"><button class="pbtn" data-act="leaderboards" data-back="landing" data-k="daily">🏆 LEADERBOARDS</button>${store.get("otc.dev",false)?`<button class="pbtn" data-act="dev">🛠 VISITS</button><button class="pbtn" data-act="devChipsGo">🪙 GIVE CHIPS</button>`:""}<button class="pbtn" data-act="skins">SKINS</button><button class="pbtn" data-act="palettes">COLORS</button>
+    <div class="menubar"><button class="pbtn" data-act="leaderboards" data-back="landing" data-k="daily">🏆 LEADERBOARDS</button>${store.get("otc.dev",false)?`<button class="pbtn" data-act="devHome">🛠 DEV PAGE</button>`:""}<button class="pbtn" data-act="skins">SKINS</button><button class="pbtn" data-act="palettes">COLORS</button>
       <div class="glass themeseg">${Object.entries(THEMES).map(([k,t])=>`<button class="${k===THEME?"on":""}" data-act="theme3" data-t="${k}">${t.name}</button>`).join("")}</div>
       <button class="pbtn" data-act="settings" aria-label="Settings">${icon("gear",18)}</button></div>`,{cls:"menu"});
 }
@@ -6656,7 +6657,7 @@ function devPing(force){if(!lbOn())return;const last=store.get("otc.devPinged",0
 const DEV_HASH="2c7f87e6";// first 8 hex of sha-256 of the developer passcode
 async function sha8(t){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t));return[...new Uint8Array(b)].slice(0,4).map(x=>x.toString(16).padStart(2,"0")).join("");}
 async function devOpen(){if(!store.get("otc.dev",false)){const code=prompt("Developer passcode:");if(!code)return;if(await sha8(code.trim())!==DEV_HASH){toast("Wrong passcode");return;}store.set("otc.dev",true);}
-  const log=store.get("otc.devlog",[]);showPanel(`<div class="row" style="justify-content:space-between"><h2 style="font-size:16px">🛠 VISITS (DEVELOPER)</h2><button class="pbtn sm" data-act="landing">◀ BACK</button></div>
+  const log=store.get("otc.devlog",[]);showPanel(`<div class="row" style="justify-content:space-between"><h2 style="font-size:16px">${DEV_SECS[DEVTAB]?DEV_SECS[DEVTAB][0]:"🛠 DEV PAGE"}</h2>${DEVTAB==="home"?`<button class="pbtn sm" data-act="landing">◀ BACK</button>`:`<button class="pbtn sm" data-act="devTab" data-s="home">◀ DEV PAGE</button>`}</div>
     <p class="hint" id="devLoad">Loading visits…</p><div id="devBox"></div>`);
   let relayOK=!!window.__devRelayOK;const noFetch=window.__devNoFetch;window.__devNoFetch=false;
   if(lbOn()&&!noFetch)try{const r=await fetch(`${SOC_RELAY}${DEV_TOPIC}/json?poll=1&since=12h`);const txt=await r.text();relayOK=r.ok;window.__devRelayOK=r.ok;
@@ -6667,8 +6668,8 @@ async function devOpen(){if(!store.get("otc.dev",false)){const code=prompt("Deve
   // anyone on a leaderboard counts as seen too (in case their visit message never made it through)
   for(const k in LB.b)for(const r of LB.b[k]){if(!r||!r.i||r.i===LB.id&&false)continue;const p=people[r.i]||(people[r.i]={n:r.n,c:0,last:0,first:r.t||0,names:[],lb:1});if(!p.n)p.n=r.n;if((r.t||0)>p.last){p.last=r.t||p.last;}if(r.n&&!p.names.includes(r.n))p.names.push(r.n);p.lbk=(p.lbk||[]);if(!p.lbk.includes(k))p.lbk.push(k);}
   const box=$("devBox");if(!box)return;
-  box.innerHTML=`<div class="glass card"><h3 style="font-size:13px">PLAYERS (${Object.keys(people).length})</h3><div class="devt">${Object.entries(people).sort((a,b)=>b[1].last-a[1].last).map(([i,p])=>`<div class="devp"><b>${esc(p.n||"(no name) "+i.slice(0,4))}</b><span>${p.c?`${p.c} visit${p.c>1?"s":""}`:"seen on leaderboard"}</span>${p.lbk?`<small class="hint">on boards: ${p.lbk.slice(0,4).map(k=>esc(lbName(k.includes(":")?k.split(":")[0]:k))).join(", ")}</small>`:""}<span>last ${new Date(p.last).toLocaleString()}</span>${p.names.length>1?`<small>names used: ${p.names.map(esc).join(" → ")}</small>`:""}<small class="hint">device ${esc(i)}</small></div>`).join("")||`<p class="hint">Nobody yet.</p>`}</div></div>
-    <div class="glass card"><h3 style="font-size:13px">VISITS</h3>${(()=>{
+  box.innerHTML=`<div class="glass card" data-sec="players"><h3 style="font-size:13px">PLAYERS (${Object.keys(people).length})</h3><div class="devt">${Object.entries(people).sort((a,b)=>b[1].last-a[1].last).map(([i,p])=>`<div class="devp"><b>${esc(p.n||"(no name) "+i.slice(0,4))}</b><span>${p.c?`${p.c} visit${p.c>1?"s":""}`:"seen on leaderboard"}</span>${p.lbk?`<small class="hint">on boards: ${p.lbk.slice(0,4).map(k=>esc(lbName(k.includes(":")?k.split(":")[0]:k))).join(", ")}</small>`:""}<span>last ${new Date(p.last).toLocaleString()}</span>${p.names.length>1?`<small>names used: ${p.names.map(esc).join(" → ")}</small>`:""}<small class="hint">device ${esc(i)}</small></div>`).join("")||`<p class="hint">Nobody yet.</p>`}</div></div>
+    <div class="glass card" data-sec="visits"><h3 style="font-size:13px">VISITS</h3>${(()=>{
       // group visits by day (Eastern time): TODAY, YESTERDAY, then dates
       const byDay={};for(const v of log){const d=etKey(v.t);(byDay[d]=byDay[d]||[]).push(v);}
       const days=Object.keys(byDay).sort().reverse(),td=today(),yd=etKey(Date.now()-864e5);
@@ -6680,19 +6681,25 @@ async function devOpen(){if(!store.get("otc.dev",false)){const code=prompt("Deve
         <div class="devt">${list.map(v=>`<div><span>${new Date(v.t).toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"})}</span><b>${esc(v.n||"(no name) "+v.i.slice(0,4))}</b><span>${v.w||""}</span></div>`).join("")}</div>`;})()}
     <p class="hint">Each visit is kept on the relay for about 3 days, and everything this page has seen is saved on this device. A player only shows up once their copy of the game has been updated and they open it on the GitHub site (not the Claude link) on a network that doesn't block ntfy.sh.</p>
     <div class="row"><button class="pbtn sm c m-nova" data-act="dev">↻ REFRESH</button><button class="pbtn sm" data-act="devLock">LOCK DEVELOPER PAGE</button></div></div>`;
-  box.insertAdjacentHTML("afterbegin",`<div class="glass card" id="devChips"><h3 style="font-size:13px">🪙 CASINO CHIPS</h3>
+  box.insertAdjacentHTML("afterbegin",`<div class="glass card" id="devChips" data-sec="chips"><h3 style="font-size:13px">🪙 CASINO CHIPS</h3>
       <p class="hint">This device has <b>${(typeof casChips==="function"?casChips():0).toLocaleString()}</b> chips.</p>
       <div class="row" style="gap:6px;flex-wrap:wrap"><input id="devAmt" type="number" min="0" placeholder="amount" style="width:120px">
         <button class="pbtn sm c m-nova" data-act="devChips" data-m="give">GIVE</button><button class="pbtn sm" data-act="devChips" data-m="take">REMOVE</button><button class="pbtn sm" data-act="devChips" data-m="set">SET TO</button></div>
       <div class="row" style="gap:6px;flex-wrap:wrap;margin-top:8px"><select id="devWho" style="flex:1;min-width:160px"><option value="" selected disabled>Select…</option><option value="${esc(LB.id)}">${esc(lbMe()||"me")} (you, this device)</option>${Object.entries(people).filter(([i])=>i!==LB.id).sort((a,b)=>b[1].last-a[1].last).map(([i,p])=>`<option value="${esc(i)}">${esc(p.n||"(no name) "+i.slice(0,4))}</option>`).join("")}</select>
         <button class="pbtn sm c m-sun" data-act="devGift" data-m="give">SEND TO PLAYER</button><button class="pbtn sm" data-act="devGift" data-m="take">TAKE FROM PLAYER</button></div>
       <p class="hint">Sending works on the GitHub version: the player gets it the next time their game is open.</p></div>`);
-  box.insertAdjacentHTML("afterbegin",`<div class="glass card" id="devMod"></div>`);DEVPEOPLE=people;devModCard();
-  box.insertAdjacentHTML("afterbegin",`<div class="glass card" id="devRelay"><h3 style="font-size:13px">🛰 PARTY RELAY</h3>
+  box.insertAdjacentHTML("afterbegin",`<div class="glass card" id="devMod" data-sec="mod"></div>`);DEVPEOPLE=people;devModCard();
+  box.insertAdjacentHTML("afterbegin",`<div class="glass card" id="devRelay" data-sec="relay"><h3 style="font-size:13px">🛰 PARTY RELAY</h3>
     <p class="hint">Your own Cloudflare relay for party rooms (tried first, the free ones are backups). ${BUILTIN_RELAY?"Built in: <b>"+esc(BUILTIN_RELAY)+"</b>. ":""}Setting one here only changes this device.</p>
     <div class="row" style="gap:6px"><input id="relayIn" placeholder="cupidium-relay.yourname.workers.dev" value="${esc(store.get("otc.relayUrl",""))}" style="flex:1;min-width:160px"><button class="pbtn sm c m-nova" data-act="relaySave">SAVE + TEST</button></div>
     <p class="hint" id="relayMsg">Using: ${relayList().map(esc).join(" → ")}</p></div>`);
-  const dl=$("devLoad");if(dl)dl.remove();box.insertAdjacentHTML("afterbegin",`<p class="hint">${relayOK?"✓ Connected to the relay.":"⚠ Couldn't reach the relay from this device, so this only shows visits saved earlier."}</p>`);}
+  const dl=$("devLoad");if(dl)dl.remove();box.insertAdjacentHTML("afterbegin",`<p class="hint">${relayOK?"✓ Connected to the relay.":"⚠ Couldn't reach the relay from this device, so this only shows visits saved earlier."}</p>`);
+  // sections: the dev page home shows one button per section; each section shows only its own card
+  box.querySelectorAll("[data-sec]").forEach(c=>{if(c.dataset.sec!==DEVTAB)c.style.display="none";});
+  if(DEVTAB==="home")box.insertAdjacentHTML("beforeend",`<div class="devmenu">${Object.entries(DEV_SECS).map(([k,v])=>`<button class="pbtn c m-nova" data-act="devTab" data-s="${k}">${v[0]}<small class="hint">${v[1]}</small></button>`).join("")}</div>
+    <div class="row"><button class="pbtn sm" data-act="devLock">LOCK DEVELOPER PAGE</button></div>`);}
+const DEV_SECS={visits:["📅 VISITS","who opened the game, by day"],players:["👥 PLAYERS","everyone seen + their names"],chips:["🪙 GIVE CHIPS","add, remove or send chips"],mod:["🚫 BAN / MODERATION","ban players, remove scores"],relay:["🛰 PARTY RELAY","relay settings + test"]};
+let DEVTAB="home";
 let DEVDAY=null,DEVPEOPLE={};
 function devModCard(){const e=$("devMod");if(!e)return;const key=devKeyJwk(store.get("otc.devKey","")),bans=modBans(),pp=DEVPEOPLE||{};
   e.innerHTML=`<h3 style="font-size:13px">🚫 MODERATION</h3>
@@ -6720,7 +6727,7 @@ Object.assign(ACT,{
     if(await modChange(q=>{q.bans=q.bans.filter(x=>x[0]!==s.value);q.bans.push([s.value,n.slice(0,16)]);}))toast(`🚫 Banned ${esc(n||s.value)}`);},
   modUnban:async b=>{const i=b.dataset.i;if(await modChange(q=>{q.bans=q.bans.filter(x=>x[0]!==i);}))toast("Unbanned ✓ (their next scores will show up again)");},
   modRm:async b=>{const i=b.dataset.i,key=b.dataset.key;if(await modChange(q=>{q.rm.push([i,key,Date.now()]);}))toast(`🗑 Removed ${esc(b.dataset.n||"that")} score`);}});
-Object.assign(ACT,{devChipsGo:async()=>{await devOpen();const go=()=>{const e=$("devChips");if(e){e.scrollIntoView({behavior:"smooth",block:"start"});const i=$("devAmt");if(i)i.focus({preventScroll:true});}else setTimeout(go,200);};go();},devChips:b=>{const a=Math.floor(+($("devAmt")||{}).value||0);if(a<0||!$("devAmt").value)return toast("Type an amount");const c=casChips(),m=b.dataset.m;
+Object.assign(ACT,{devHome:()=>{DEVTAB="home";devOpen();},devTab:b=>{DEVTAB=b.dataset.s;window.__devNoFetch=DEVTAB!=="visits"&&DEVTAB!=="players"&&DEVTAB!=="home";devOpen();},devChipsGo:async()=>{DEVTAB="chips";await devOpen();const go=()=>{const e=$("devChips");if(e){e.scrollIntoView({behavior:"smooth",block:"start"});const i=$("devAmt");if(i)i.focus({preventScroll:true});}else setTimeout(go,200);};go();},devChips:b=>{const a=Math.floor(+($("devAmt")||{}).value||0);if(a<0||!$("devAmt").value)return toast("Type an amount");const c=casChips(),m=b.dataset.m;
     casSet(m==="give"?c+a:m==="take"?Math.max(0,c-a):a);toast(`Chips: ${casChips().toLocaleString()}`);window.__devNoFetch=true;devOpen();},
   devGift:b=>{const a=Math.floor(+($("devAmt")||{}).value||0),to=($("devWho")||{}).value;if(!a||!to)return toast("Pick a player and an amount");
     if(to===LB.id){casSet(Math.max(0,casChips()+(b.dataset.m==="take"?-a:a)));toast(`Chips: ${casChips().toLocaleString()}`);window.__devNoFetch=true;return devOpen();}
