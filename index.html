@@ -6323,15 +6323,16 @@ const AICON={
   fight:x=>{mR(x,3,8,7,9,"#ff8fe0");mR(x,14,8,7,9,"#7ee0ff");mR(x,7,10,1,2,"#1b1238");mR(x,15,10,1,2,"#1b1238");mR(x,9,11,5,2,"#fff");mR(x,0,19,24,3,"#bdb2ff");mR(x,11,3,2,3,"#fdffb6");},
   catch:x=>{mD(x,6,7,3.5,"#ff5fd2");mD(x,17,9,3.5,"#67e8f9");mD(x,9,18,3.5,"#fde047");mD(x,18,19,2,CUPC);mD(x,13,13,1.5,CUPC);}};
 function cupHub(cat){
-  mgClose();CUP=null;S=null;if(N)leaveNet();MENU=true;jumpTo(0);renderSide(null);
+  try{mgClose();}catch(e){MG=null;}CUP=null;S=null;try{if(N)leaveNet();}catch(e){N=null;}MENU=true;jumpTo(0);renderSide(null);
   cat=cat||store.get("otc.arcadeTab","action");if(!ARCADE_CATS.some(c=>c[0]===cat))cat="action";store.set("otc.arcadeTab",cat);
   const games=ARCADE_CATS.find(c=>c[0]===cat)[2];
   showPanel(`
     <div class="row" style="justify-content:space-between"><h2 style="font-size:16px"><span class="glow cup" style="padding:2px 8px">CUPIDIUM</span> ARCADE</h2><span class="row" style="gap:6px"><button class="pbtn sm" data-act="leaderboards" data-back="cuphub" data-k="lastArc">🏆</button><button class="pbtn sm" data-act="landing">◀ MAIN MENU</button></span></div>
     <div class="glass atabs">${ARCADE_CATS.map(([id,nm,gs])=>`<button class="${id===cat?"on":""}" data-act="atab" data-c="${id}">${nm}<small>${gs.length}</small></button>`).join("")}</div>
-    <div class="arcade">${games.map(([id,bl])=>{const G=MGAMES[id],best=id==="rush"?store.get("otc.cupBest",0):mBest(id);
+    <div class="arcade">${games.map(([id,bl])=>{try{const G=MGAMES[id]||{};let best=+(id==="rush"?store.get("otc.cupBest",0):mBest(id))||0;if(!isFinite(best)||best<0)best=0;
+      let bs=best;try{if(G.fmt)bs=G.fmt(best);}catch(e){}
       return `<button class="glass agame" data-act="${id==="rush"?"cup":"mg"}" data-id="${id}"><canvas width="48" height="48" data-aicon="${id}"></canvas>
-        <span class="ainfo"><b>${(ARCADE_NAMES[id]||G.name).replace("CUPIDIUM ","")}</b><span>${bl}</span></span>${best?`<small>BEST<br>${G.fmt?G.fmt(best):best}</small>`:"<small>NEW</small>"}</button>`;}).join("")}</div>`);
+        <span class="ainfo"><b>${String(ARCADE_NAMES[id]||G.name||id).replace("CUPIDIUM ","")}</b><span>${bl}</span></span>${best?`<small>BEST<br>${bs}</small>`:"<small>NEW</small>"}</button>`;}catch(e){console.error("arcade tile",id,e);return"";}}).join("")}</div>`);
   document.querySelectorAll("[data-aicon]").forEach(c=>{const x=c.getContext("2d");x.setTransform(2,0,0,2,0,0);mR(x,0,0,24,24,"#1b1238");try{AICON[c.dataset.aicon](x);}catch(e){}});
 }
 // ---------- first screen ----------
