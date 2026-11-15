@@ -450,6 +450,67 @@ body[data-theme="marius"] .pbtn:not(.c):not(.on){background:rgba(120,52,72,.56)}
 .updh{margin-top:8px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#ff8fe0}
 .updv ul+.updh{margin-top:6px}
 .updv{padding:10px 4px;border-bottom:1px solid rgba(255,255,255,.08);text-align:left}.updv ul{margin:3px 0 0;padding-left:18px;font-size:12px;line-height:1.5;opacity:.85}
+.flb{margin-right:5px;display:inline-flex;vertical-align:-2px}.pxb{image-rendering:pixelated;display:block}.flt{display:inline-block;margin-left:6px;font-size:10px;letter-spacing:.06em;padding:1px 6px;border-radius:6px;background:rgba(255,95,210,.18);color:#ffc2ef;vertical-align:middle;text-transform:uppercase}
+.flrb{background:linear-gradient(90deg,#f87171,#fbbf24,#a3e635,#67e8f9,#a78bfa,#ff8fe0);-webkit-background-clip:text;background-clip:text;color:transparent!important;background-size:200% 100%;animation:flrb 4s linear infinite}
+@keyframes flrb{to{background-position:200% 0}}
+.flcup{color:#ff5fd2!important;text-shadow:0 0 6px #ff5fd2,0 0 14px rgba(255,95,210,.6)}
+button.lbn{all:unset;cursor:pointer;flex:1;min-width:0}button.lbn:hover b{text-decoration:underline}
+.lblive{font-size:11px;color:#fde68a;margin-right:8px;white-space:nowrap}
+.flcn{font-size:18px}.flcs{display:flex;justify-content:center;gap:18px;margin-top:12px}.flcs span{display:flex;flex-direction:column;font-size:15px}.flcs small{font-size:9px;letter-spacing:.08em;opacity:.7}
+.shopgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;width:100%}
+.shopi{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 10px;border:0;cursor:pointer;color:var(--ink);font:inherit}.shopi small{font-size:10px;opacity:.75}.shopi.on{outline:2px solid #ff5fd2}
+
+/* ===== player cards: backgrounds (::before = scenery) + frames (::after = border art) ===== */
+.flcard,.flswatch{position:relative;isolation:isolate;overflow:hidden;border-radius:14px}
+.flcard{padding:20px 16px;margin-top:10px;text-align:center;min-height:96px}
+.flcard>*{position:relative;z-index:2}
+.flcard::before,.flswatch::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none}
+.flcard::after,.flswatch::after{content:"";position:absolute;inset:0;z-index:3;pointer-events:none;border-radius:inherit}
+.flswatch{width:110px;height:62px}
+.flcn{text-shadow:0 2px 0 rgba(0,0,0,.45)}
+/* backgrounds */
+.bg-space{background:radial-gradient(1px 1px at 8% 18%,#fff 99%,transparent),radial-gradient(1px 1px at 22% 70%,#ffd6f5 99%,transparent),radial-gradient(1.5px 1.5px at 35% 30%,#fff 99%,transparent),radial-gradient(1px 1px at 48% 82%,#fff 99%,transparent),radial-gradient(1px 1px at 61% 14%,#cdeaff 99%,transparent),radial-gradient(1.5px 1.5px at 74% 55%,#fff 99%,transparent),radial-gradient(1px 1px at 88% 28%,#fff 99%,transparent),radial-gradient(1px 1px at 93% 78%,#ffe9a8 99%,transparent),radial-gradient(0.8px 0.8px at 15% 45%,#fff 99%,transparent),radial-gradient(0.8px 0.8px at 55% 48%,#fff 99%,transparent),radial-gradient(0.8px 0.8px at 80% 90%,#fff 99%,transparent),radial-gradient(1px 1px at 28% 92%,#cdeaff 99%,transparent),radial-gradient(ellipse 30px 9px at 86% 28%,transparent 62%,rgba(255,214,140,.75) 66% 80%,transparent 84%),radial-gradient(circle at 86% 28%,#f4a261 0 14px,#c2410c 15px,transparent 16px),radial-gradient(circle at 10% 110%,#3b2a8a,transparent 55%),linear-gradient(160deg,#120d36,#060616)}
+.bg-nebula{background:radial-gradient(1px 1px at 8% 18%,#fff 99%,transparent),radial-gradient(1px 1px at 22% 70%,#ffd6f5 99%,transparent),radial-gradient(1.5px 1.5px at 35% 30%,#fff 99%,transparent),radial-gradient(1px 1px at 48% 82%,#fff 99%,transparent),radial-gradient(1px 1px at 61% 14%,#cdeaff 99%,transparent),radial-gradient(1.5px 1.5px at 74% 55%,#fff 99%,transparent),radial-gradient(1px 1px at 88% 28%,#fff 99%,transparent),radial-gradient(1px 1px at 93% 78%,#ffe9a8 99%,transparent),radial-gradient(0.8px 0.8px at 15% 45%,#fff 99%,transparent),radial-gradient(0.8px 0.8px at 55% 48%,#fff 99%,transparent),radial-gradient(0.8px 0.8px at 80% 90%,#fff 99%,transparent),radial-gradient(1px 1px at 28% 92%,#cdeaff 99%,transparent),#140b2e}
+.bg-nebula::before{background:radial-gradient(circle at 22% 35%,rgba(124,58,237,.9),transparent 45%),radial-gradient(circle at 78% 65%,rgba(219,39,119,.85),transparent 45%),radial-gradient(circle at 55% 20%,rgba(34,211,238,.55),transparent 40%),radial-gradient(circle at 40% 85%,rgba(250,204,21,.35),transparent 40%);filter:blur(6px);animation:nebula 12s ease-in-out infinite alternate;mix-blend-mode:screen}
+@keyframes nebula{to{transform:scale(1.15) rotate(8deg);filter:blur(6px) hue-rotate(40deg)}}
+.bg-ocean{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 20' preserveAspectRatio='none'%3E%3Cpath fill='%230c4a6e' d='M0 10q10-8 20 0t20 0 20 0 20 0v10H0z'/%3E%3Cpath fill='%23082f49' d='M0 15q10-6 20 0t20 0 20 0 20 0v5H0z'/%3E%3C/svg%3E") bottom/100% 28% no-repeat,radial-gradient(circle at 18% 70%,rgba(255,255,255,.55) 0 2px,transparent 3px),radial-gradient(circle at 24% 52%,rgba(255,255,255,.4) 0 1.5px,transparent 2.5px),radial-gradient(circle at 82% 60%,rgba(255,255,255,.45) 0 2px,transparent 3px),linear-gradient(180deg,#22d3ee,#0369a1 55%,#0c4a6e)}
+.bg-ocean::before{background:repeating-linear-gradient(105deg,rgba(255,255,255,.14) 0 10px,transparent 10px 34px);mask:linear-gradient(#000,transparent 70%);-webkit-mask:linear-gradient(#000,transparent 70%);animation:rays 6s ease-in-out infinite alternate}
+@keyframes rays{to{transform:translateX(18px)}}
+.bg-sunset{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 40' preserveAspectRatio='none'%3E%3Cpath fill='%233b0d4a' d='M0 40V26l18-10 14 8 20-16 22 14 16-6 24 12 18-14 20 10 16-8 32 14v22z'/%3E%3Cpath fill='%231f0629' d='M0 40V32l26-6 22 6 30-10 26 8 22-4 28 8 24-6 22 4v8z'/%3E%3C/svg%3E") bottom/100% 45% no-repeat,radial-gradient(circle at 50% 70%,#fde047 0 17%,transparent 17.5%),linear-gradient(180deg,#4c1d95,#db2777 45%,#f97316 70%,#fbbf24)}
+.bg-sunset::before{background:repeating-linear-gradient(180deg,transparent 0 5px,rgba(219,39,119,.85) 5px 7px);mask:radial-gradient(circle at 50% 70%,#000 17%,transparent 17.5%);-webkit-mask:radial-gradient(circle at 50% 70%,#000 17%,transparent 17.5%);clip-path:inset(62% 0 0 0)}
+.bg-felt{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44'%3E%3Cg font-family='serif' font-size='13' opacity='.16'%3E%3Ctext x='4' y='16' fill='%23000'%3E♠%3C/text%3E%3Ctext x='26' y='16' fill='%237f1d1d'%3E♥%3C/text%3E%3Ctext x='4' y='38' fill='%237f1d1d'%3E♦%3C/text%3E%3Ctext x='26' y='38' fill='%23000'%3E♣%3C/text%3E%3C/g%3E%3C/svg%3E"),radial-gradient(ellipse at 50% 40%,#22c55e,#166534 60%,#052e16)}
+.bg-felt::before{inset:7px;border:2px dashed rgba(253,224,71,.55);border-radius:10px}
+.bg-cupidium{background:radial-gradient(circle at 50% 50%,transparent 30%,rgba(42,10,38,.75)),conic-gradient(from 20deg at 30% 60%,#d9269f,#6b0f63,#ff5fd2,#4a0a46,#a21caf,#d9269f),#2a0a26}
+.bg-cupidium::before{background:linear-gradient(135deg,transparent 40%,rgba(255,255,255,.35) 50%,transparent 60%),conic-gradient(from 200deg at 75% 30%,rgba(103,232,249,.35),rgba(167,139,250,.4),rgba(255,95,210,.25),rgba(103,232,249,.35));mix-blend-mode:screen;background-size:250% 250%,100% 100%;animation:shine 4s linear infinite}
+@keyframes shine{from{background-position:150% 150%,0 0}to{background-position:-50% -50%,0 0}}
+.bg-city{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 50' preserveAspectRatio='none' shape-rendering='crispEdges'%3E%3Cpath fill='%23140a2e' d='M0 50V30h10v-8h8v12h10V18h12v14h6V10h14v24h8V26h10v10h8V14h16v20h8V22h10v14h10V8h12v26h8V28h10v22z'/%3E%3Cg fill='%23ffd36e'%3E%3Crect x='44' y='14' width='2' height='2'/%3E%3Crect x='50' y='20' width='2' height='2'/%3E%3Crect x='104' y='18' width='2' height='2'/%3E%3Crect x='110' y='26' width='2' height='2'/%3E%3Crect x='164' y='12' width='2' height='2'/%3E%3Crect x='170' y='20' width='2' height='2'/%3E%3Crect x='22' y='22' width='2' height='2'/%3E%3C/g%3E%3Cg fill='%237ef0ff'%3E%3Crect x='56' y='16' width='2' height='2'/%3E%3Crect x='168' y='28' width='2' height='2'/%3E%3Crect x='104' y='28' width='2' height='2'/%3E%3C/g%3E%3C/svg%3E") bottom/100% 60% no-repeat,radial-gradient(1px 1px at 8% 18%,#fff 99%,transparent),radial-gradient(1px 1px at 22% 70%,#ffd6f5 99%,transparent),radial-gradient(1.5px 1.5px at 35% 30%,#fff 99%,transparent),radial-gradient(1px 1px at 48% 82%,#fff 99%,transparent),radial-gradient(1px 1px at 61% 14%,#cdeaff 99%,transparent),radial-gradient(1.5px 1.5px at 74% 55%,#fff 99%,transparent),radial-gradient(1px 1px at 88% 28%,#fff 99%,transparent),radial-gradient(1px 1px at 93% 78%,#ffe9a8 99%,transparent),radial-gradient(0.8px 0.8px at 15% 45%,#fff 99%,transparent),radial-gradient(0.8px 0.8px at 55% 48%,#fff 99%,transparent),radial-gradient(0.8px 0.8px at 80% 90%,#fff 99%,transparent),radial-gradient(1px 1px at 28% 92%,#cdeaff 99%,transparent),radial-gradient(circle at 82% 22%,#fef3c7 0 11px,transparent 12px),linear-gradient(180deg,#1e1b4b,#7c3aed 70%,#f472b6)}
+.bg-synth{background:linear-gradient(180deg,#1a0536,#7e1d6b 48%,#f97316 50%,#1a0536 50.5%)}
+.bg-synth::before{top:50%;background:repeating-linear-gradient(90deg,#ff5fd2 0 2px,transparent 2px 22px),repeating-linear-gradient(0deg,#22d3ee 0 2px,transparent 2px 14px);transform:perspective(90px) rotateX(55deg);transform-origin:top;opacity:.85;animation:grid 1.4s linear infinite}
+.bg-synth::after{}
+@keyframes grid{to{background-position:0 0,0 14px}}
+.bg-aurora{background:radial-gradient(1px 1px at 8% 18%,#fff 99%,transparent),radial-gradient(1px 1px at 22% 70%,#ffd6f5 99%,transparent),radial-gradient(1.5px 1.5px at 35% 30%,#fff 99%,transparent),radial-gradient(1px 1px at 48% 82%,#fff 99%,transparent),radial-gradient(1px 1px at 61% 14%,#cdeaff 99%,transparent),radial-gradient(1.5px 1.5px at 74% 55%,#fff 99%,transparent),radial-gradient(1px 1px at 88% 28%,#fff 99%,transparent),radial-gradient(1px 1px at 93% 78%,#ffe9a8 99%,transparent),radial-gradient(0.8px 0.8px at 15% 45%,#fff 99%,transparent),radial-gradient(0.8px 0.8px at 55% 48%,#fff 99%,transparent),radial-gradient(0.8px 0.8px at 80% 90%,#fff 99%,transparent),radial-gradient(1px 1px at 28% 92%,#cdeaff 99%,transparent),linear-gradient(180deg,#020617,#0f172a)}
+.bg-aurora::before{background:linear-gradient(100deg,transparent 15%,rgba(74,222,128,.75) 30%,rgba(34,211,238,.6) 45%,rgba(192,132,252,.75) 60%,transparent 80%);filter:blur(8px);transform:skewY(-8deg);animation:aurora 7s ease-in-out infinite alternate}
+@keyframes aurora{to{transform:skewY(6deg) translateX(10%);filter:blur(8px) hue-rotate(60deg)}}
+/* frames */
+.fr-plain::after{border:2px solid rgba(255,255,255,.22);background:linear-gradient(#fff,#fff) top left/12px 2px,linear-gradient(#fff,#fff) top left/2px 12px,linear-gradient(#fff,#fff) top right/12px 2px,linear-gradient(#fff,#fff) top right/2px 12px,linear-gradient(#fff,#fff) bottom left/12px 2px,linear-gradient(#fff,#fff) bottom left/2px 12px,linear-gradient(#fff,#fff) bottom right/12px 2px,linear-gradient(#fff,#fff) bottom right/2px 12px;background-repeat:no-repeat;background-origin:border-box}
+.fr-gold::after{padding:5px;background:linear-gradient(110deg,#a16207,#fde68a 20%,#ca8a04 35%,#fef9c3 50%,#b45309 65%,#fde047 80%,#a16207) 0 0/300% 100%;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:goldsh 3s linear infinite}
+.fr-gold{box-shadow:0 0 14px rgba(251,191,36,.45),inset 0 0 0 7px rgba(0,0,0,.25)}
+@keyframes goldsh{to{background-position:300% 0}}
+.fr-neon::after{border:2px solid #fff;animation:neon 2.4s ease-in-out infinite}
+@keyframes neon{0%,100%{box-shadow:0 0 6px #22d3ee,0 0 14px #22d3ee,inset 0 0 8px #22d3ee;border-color:#a5f3fc}50%{box-shadow:0 0 6px #ff5fd2,0 0 16px #ff5fd2,inset 0 0 10px #ff5fd2;border-color:#fbcfe8}}
+.fr-hearts::after{padding:10px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' shape-rendering='crispEdges'%3E%3Crect width='12' height='12' fill='%237e1d6b'/%3E%3Cpath fill='%23ff4fb8' d='M2 3h3v1h2V3h3v1h1v3h-1v1H9v1H8v1H7v1H5v-1H4V9H3V8H2V7H1V4h1z'/%3E%3Cpath fill='%23ffc2ef' d='M2 4h1v1H2z'/%3E%3C/svg%3E") 0 0/12px 12px;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;border-radius:6px}
+.fr-hearts{border-radius:6px}
+.fr-cosmic::after{padding:3px;background:conic-gradient(from var(--fa,0deg),#22d3ee,#a78bfa,#ff5fd2,#fbbf24,#22d3ee);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:cosmic 4s linear infinite}
+.fr-cosmic{box-shadow:0 0 18px rgba(167,139,250,.6)}
+@property --fa{syntax:"<angle>";initial-value:0deg;inherits:false}
+@keyframes cosmic{to{--fa:360deg}}
+.fr-flame::after{border:3px solid #fb923c;animation:flame 0.9s ease-in-out infinite alternate}
+@keyframes flame{from{box-shadow:0 -2px 10px #f97316,inset 0 0 10px #ef4444,0 0 4px #fde047}to{box-shadow:0 -6px 18px #ef4444,inset 0 0 16px #f97316,0 0 10px #fde047;border-color:#fde047}}
+.fr-rainbow::after{padding:4px;background:linear-gradient(90deg,#f87171,#fbbf24,#a3e635,#22d3ee,#a78bfa,#f472b6,#f87171) 0 0/200% 100%;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:goldsh 2.5s linear infinite}
+
+.fr-pixel,.fr-pixel::after{border-radius:0!important}
+.fr-pixel::after{padding:6px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' shape-rendering='crispEdges'%3E%3Crect width='8' height='8' fill='%23fff'/%3E%3Crect width='4' height='4' fill='%23a78bfa'/%3E%3Crect x='4' y='4' width='4' height='4' fill='%23a78bfa'/%3E%3C/svg%3E") 0 0/8px 8px;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;box-shadow:inset 0 0 0 9px rgba(0,0,0,.35)}
+.fr-pixel{box-shadow:4px 4px 0 #1a0f2e}
 </style>
 
 <canvas id="scene"></canvas>
@@ -4145,7 +4206,7 @@ function learnIn(list){let n=0;const cnt={};for(const m of list||[])if(m&&typeof
     (LEARN[p.q]=cur).push(m.u?{d,t,k:keys,u:String(m.u).slice(0,16)}:{d,t,k:keys});if(cur.length>300)cur.shift();n++;}
   if(n)store.set("otc.learned5",LEARN);}
 function learnStart(){if(typeof socOn!=="function"||!socOn()||LS.es)return;
-  try{const es=sseOpen(`https://ntfy.sh/${LEARN_TOPIC}/sse?since=12h`);LS.es=es;
+  try{const es=sseOpen(`${SOC_RELAY}${LEARN_TOPIC}/sse?since=12h`);LS.es=es;
     es.onmessage=ev=>{try{const j=JSON.parse(ev.data);if(j.event&&j.event!=="message")return;const m=JSON.parse(j.message);if(m&&Array.isArray(m.a))learnIn(m.a.slice(0,60));}catch(e){}};}catch(e){}
   // re-share what this device has learned now and then (and schedule copies), so new players get it even after the relay forgets
   const share=()=>{if(Date.now()-store.get("otc.learnShared",0)<4*3600e3||!LS.recent.length)return;store.set("otc.learnShared",Date.now());
@@ -6961,7 +7022,7 @@ function landing(){
       <button class="glass lcard casl" data-act="casino"><b><span class="glow cup" style="padding:0 6px">CUPIDIUM CASINO</span></b><span>Blackjack, poker, slots, roulette and more. Play for cupidium chips.</span><em>🎰 ${(typeof casChips==="function"?casChips():1000).toLocaleString()} CHIPS</em></button>
       <button class="glass lcard cpl" data-act="cuepon"><b>DAILY CUEPON</b><span>Three new word puzzles every day, the same for everyone. Keep your streak.</span><em>${typeof cpDoneCount==="function"?cpDoneCount():0}/3 DONE TODAY</em></button>
     </div>
-    <div class="menubar"><button class="pbtn" data-act="leaderboards" data-back="landing" data-k="daily">🏆 LEADERBOARDS</button>${store.get("otc.dev",false)?`<button class="pbtn" data-act="devHome">🛠 DEV PAGE</button>`:""}<button class="pbtn" data-act="skins">SKINS</button><button class="pbtn" data-act="palettes">COLORS</button>
+    <div class="menubar"><button class="pbtn" data-act="leaderboards" data-back="landing" data-k="daily">🏆 LEADERBOARDS</button><button class="pbtn" data-act="chipShop">🛍 CHIP SHOP</button>${store.get("otc.dev",false)?`<button class="pbtn" data-act="devHome">🛠 DEV PAGE</button>`:""}<button class="pbtn" data-act="skins">SKINS</button><button class="pbtn" data-act="palettes">COLORS</button>
       <div class="glass themeseg">${Object.entries(THEMES).map(([k,t])=>`<button class="${k===THEME?"on":""}" data-act="theme3" data-t="${k}">${t.name}</button>`).join("")}</div>
       <button class="pbtn" data-act="settings" aria-label="Settings">${icon("gear",18)}</button></div>
 `,{cls:"menu"});
@@ -7003,7 +7064,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.id==="pcode
 // No accounts: this browser gets a random friend code the first time, saved on this device.
 // Presence pings and messages travel through ntfy.sh (a free public relay). Messages wait there
 // about 12 hours, so a friend who's offline still gets them if they open the game within that time.
-const SOC_RELAY="https://ntfy.sh/",SOC_ON_MS=10*60e3,SOC_PING=480e3;
+const SOC_RELAY=relayFix(store.get("otc.relayUrl","")||BUILTIN_RELAY)||"https://ntfy.sh/",SOC_ON_MS=10*60e3,SOC_PING=480e3;
 let SOC=Object.assign({me:null,friends:{},reqs:{},msgs:{},lastIn:"12h",seen:{}},store.get("otc.social",{}));
 let SOCX={esIn:null,esP:null,pTopics:"",open:false,view:"list",chat:null,ping:null};
 const socOn=()=>!window.claude&&!/claude/i.test(location.hostname)&&typeof EventSource!=="undefined";
@@ -7170,7 +7231,7 @@ const LB={b:store.get("otc.lb",{}),es:null,id:store.get("otc.pid",null)};
 if(!LB.id){LB.id=Math.random().toString(36).slice(2,10);store.set("otc.pid",LB.id);}
 const lbOn=()=>socOn();
 const lbMe=()=>(SOC.me&&SOC.me.name)||store.get("oddball.name","")||"";
-const lbKeyFor=k=>k==="daily"||k==="dailyGeo"||/^cp[A-Z]/.test(k)?k+":"+today():k;
+const lbKeyFor=k=>k==="daily"||k==="dailyGeo"||k==="bounty"||/^cp[A-Z]/.test(k)?k+":"+today():k;
 function lbMerge(key,rows){if(!key||!Array.isArray(rows))return false;const cur=LB.b[key]=LB.b[key]||[];let ch=false;
   for(const r of rows){if(!r||!r.i||typeof r.s!=="number"||r.s<0||!isFinite(r.s)||lbBad(r,key))continue;const nm=String(r.n||"Player").slice(0,16),o=cur.find(x=>x.i===r.i);
     if(o){if(LB_LATEST.has(key)?(r.t||0)>(o.t||0)&&r.s!==o.s:r.s>o.s){o.s=r.s;o.t=r.t||o.t;ch=true;}if(nm!==o.n&&(r.t||0)>=(o.t||0)){o.n=nm;ch=true;}}else{cur.push({i:r.i,n:nm,s:r.s,t:r.t||Date.now()});ch=true;}}
@@ -7230,7 +7291,7 @@ function lbStart(){if(!lbOn()||LB.es)return;
     if(Date.now()-store.get("otc.lbSched",0)>12*3600e3){store.set("otc.lbSched",Date.now());
       ["23h","47h"].forEach((d,i)=>setTimeout(()=>socPost(LB_TOPIC+"?delay="+d,body),1500*(i+1)));if(MOD)["24h","48h"].forEach((d,i)=>setTimeout(()=>socPost(LB_TOPIC+"?delay="+d,{k:"dev",p:MOD.p,sig:MOD.sig}),5000+1500*i));}};
   // every device also re-posts its OWN best scores, so a player outside the top 5 still shows up for everyone (the relay forgets after 12h)
-  const mine=force=>{const b={};for(const k in LB.b){if(/^daily(Geo)?:/.test(k)&&!k.endsWith(":"+today()))continue;const r=LB.b[k].find(x=>x.i===LB.id);if(r)b[k]=[r.s,r.t];}if(!Object.keys(b).length)return;
+  const mine=force=>{const b={};for(const k in LB.b){if(/^(daily(Geo)?|bounty):/.test(k)&&!k.endsWith(":"+today()))continue;const r=LB.b[k].find(x=>x.i===LB.id);if(r)b[k]=[r.s,r.t];}if(!Object.keys(b).length)return;
     if(!force&&Date.now()-store.get("otc.lbMine",0)<4*3600e3)return;store.set("otc.lbMine",Date.now());const body={k:"mine",i:LB.id,n:lbMe()||"Player "+LB.id.slice(0,3).toUpperCase(),b};socPost(LB_TOPIC,body);
     if(Date.now()-store.get("otc.lbMineSched",0)>11*3600e3){store.set("otc.lbMineSched",Date.now());["22h","46h"].forEach((d,i)=>setTimeout(()=>socPost(LB_TOPIC+"?delay="+d,body),2000*(i+1)));}};
   LB.mine=mine;setTimeout(()=>mine(),8000+Math.random()*8000);setInterval(()=>mine(),30*60e3);
@@ -7240,12 +7301,12 @@ let LBV={k:"daily"};
 function lbHere(k){LBV.k=k;LBV.sec=MGAMES[k]||k==="cup"?"arc":/^cas/.test(k)?"cas":/^cp[A-Z]/.test(k)?"cp":"otc";try{lbStart();}catch(e){}lbRender();}
 function leaderboards(back){LBV.back=back||LBV.back||"landing";
   // two sections: Off the Charts modes, and the arcade grouped like the arcade menu
-  const OTC=[["MODES",["daily","blitz","endless","rendless"]],["🌍 GEOGRAPHY",["dailyGeo","endlessGeo","rendlessGeo"]]],
+  const OTC=[["MODES",["daily","blitz","endless","rendless","bounty"]],["🌍 GEOGRAPHY",["dailyGeo","endlessGeo","rendlessGeo"]]],
     ARC=ARCADE_CATS.map(([id,nm,gs])=>[nm,gs.map(g=>g[0]==="rush"?"cup":g[0])]),
     SECS={otc:OTC,arc:ARC,cas:[["CUPIDIUM CASINO",["casNow","casPeak","casWin"]]],cp:[["TODAY'S PUZZLES",["cpWord","cpConn","cpBee"]]]},
     secOf=k=>Object.keys(SECS).find(z=>SECS[z].some(g=>g[1].includes(k)));if(LBV.sec==null||!SECS[LBV.sec])LBV.sec=secOf(LBV.k)||"otc";
   if(secOf(LBV.k)!==LBV.sec)LBV.k=SECS[LBV.sec][0][1][0];
-  const groups=SECS[LBV.sec],nm=k=>/^cas/.test(k)?lbName(k).replace("Casino · ",""):/^cp[A-Z]/.test(k)?lbName(k).replace(" (today)",""):k==="cup"?"RUSH":k==="dailyGeo"?"DAILY":k==="endlessGeo"?"ENDLESS":k==="rendlessGeo"?"RAPID ENDLESS":lbName(k).replace(/^IS IT CUPIDIUM\?$/,"IS IT?");
+  const groups=SECS[LBV.sec],nm=k=>k==="bounty"?"💰 BOUNTY":/^cas/.test(k)?lbName(k).replace("Casino · ",""):/^cp[A-Z]/.test(k)?lbName(k).replace(" (today)",""):k==="cup"?"RUSH":k==="dailyGeo"?"DAILY":k==="endlessGeo"?"ENDLESS":k==="rendlessGeo"?"RAPID ENDLESS":lbName(k).replace(/^IS IT CUPIDIUM\?$/,"IS IT?");
   panelIn("lb",`<div class="row" style="justify-content:space-between"><h2 style="font-size:16px">🏆 LEADERBOARDS</h2><button class="pbtn sm" data-act="${LBV.back}">◀ BACK</button></div>
     <div class="glass atabs lbsec"><button class="${LBV.sec==="otc"?"on":""}" data-act="lbSec" data-s="otc">OFF THE CHARTS</button><button class="${LBV.sec==="arc"?"on":""}" data-act="lbSec" data-s="arc">ARCADE</button><button class="${LBV.sec==="cas"?"on":""}" data-act="lbSec" data-s="cas">CASINO</button><button class="${LBV.sec==="cp"?"on":""}" data-act="lbSec" data-s="cp">CUEPON</button></div>
     <div class="glass lbgroups">${groups.map(([g,ks])=>`<div class="lbg"><span class="lbgh">${g}</span><div class="lbtabs">${ks.map(k=>`<button class="${k===LBV.k?"on":""}" data-act="lbTab" data-k="${k}">${esc(nm(k))}</button>`).join("")}</div></div>`).join("")}</div>
@@ -7650,7 +7711,9 @@ Object.assign(ACT,{ansBrowse:b=>ansBrowse(+b.dataset.pi,String(b.dataset.a||"").
 
 // ===== update log =====
 function updList(){return [
- {v:"3.3",d:"Nov 15, 2026",s:{"Scoring":["Points are now 10 / 30 / 60 / 85 / 100 from most common to ONE IN A CUPIDIUM","Rapid modes use the same points as everything else"],"Party":["Parties now fit up to 10 players"],"Word bank":["Answers the AI accepts are saved for good on the Cupidium relay","When a prompt starts, the game looks up that prompt's player-added answers, so the word bank keeps growing without slowing anything down","Player-added answers show up in ALL ANSWERS"],"Prompts":["Renamed the chess opening prompt to include defenses and gambits","Removed prompts where any made-up answer could count (names, excuses, colors and similar)","Removed a few repeat or confusing prompts"],"Look":["Update log button moved to the bottom-right corner"]}},
+ {v:"3.5",d:"Nov 15, 2026",s:{"Casino":["CHIP SHOP on the main screen: spend chips on name colors, badges and titles that show on every leaderboard","Player cards: tap anyone's name on a leaderboard to see their card","Daily Bounty: the rarest answers in each Daily win a chip pot"],"Leaderboards":["Endless boards show runs still in progress (updated when a player exits)","Leaderboards and friends now run on the Cupidium relay, so they're more reliable"]}},
+ {v:"3.4",d:"Nov 15, 2026",s:{"Scoring":["Points are now 10 / 30 / 60 / 85 / 100 from most common to ONE IN A CUPIDIUM","Rapid modes use the same points as everything else"],"All Answers":["Each ONE IN A CUPIDIUM answer has a short note on why it's special","Search inside any rarity tab"]}},
+ {v:"3.3",d:"Nov 15, 2026",s:{"Word bank":["Answers the AI accepts are saved for good on the Cupidium relay","When a prompt starts, the game looks up that prompt's player-added answers, so the word bank keeps growing without slowing anything down"],"Prompts":["Removed prompts where any made-up answer could count (names, excuses, colors and similar)","Renamed the chess opening prompt to include defenses and gambits"],"Party":["Parties now fit up to 10 players"]}},
  {v:"3.2",d:"Nov 15, 2026",s:{"Rarity changes":["ONE IN A CUPIDIUM is usually just 1 answer per prompt, with a few exceptions","Every ONE IN A CUPIDIUM answer was re-picked to be a real deep cut","Well-known answers moved up into the common tiers","The 2nd most common tier now holds up to 40 answers"],"AI checking":["Answers the bank doesn't list are scored by how common the AI thinks they are, so common answers no longer get rare points"]}},
  {v:"3.1",d:"Nov 15, 2026",s:{"New":["ALL ANSWERS: after a round, see every answer for a prompt","Tabs show how many answers are in each rarity","Search bar to look up any answer","Update log"]}},
  {v:"3.0",t:"Krillion rarities",d:"Nov 15, 2026",s:{"Rarity changes":["Rarities reworked to match Krillion: ONE IN A CUPIDIUM is the rarest tier (100 pts)","ONE IN A CUPIDIUM answers are hand-picked fun deep cuts","AI-checked answers max out at 70 pts"],"Prompts":["27 new prompts (time travel movies, animal logos, college majors and more)"]}},
@@ -7927,6 +7990,116 @@ MGAMES.xc={persist:false,name:"CUPIDIUM XC",w:240,h:150,blurb:"Cross country car
     if(m.msg&&m.t-m.msg.at<1800){x.globalAlpha=Math.min(1,(1800-(m.t-m.msg.at))/300);mRR(x,m.W/2-90,m.H/2+18,180,13,3,"#0f172aee");mT(x,m.msg.t,m.W/2,m.H/2+25,m.msg.c,5);x.globalAlpha=1;}
     mFx(m,x,dt);mPops(m,x,dt);}};
 AICON.xc=x=>{mR(x,0,18,24,6,"#4ade80");mR(x,0,18,24,1,"#d6b98c");mR(x,10,4,4,4,"#fcd9b6");mR(x,10,8,4,5,"#ff5fd2");mR(x,8,13,2,5,"#fcd9b6");mR(x,14,13,2,5,"#e8c39e");mR(x,7,17,3,1,"#111");mR(x,14,17,3,1,"#111");mR(x,2,9,5,1,"#e9d5ff");mR(x,1,12,5,1,"#e9d5ff");};
+
+// ===== Chip shop (name flair + profile cards), Daily bounty, live endless scores =====
+const FL_ITEMS={
+ color:[["pink","Pink",400,"#ff8fe0"],["cyan","Cyan",400,"#67e8f9"],["lime","Lime",400,"#a3e635"],["red","Crimson",800,"#f87171"],["gold","Gold",1500,"#fbbf24"],["rainbow","Rainbow",10000,""],["cupidium","Cupidium Glow",25000,""]],
+ badge:[["dice","Dice",300],["cards","Cards",500],["moon","Moon",800],["duck","Duck",1000],["fire","Fire",1500],["gem","Gem",2500],["crown","Crown",5000],["heart","Cupidium Heart",20000]],
+ title:[["broke","Broke",50],["lucky","Lucky",800],["shark","Card Shark",1500],["roller","High Roller",2500],["deep","Deep Cut",3000],["krill","Krillionaire",10000],["hoard","Cupidium Hoarder",25000]],
+ frame:[["plain","Corners",0],["pixel","8-Bit",1500],["gold","Gold Shine",2500],["neon","Neon Pulse",3000],["hearts","Pixel Hearts",4000],["flame","On Fire",5000],["rainbow","Rainbow",7000],["cosmic","Cosmic",10000]],
+ bg:[["space","Space",0],["ocean","Ocean",1500],["felt","Casino Felt",2000],["sunset","Synth Sunset",2500],["city","Night City",3000],["nebula","Nebula",4000],["synth","Retrowave",5000],["aurora","Aurora",6000],["cupidium","Cupidium Crystal",12000]]};
+const FL_TABS=[["color","NAME COLOR"],["badge","BADGE"],["title","TITLE"],["frame","CARD FRAME"],["bg","CARD BACKGROUND"]];
+const flItem=(cat,id)=>(FL_ITEMS[cat]||[]).find(x=>x[0]===id);
+const flOwn=()=>store.get("otc.flair.own",{frame:["plain"],bg:["space"]});
+const flEq=()=>store.get("otc.flair.eq",{});
+// only known item ids ever get through, so nothing anyone sends can inject anything
+function flClean(o){const r={};if(!o||typeof o!=="object")return r;for(const [k,cat] of [["c","color"],["b","badge"],["t","title"],["fr","frame"],["bg","bg"]])if(typeof o[k]==="string"&&flItem(cat,o[k]))r[k]=o[k];return r;}
+function flMine(){const e=flEq();return flClean({c:e.color,b:e.badge,t:e.title,fr:e.frame,bg:e.bg});}
+let FLAIRS=store.get("otc.flairs",{});
+let FLSTATS=store.get("otc.flstats",{});
+const csClean=cs=>Array.isArray(cs)?cs.slice(0,3).map(x=>Math.max(0,Math.min(1e12,Math.floor(+x||0)))):null;
+function flairIn(id,f,cs){if(!id||typeof id!=="string")return false;const c2=csClean(cs);if(c2){FLSTATS[id]=c2;store.set("otc.flstats",FLSTATS);}
+  const c=flClean(f),old=JSON.stringify(FLAIRS[id]||{});if(JSON.stringify(c)===old)return !!c2;FLAIRS[id]=c;
+  const ks=Object.keys(FLAIRS);if(ks.length>400)delete FLAIRS[ks[0]];store.set("otc.flairs",FLAIRS);return true;}
+function flName(name,f){f=flClean(f);const col=f.c&&flItem("color",f.c),cls=f.c==="rainbow"?"flrb":f.c==="cupidium"?"flcup":"";
+  return `${f.b?`<span class="flb">${pxBadge(f.b,18)}</span>`:""}<b class="${cls}" style="${col&&col[3]?`color:${col[3]}`:""}">${esc(name)}</b>${f.t?`<span class="flt">${esc(flItem("title",f.t)[1])}</span>`:""}`;}
+const flFor=id=>id===LB.id?flMine():FLAIRS[id]||{};
+const myCs=()=>{const s=store.get("oddball.stats",{streak:0,best:0});return [s.streak||0,s.best||0,store.get("otc.cas.peak",1000)];};
+const csRows=cs=>cs?[["DAILY STREAK",cs[0]],["BEST DAILY",cs[1]],["PEAK CHIPS",(+cs[2]).toLocaleString()]]:null;
+function flShare(){if(typeof lbOn==="function"&&lbOn())socPost(LB_TOPIC,{k:"flair",i:LB.id,f:flMine(),cs:myCs()});if(typeof socPing==="function"&&SOC&&SOC.me)socPing("on");}
+function flCard(name,f,stats){f=flClean(f);
+  return `<div class="flcard fr-${f.fr||"plain"} bg-${f.bg||"space"}"><div class="flcn">${flName(name,f)}</div>
+    ${stats?`<div class="flcs">${stats.map(([l,v])=>`<span><small>${esc(l)}</small><b>${esc(String(v))}</b></span>`).join("")}</div>`:""}</div>`;}
+const flStats=()=>csRows(myCs());
+// tap a name on any leaderboard to see that player's card
+function cardOpen(id,name){const me=id===LB.id,m=$("modal");m.hidden=false;
+  m.innerHTML=`<div class="glass" style="max-width:420px;width:100%"><div class="row" style="justify-content:space-between"><b>PLAYER CARD</b><button class="pbtn sm" data-act="closeModal">✕</button></div>
+    ${flCard(name,me?flMine():FLAIRS[id]||{},me?flStats():csRows(FLSTATS[id])||[["STATS","not shared yet"]])}${me?`<button class="pbtn c m-sun" data-act="chipShop" style="margin-top:10px">🛍 CUSTOMIZE IN THE CHIP SHOP</button>`:""}</div>`;}
+ACT.lbCard=b=>{closeModal();cardOpen(b.dataset.i,b.dataset.n);};
+
+// ---- shop ----
+let FLTAB="color";
+function chipShop(tab){if(tab)FLTAB=tab;const own=flOwn(),eq=flEq(),chips=casChips();
+  showPanel(`<div class="row" style="justify-content:space-between"><h2 style="font-size:16px">🛍 CHIP SHOP</h2><button class="pbtn sm" data-act="landing">◀ BACK</button></div>
+    <div class="glass card center"><div class="lbl">YOUR CHIPS</div><div class="big casglow">🪙 ${chips.toLocaleString()}</div>
+      <p class="hint">Flair shows next to your name on every leaderboard. Your card is what friends see.</p>${flCard(lbMe()||"You",flMine(),flStats())}</div>
+    <div class="glass atabs">${FL_TABS.map(([k,l])=>`<button class="${k===FLTAB?"on":""}" data-act="shopTab" data-t="${k}">${l}</button>`).join("")}</div>
+    <div class="shopgrid">${(eq[FLTAB]&&!["frame","bg"].includes(FLTAB)?`<button class="glass shopi" data-act="shopOff" data-c="${FLTAB}"><b>None</b><small>take it off</small></button>`:"")+
+      FL_ITEMS[FLTAB].map(([id,nm,cost,col])=>{const has=(own[FLTAB]||[]).includes(id)||cost===0,on=eq[FLTAB]===id||(!eq[FLTAB]&&cost===0);
+        const prev=FLTAB==="color"?flName(nm,{c:id}):FLTAB==="badge"?pxBadge(id,40):FLTAB==="title"?`<span class="flt">${esc(nm)}</span>`:`<div class="flswatch ${FLTAB==="frame"?"fr-"+id+" bg-space":"fr-plain bg-"+id}"></div>`;
+        return `<button class="glass shopi${on?" on":""}" data-act="shopBuy" data-c="${FLTAB}" data-id="${id}">${prev}${FLTAB!=="color"&&FLTAB!=="title"?`<b>${esc(nm)}</b>`:""}<small>${on?"✓ EQUIPPED":has?"tap to equip":`🪙 ${cost.toLocaleString()}`}</small></button>`;}).join("")}</div>`,{cls:"menu"});}
+function shopBuy(b){const cat=b.dataset.c,id=b.dataset.id,it=flItem(cat,id);if(!it)return;const own=flOwn(),eq=flEq(),has=(own[cat]||[]).includes(id)||it[2]===0;
+  if(!has){const c=casChips();if(c<it[2])return toast(`Not enough chips: you need 🪙 ${(it[2]-c).toLocaleString()} more`);
+    casSet(c-it[2]);(own[cat]=own[cat]||[]).push(id);store.set("otc.flair.own",own);toast(`Bought ${esc(it[1])} ✓`);sfx.ok(3);}
+  eq[cat]=id;store.set("otc.flair.eq",eq);flShare();chipShop();}
+function shopOff(b){const eq=flEq();delete eq[b.dataset.c];store.set("otc.flair.eq",eq);flShare();chipShop();}
+Object.assign(ACT,{chipShop:()=>chipShop(),shopTab:b=>chipShop(b.dataset.t),shopBuy:b=>shopBuy(b),shopOff:b=>shopOff(b)});
+
+// ---- leaderboards show flair; flair + live runs travel with the board messages ----
+let LIVE=store.get("otc.live",{});
+function liveIn(key,i,s,on,t){if(!key||!i)return false;const k=LIVE[key]=LIVE[key]||{};if(on&&typeof s==="number"&&isFinite(s)&&s>=0){k[i]=[Math.round(s),t||Date.now()];}else if(k[i])delete k[i];else return false;
+  for(const kk in LIVE)for(const ii in LIVE[kk])if(Date.now()-LIVE[kk][ii][1]>7*864e5)delete LIVE[kk][ii];store.set("otc.live",LIVE);return true;}
+function liveShare(key,s,on){liveIn(key,LB.id,s,on);if(typeof lbOn==="function"&&lbOn())socPost(LB_TOPIC,{k:"live",key,i:LB.id,s,on:on?1:0,t:Date.now()});}
+{const _r=lbRender;lbRender=function(){_r();const box=$("lbBox");if(!box)return;const key=lbKeyFor(LBV.k),rows=LB.b[key]||[],lis=box.querySelectorAll("ol.lbl2>li");
+  rows.forEach((r,i)=>{const li=lis[i];if(!li)return;const bEl=li.querySelector("b");if(bEl)bEl.outerHTML=`<button class="lbn" data-act="lbCard" data-i="${esc(r.i)}" data-n="${esc(r.n)}">${flName(r.n,flFor(r.i))}</button>`;
+    const lv=LIVE[key]&&LIVE[key][r.i];if(lv)li.querySelector(".sc").insertAdjacentHTML("beforebegin",`<span class="lblive" title="run in progress">⏳ ${lv[0].toLocaleString()} now</span>`);});
+  if(/^(endless|rendless)(Geo)?$/.test(key)&&LIVE[key]&&Object.keys(LIVE[key]).length)box.querySelector(".card").insertAdjacentHTML("beforeend",`<p class="hint">⏳ = run still going (score when they last exited)</p>`);
+  if(LBV.k==="bounty")box.querySelector(".card").insertAdjacentHTML("beforeend",`<p class="hint">💰 Whoever finds the rarest answers in today's Daily wins 🪙 ${BOUNTY_POT.toLocaleString()} casino chips (paid out tomorrow). One in a Cupidium answers count most.</p>`);};}
+// incoming board messages: flair + live
+// sseOpen hands back a plain object whose onmessage gets set later, so tack extra listeners onto that setter
+function sseTap(es,extra){let fn=null;try{Object.defineProperty(es,"onmessage",{configurable:true,get(){return fn?(ev=>{try{fn(ev);}finally{try{extra(ev);}catch(e){}}}):(ev=>{try{extra(ev);}catch(e){}});},set(v){fn=v;}});}catch(e){}return es;}
+{const _sse=sseOpen;sseOpen=function(url,...a){const es=_sse(url,...a);const u=String(url);
+  if(u.includes(LB_TOPIC))sseTap(es,ev=>{const j=JSON.parse(ev.data);if(j.event&&j.event!=="message")return;const m=JSON.parse(j.message);let ch=false;
+    if(m.k==="flair")ch=flairIn(m.i,m.f,m.cs);else if(m.k==="mine"&&m.f)ch=flairIn(m.i,m.f,m.cs);else if(m.k==="live")ch=liveIn(m.key,m.i,+m.s,!!m.on,+m.t||Date.now());
+    if(ch&&$("lbBox"))lbRender();});
+  else if(/otcp-/.test(u))sseTap(es,ev=>{const j=JSON.parse(ev.data);const m=JSON.parse(j.message),f=SOC.friends[m.f];if(!f)return;
+    if(m.fl)f.fl=flClean(m.fl);if(Array.isArray(m.cs))f.cs=csClean(m.cs);socSave();});
+  return es;};}
+// re-share my flair with the regular "my scores" posts
+setTimeout(()=>{try{flShare();}catch(e){}},12000);setInterval(()=>{try{if(Object.keys(flMine()).length)flShare();}catch(e){}},4*3600e3);
+
+// ---- friends: send flair + a few stats with presence; show their card in the chat ----
+{const _p=socPing;socPing=function(st="on"){if(SOC.me&&st==="on"){socPost("otcp-"+SOC.me.id,{f:SOC.me.id,n:SOC.me.name,st,d:socDoing(),fl:flMine(),cs:myCs()});return;}return _p(st);};}
+{const _sr=socRender;socRender=function(){_sr();try{if(SOCX.view==="chat"&&SOC.friends[SOCX.chat]){const f=SOC.friends[SOCX.chat],head=document.querySelector("#socDrawer .sochead");
+  if(head&&!document.getElementById("socCard"))head.insertAdjacentHTML("afterend",`<div id="socCard">${flCard(f.name||"Friend",f.fl||{},csRows(f.cs))}</div>`);}
+  if(SOCX.view==="list")document.querySelectorAll('#socDrawer .sfr.sbtn').forEach(b=>{const f=SOC.friends[b.dataset.id];const bb=b.querySelector(".grow>b");if(f&&f.fl&&bb)bb.outerHTML=flName(f.name||"…",f.fl);});}catch(e){}};}
+
+// ---- Daily bounty: rarest answers in today's Daily win a chip pot (paid the next day) ----
+const BOUNTY_POT=2000;
+LB_NAMES.bounty="💰 Daily Bounty (today)";
+const bountyScore=log=>(log||[]).reduce((a,r)=>a+(r.tier>=4?1000:r.tier===3?100:r.tier===2?10:r.tier===1?1:0),0);
+function bountyClaim(){try{const y=etKey(Date.parse(today()+"T12:00:00Z")-864e5),key="bounty:"+y,rows=LB.b[key]||[];
+  for(const k in LB.b)if(/^bounty:/.test(k)&&k<"bounty:"+etKey(Date.parse(today()+"T12:00:00Z")-4*864e5))delete LB.b[k];
+  if(!rows.length||store.get("otc.bountyPaid","")===y)return;const top=rows[0].s;if(top<=0)return;
+  if(rows.some(r=>r.i===LB.id&&r.s===top)){store.set("otc.bountyPaid",y);casSet(casChips()+BOUNTY_POT);sfx.ok(5);burst(80);toast(`💰 You won yesterday's Daily Bounty! +🪙 ${BOUNTY_POT.toLocaleString()} casino chips`);}}catch(e){}}
+setTimeout(bountyClaim,25000);setInterval(bountyClaim,10*60e3);
+{const _se=soloEnd;soloEnd=function(){try{if(S&&S.mode==="daily"&&!S.geo)lbSubmit("bounty",bountyScore(S.log));}catch(e){}return _se();};}
+{const _sr2=soloResults;soloResults=function(data,mode){_sr2(data,mode);try{if(mode==="daily"&&data&&!data.geo){const lb=$("lbBox");if(lb){const key="bounty:"+today(),rows=LB.b[key]||[],me=rows.findIndex(r=>r.i===LB.id);
+  lb.insertAdjacentHTML("afterend",`<div class="glass card center"><div class="lbl">💰 DAILY BOUNTY</div><p>Rarest answers today win <b>🪙 ${BOUNTY_POT.toLocaleString()}</b> casino chips, paid out tomorrow.${me>=0?` You're <b>#${me+1}</b> right now.`:""}</p><button class="pbtn sm" data-act="leaderboards" data-back="home" data-k="bounty">SEE BOUNTY BOARD</button></div>`);}}}catch(e){}};}
+
+// ---- live endless: when you exit a run, the board shows where you're at ----
+const liveKey=()=>S&&(S.mode==="endless"||S.mode==="rendless")?S.mode+(S.geo?"Geo":""):null;
+function liveExit(){try{const k=liveKey();if(!k||!S.i||S.over)return;lbSubmit(k,S.score);liveShare(k,Math.round(S.score),true);}catch(e){}}
+{const _ay=ACT.abortYes;ACT.abortYes=function(...a){liveExit();return _ay.apply(this,a);};}
+document.addEventListener("visibilitychange",()=>{if(document.hidden)liveExit();});
+{const _er=endRun;endRun=function(){try{const k=liveKey();if(k)liveShare(k,0,false);}catch(e){}return _er();};}
+
+// ---- pixel-art badges (12x12 grids drawn as crisp SVG) ----
+const PX_PAL={k:"#1a0f2e",w:"#ffffff",W:"#e3def7",s:"#a9a3cf",S:"#6b6493",r:"#ff4d6d",R:"#b3123e",y:"#ffe14d",Y:"#f5a623",z:"#b86b0a",h:"#fff6c2",o:"#ff8a1f",O:"#d9480f",p:"#ff6fd8",P:"#b5179e",q:"#ffc2ef",c:"#67e8f9",C:"#3b82f6",D:"#1e3a8a",e:"#d6faff"};
+const PX_ART={"dice": ["................", "..kkkkkkkkkkkk..", ".kwwwwwwwwwwwWk.", ".kwkkwwwwwwkkWk.", ".kwkkwwwwwwkkWk.", ".kwwwwwwwwwwwWk.", ".kwwwwwkkwwwwWk.", ".kwwwwwkkwwwwWk.", ".kwwwwwwwwwwwWk.", ".kwkkwwwwwwkkWk.", ".kwkkwwwwwwkkWk.", ".kWWWWWWWWWWWsk.", ".ksssssssssssSk.", "..kkkkkkkkkkkk..", "................", "................"], "cards": ["................", ".kkkkkkkk.......", ".kpqpqpqk.......", ".kqpqkkkkkkkkk..", ".kpqpkwrwwwwwk..", ".kqpqkwwwwwwwk..", ".kpqpkwwrwrwwk..", ".kqpqkwrrrrrwk..", ".kpqpkwrrrrrwk..", ".kqpqkwwrrrwwk..", ".kpqpkwwwrwwwk..", ".kkkkkwwwwwwwk..", ".....kwwwwwrwk..", ".....kWWWWWWWk..", ".....kkkkkkkkk..", "................"], "moon": ["................", ".....kkkkk......", "...kkhyyyk......", "..khyyyyk..h....", ".khyyyYk........", ".kyyyyk.........", "kyyyyYk......h..", "kyyYyyk.........", "kyyyyyk.........", "kyyyyyyk........", ".kyyyYyyk...kk..", ".kYyyyyyykkkYk..", "..kYYyyyyyyYk...", "...kkYYYYYYk....", ".....kkkkkk.....", "................"], "duck": ["................", "......kkkk......", ".....kyyyyk.....", "....kyyhyyyk....", "....kyykyyyk....", "....kyyyyyykkk..", "....kyyyyyykook.", ".....kyyyyykkk..", ".kk..kyyyyk.....", "kyyk.kyyyyyk....", "kyyykyyyyyyyk...", "kyyyyyyyyyyyyk..", ".kYyyyyyyyyyYk..", "..kYYYYYYYYYk...", "...kkkkkkkkk....", "................"], "fire": ["........k.......", ".......kOk......", "......kOOk......", "......kOoOk.....", "..k..kOooOk..k..", ".kOk.kOooOOk.kOk", ".kOOkOooyooOkOOk", ".kOooooyyyoooOk.", "kOooooyyhyyoooOk", "kOoooyyhhyyyooOk", "kOooyyhhhhyyooOk", ".kOoyyhhhhyyoOk.", ".kOooyyhhyyooOk.", "..kOOooyyooOOk..", "...kkOOOOOOkk...", ".....kkkkkk....."], "gem": ["................", "................", "....kkkkkkkk....", "...kweccccCk....", "..keecccccCCk...", ".keecccccCCCCk..", "kkkkkkkkkkkkkkk.", "kecccccccccCCDk.", ".keccccccccCDk..", "..kecccccccDk...", "...keccccCDk....", "....keccCDk.....", ".....kecDk......", "......kDk.......", ".......k........", "................"], "crown": ["................", "................", "................", ".k.....k.....k..", "khk...khk...khk.", "kyyk.kyyyk.kyyk.", "kyyykkyyyykkyyyk", "kyyyyyyhyyyyyyyk", "kyyyyyyyyyyyyyyk", "kyryyyycyyyyryYk", "kyRyyyyCyyyyRyYk", "kYYYYYYYYYYYYYYk", "kzYzYzYzYzYzYzYk", "kkkkkkkkkkkkkkkk", "................", "................"], "heart": ["................", "..kkkk....kkkk..", ".kqqppk..kppppk.", "kqwqpppkkpppppPk", "kqqppppppppppPPk", "kpppppppppppPPPk", "kpppppppppppPPPk", ".kpppppppppPPPk.", "..kpppppppPPPk..", "...kppppppPPk...", "....kpppPPPk....", ".....kppPPk.....", "......kpPk......", ".......kk.......", "................", "................"]};
+function pxSvg(id,px){const g=PX_ART[id];if(!g)return"";let r="";g.forEach((row,y)=>[...row].forEach((ch,x)=>{const c=PX_PAL[ch];if(c)r+=`<rect x="${x}" y="${y}" width="1.02" height="1.02" fill="${c}"/>`;}));
+  return `<svg class="pxb" viewBox="0 0 16 16" width="${px}" height="${px}" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`;}
+const _pxCache={};const pxBadge=(id,px)=>_pxCache[id+px]||(_pxCache[id+px]=pxSvg(id,px));
 
 </script>
 
