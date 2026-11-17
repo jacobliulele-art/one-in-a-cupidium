@@ -4746,7 +4746,7 @@ function learnShare(p,e){if(typeof socOn!=="function"||!socOn()||!e||!e.display|
 function learnSpam(d){const seen=new Set();for(const q in LEARN)if(LEARN[q].some(y=>y.d===d))seen.add(q);return seen.size;}
 function learnIn(list){let n=0;const cnt={};for(const m of list||[])if(m&&typeof m.d==="string"){const d=m.d.toLowerCase();(cnt[d]=cnt[d]||new Set()).add(m.q);}
   for(const m of list||[]){if(!m||typeof m.q!=="string"||typeof m.d!=="string")continue;const p=PROMPTS.find(x=>x.q===m.q);if(!p||isClosed(p))continue;
-    {const d0=m.d.toLowerCase();if(nameJunk(p,d0)||isPlayerName(d0)||cnt[d0].size+learnSpam(d0)>=3)continue;m.t=Math.min(3,m.t|0);}
+    {const d0=m.d.toLowerCase();if(WMETA_RE.test(d0)||nameJunk(p,d0)||isPlayerName(d0)||cnt[d0].size+learnSpam(d0)>=3)continue;m.t=Math.min(3,m.t|0);}
     const d=String(m.d).slice(0,40).toLowerCase(),keys=[norm(d)].concat((m.k||[]).map(k=>norm(String(k))).filter(Boolean)).slice(0,5);if(!keys[0]||(p.no&&p.no.has(keys[0])))continue;
     const t=Math.max(0,Math.min(3,parseInt(m.t)||0)),cur=LEARN[p.q]||[];if(cur.some(y=>y.d===d))continue;
     if(p.idx){const known=match(d,p);if(known)continue;p.idx.push({display:d,tier:t,keys,ai:true,learned:1,_wr:1,by:m.u?String(m.u).slice(0,16):""});p._cx=null;}
@@ -4854,9 +4854,11 @@ async function pageViews(title){
   const j=await wget("https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia.org/all-access/user/"+encodeURIComponent(title.replace(/ /g,"_"))+"/monthly/"+f(st)+"/"+f(end));
   if(!j)return null;return(j.items||[]).reduce((s,x)=>s+(x.views||0),0);
 }
+// pages about many things at once ("List of ...", "History of ...") are never an answer themselves
+const WMETA_RE=/^(lists? of|index of|outline of|timeline of|glossary of|history of|comparison of|bibliography of|category:|portal:|template:|wikipedia:|(geography|economy|culture|demographics|politics|religion|languages?|cuisine|sports?|music|cinema|television|flag|coat of arms|tourism|transport|climate|wildlife|fauna|flora) of |(rivers|lakes|mountains|mountain ranges|islands|cities|towns|villages|countries|states|provinces|regions|counties|districts|birds|mammals|reptiles|animals|fish|insects|plants|trees|flowers|dog breeds|breeds|species|languages|people|players|athletes|footballers|films|movies|songs|albums|books|novels|teams|clubs|characters|members|types|kinds|varieties|dishes|foods) (of|in|by) |.* by (country|state|city|year|population|area)$|.* \((disambiguation|list|surname|given name|name)\)$|.* discography$|.* filmography$|.* in (sports?|film|music|television)$|.*\b(national|olympic) .*team$)/i;
 const WGENERIC=new Set("film films movie movies game games video game song songs band group book books novel show series character album musical".split(" "));
 const digSig=s=>(norm(s).match(/\d+/g)||[]).join(",");
-function wikiFit(p,text,pg){
+function wikiFit(p,text,pg){if(WMETA_RE.test(String(pg.title||"").trim()))return false;
   const n=norm(text),t=norm(String(pg.title).replace(/\s*\(.*\)$/,"")),ex=norm(pg.extract||""),blob=norm((pg.description||"")+" "+ex+" "+pg.title);
   const kws=kwOf(p),wb=w=>new RegExp("(^|[^a-z0-9])"+w.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"(s|es|ian|ians)?($|[^a-z0-9])"),hit=k=>wb(k).test(blob)||(stem(k).length>3&&wb(stem(k)).test(blob));
   // "film"/"game"/... alone proves nothing for "Name a Pixar movie": the specific word from the prompt has to be on the page too
