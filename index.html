@@ -8366,7 +8366,7 @@ function bankApplyRm(rm){if(!rm||typeof rm!=="object")return;let ch=0;
 // ===== dev page: shared word bank =====
 const DBK={data:null,q:""};
 async function devBankCard(box){const c=document.createElement("div");c.className="glass card";c.id="devBank";
-  c.innerHTML=`<h3 style="font-size:13px">📚 SHARED WORD BANK</h3><p class="hint">Answers the AI accepted for players. Removing one takes it out for everyone and stops it from being added again.${devKeyJwk(store.get("otc.devKey",""))?"":" <b>Paste your dev key on this device first (Ban / Moderation) to remove answers.</b>"}</p>
+  c.innerHTML=`<h3 style="font-size:13px">📚 SHARED WORD BANK</h3><p class="hint">Answers the AI accepted for players. Removing one takes it out for everyone. It can be added again if a player's answer is accepted later.${devKeyJwk(store.get("otc.devKey",""))?"":" <b>Paste your dev key on this device first (Ban / Moderation) to remove answers.</b>"}</p>
   <div class="row"><input id="dbkq" placeholder="Search answers, prompts or players…" style="flex:1" value="${esc(DBK.q)}"><button class="pbtn sm" data-act="devBankLoad">↻</button></div><div id="dbklist" class="ablist" style="max-height:60vh"><p class="hint">Loading…</p></div>`;
   box.appendChild(c);$("dbkq").oninput=e=>{DBK.q=e.target.value;devBankRender();};devBankFetch();}
 async function devBankFetch(){try{const sg=await devSign({act:"bankAll",ts:Date.now()});const r=await fetch(bankUrl()+"/all",{method:"POST",body:JSON.stringify({p:sg.p,sig:sg.sig})});if(!r.ok)throw new Error("HTTP "+r.status);DBK.data=await r.json();if(DBK.data&&DBK.data.error)throw new Error(DBK.data.error);}
