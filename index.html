@@ -5902,17 +5902,23 @@ MGAMES.heist={name:"CUPIDIUM HEIST",w:200,h:130,blurb:"Sneak the cupidium vial o
 
 // ---------- 3. CUPIDIUM STACKER ----------
 MGAMES.stack={name:"CUPIDIUM STACKER",w:160,h:240,blurb:"A 3D tower of crystal floors. Drop each floor perfectly, catch cupidium atoms, pick power-ups and climb from the deep sea to outer space.",
-  controls:"SPACE / ENTER or tap to drop. Whatever hangs over the edge is sliced off. Every 3 atoms you pick a power-up (1-4 or tap): LOCK (2 auto-perfect floors, -20% pts), SLOW-MO (3 charges, slower the higher you go, -10% pts), MEND (2 charges, perfects grow +15) or BOOST (3 charges, ×2.5 points rising to ×10 above floor 100, no growth). SLOW-MO, MEND and BOOST only lose a charge when you miss a perfect. No atoms appear while LOCK, SLOW-MO or BOOST is on. ROCKET (R or the top-left button) costs 1500 pts (2500 after floor 50): the floor flies 2-4× faster and a perfect drop is an instant GOD OF CUPIDIUM. 3+ perfects grow your floor (no size limit, the camera zooms out). 5 in a row = ONE IN A CUPIDIUM, 10 = GOD OF CUPIDIUM, 20 = CUPID'S ARROW (triples the floor). When it falls, VIEW YOUR TOWER to scroll through it.",
+  controls:"SPACE / ENTER or tap to drop. Whatever hangs over the edge is sliced off. Every 3 atoms you pick a power-up (1-4 or tap): LOCK (2 auto-perfect floors, +1 more every 40 floors, -20% pts), SLOW-MO (3 charges, slower the higher you go, -10% pts), MEND (3 charges, perfects grow +15, misses +6) or BOOST (3 charges, ×2.5 points rising to ×10 above floor 100, no growth, but BOOST + MEND together give normal growth). Picking a power-up you already have stacks its charges. SLOW-MO, MEND and BOOST only lose a charge when you miss a perfect. No atoms appear while LOCK, SLOW-MO or BOOST is on, until you land 10 perfects in a row. ROCKET (R or the top-left button) costs 1500 pts (2500 after floor 50): the floor flies 2-4× faster and a perfect drop is an instant CUPID'S ARROW. 3+ perfects grow your floor (no size limit, the camera zooms out). 5 in a row = ONE IN A CUPIDIUM, 10 = GOD OF CUPIDIUM, 20 = CUPID'S ARROW (triples the floor). When it falls, VIEW YOUR TOWER to scroll through it.",
   K:.64,BH:6,BASE:80,overKey:true,
   autoMode(){const a=store.get("otc.stack.auto","");return a===true?"random":a||"";},
   autoLabel(a){return a==="lock"?"ALWAYS LOCK":a==="slow"?"ALWAYS SLOW-MO":a==="mend"?"ALWAYS MEND":a==="boost"?"ALWAYS BOOST":a==="random"?"RANDOM":"ASK ME";},
   vfxOn(){return store.get("otc.stack.vfx",true)!==false;},
   focusOn(){return !!store.get("otc.stack.focus",false);},
+  shakeOn(){return store.get("otc.stack.shake",true)!==false;},
+  shake(m,ms,a){if(this.shakeOn())mShake(m,ms,a);},
   get dom(){const a=this.autoMode(),l=store.get("otc.stack.lat",null);
     return`<div class="row" style="justify-content:center;gap:8px;margin-bottom:6px;flex-wrap:wrap"><button class="pbtn sm" data-act="stackAuto" id="stAuto">POWER-UPS: ${this.autoLabel(a)}</button><button class="pbtn sm" data-act="stackSync" id="stSync">🎵 SYNC${l!=null?` (${l} ms)`:""}</button>
-      <button class="pbtn sm" data-act="stackVfx" id="stVfx">✨ EFFECTS: ${this.vfxOn()?"ON":"OFF"}</button><button class="pbtn sm" data-act="stackFocus" id="stFocus">🎯 FOCUS: ${this.focusOn()?"ON":"OFF"}</button></div>`;},
-  POW:{lock:{nm:"LOCK",d:"2 auto-perfect floors · -20% pts",c:"#5eead4"},slow:{nm:"SLOW-MO",d:"3 charges · slower up high · -10% pts",c:"#a78bfa"},
-    mend:{nm:"MEND",d:"2 charges · perfects grow +15",c:"#86efac"},boost:{nm:"BOOST",d:"3 charges · ×2.5 up to ×10 pts",c:"#f87171"}},
+      <button class="pbtn sm" data-act="stackVfx" id="stVfx">✨ EFFECTS: ${this.vfxOn()?"ON":"OFF"}</button><button class="pbtn sm" data-act="stackFocus" id="stFocus">🎯 FOCUS: ${this.focusOn()?"ON":"OFF"}</button><button class="pbtn sm" data-act="stackShake" id="stShake">📳 SHAKE: ${this.shakeOn()?"ON":"OFF"}</button></div>`;},
+  POW:{lock:{nm:"LOCK",d:"2 auto-perfect floors · -20% pts",t:"-20% pts",c:"#5eead4"},slow:{nm:"SLOW-MO",d:"3 charges · slower up high · -10% pts",t:"-10% pts",c:"#a78bfa"},
+    mend:{nm:"MEND",d:"3 charges · perfects grow +15",t:"grow +15",c:"#86efac"},boost:{nm:"BOOST",d:"3 charges · ×2.5 up to ×10 pts",t:"×2.5 to ×10",c:"#f87171"}},
+  // charges a pick adds: LOCK gets +1 for every 40 floors you've stacked; picking a power-up that's already running stacks on top of it
+  lockN(m){return 2+Math.floor((m.blocks.length-1)/40);},
+  addN(m,k){return k==="lock"?this.lockN(m):3;},
+  pd(m,k){const P=this.POW[k],add=this.addN(m,k),had=m[k]|0;if(!had)return k==="lock"?`${add} auto-perfect floors · -20% pts`:P.d;return`STACK +${add} → ${had+add} ${k==="lock"?"floors":"charges"} · ${P.t}`;},
   // BOOST pays more the taller the tower; SLOW-MO gets slower so it stays useful up high
   boostX(L){return L>=100?10:L>=50?5:L>=25?3:2.5;},
   slowX(L){return L>=80?.25:L>=50?.4:.5;},
@@ -5921,7 +5927,7 @@ MGAMES.stack={name:"CUPIDIUM STACKER",w:160,h:240,blurb:"A 3D tower of crystal f
   // ROCKET: bought with points, not picked. One quick drop; a perfect one is an instant GOD OF CUPIDIUM
   rocket(m){if(m.over||m.dead||m.choose||m.cal||m.arrow||!m.cur||m.cur.rocket)return;const L=m.blocks.length,cost=this.rocketCost(L);
     if(m.lock>0)return this.say(m,"NO ROCKETS DURING LOCK","#fca5a5");if(m.score<cost)return this.say(m,`ROCKET COSTS ${cost} PTS`,"#fca5a5");
-    m.score-=cost;m.cur.rocket=1;mPop(m,80,80,"-"+cost,"#fca5a5");this.say(m,`ROCKET! ×${this.rocketX(L)} SPEED · PERFECT = GOD`,"#fb923c");mShake(m,250,2);sfx.ok(4);},
+    m.score-=cost;m.cur.rocket=1;mPop(m,80,80,"-"+cost,"#fca5a5");this.say(m,`ROCKET! ×${this.rocketX(L)} SPEED · PERFECT = CUPID'S ARROW`,"#fb923c");this.shake(m,250,2);sfx.ok(4);},
   REL:{magnet:{nm:"MAGNET",d:"atoms are easier to catch",c:"#f472b6",ic:"🧲"},grip:{nm:"WIDE GRIP",d:"perfects are easier",c:"#facc15",ic:"✋"},
     lucky:{nm:"LUCKY STAR",d:"gold atoms are much more common",c:"#fde047",ic:"⭐"},twin:{nm:"TWIN ATOMS",d:"atoms are worth double",c:"#67e8f9",ic:"✦"}},
   init(m){m.blocks=[{x:-40,z:-40,w:80,d:80,i:0}];m.cam=0;m.ox=0;m.zoom=1;m.alt=0;m.perf=0;m.flash=-1e4;m.chips=[];m.atoms=[];m.cupM=0;m.lock=0;m.slow=0;m.mend=0;m.boost=0;
@@ -5931,16 +5937,17 @@ MGAMES.stack={name:"CUPIDIUM STACKER",w:160,h:240,blurb:"A 3D tower of crystal f
   next(m){const top=m.blocks[m.blocks.length-1],ax=m.blocks.length%2?"x":"z";
     m.cur={ax,x:top.x,z:top.z,w:top.w,d:top.d,dir:1,lockDrop:m.lock>0};this.range(m);const P=ax==="x"?"x":"z";m.cur[P]=m.cur.lo;},
   range(m){const c=m.cur,top=m.blocks[m.blocks.length-1],P=c.ax==="x"?"x":"z",S=c.ax==="x"?"w":"d",z=this.zs(top);c.lo=top[P]-c[S]-10/z;c.hi=top[P]+top[S]+70/z;},
-  // at most one thing floats over each floor; nothing spawns while LOCK, SLOW-MO or BOOST is running
-  spawnAtom(m,lv){if(m.atoms.some(a=>a.lv===lv))return;if(lv>1&&(m.lock>0||m.slow>0||m.boost>0))return;
+  // at most one thing floats over each floor; nothing spawns while LOCK, SLOW-MO or BOOST is running, unless you're on 10+ perfects in a row (then orbs come back so you can stack power-ups)
+  spawnAtom(m,lv){if(m.atoms.some(a=>a.lv===lv))return;if(lv>1&&(m.lock>0||((m.slow>0||m.boost>0)&&m.perf<10)))return;
     const top=m.blocks[m.blocks.length-1];const pw=Math.min(8,top.w*.22),pd=Math.min(8,top.d*.22);
     const left=Object.keys(this.REL).filter(k=>!m.rel[k]),relic=lv>4&&left.length&&Math.random()<.07?left[Math.random()*left.length|0]:null;
     if(!relic&&lv!==1&&Math.random()>=.4)return;const gold=!relic&&Math.random()<(m.rel.lucky?.18:.04);
     m.atoms.push({lv,x:top.x+pw+Math.random()*Math.max(1,top.w-pw*2),z:top.z+pd+Math.random()*Math.max(1,top.d-pd*2),gold,relic,born:m.t});},
   say(m,txt,c){m.msg={txt,c,t:m.t};},
   pick(m,k){if(!m.choose)return;m.choose=null;const P=this.POW[k];if(!P)return;
-    if(k==="lock")m.lock=2;else if(k==="slow")m.slow=3;else if(k==="mend")m.mend=2;else if(k==="boost"){m.boost=3;mShake(m,300,2);}
-    this.say(m,P.nm+"!",P.c);sfx.ok(4);},
+    const had=m[k]|0;m[k]=had+this.addN(m,k);// a power-up you already have stacks: 1 charge of SLOW-MO + SLOW-MO = 4
+    if(k==="boost")this.shake(m,300,2);
+    this.say(m,had>0?`${P.nm} STACKED ×${m[k]}!`:P.nm+"!",P.c);sfx.ok(4);},
   grow(nb,g){nb.x-=g/2;nb.w+=g;nb.z-=g/2;nb.d+=g;nb.grew=1;},
   drop(m){if(m.over||m.dead||m.choose||m.cal||m.arrow)return;const top=m.blocks[m.blocks.length-1],c=m.cur,ax=c.ax,P=ax==="x"?"x":"z",S=ax==="x"?"w":"d";
     const lat=store.get("otc.stack.lat",0)||0;if(lat>0&&m.hist&&m.hist.length){const want=performance.now()-lat;let best=null;for(const h of m.hist)if(!best||Math.abs(h[0]-want)<Math.abs(best[0]-want))best=h;if(best&&best[2]===m.blocks.length)c[P]=best[1];}
@@ -5958,15 +5965,18 @@ MGAMES.stack={name:"CUPIDIUM STACKER",w:160,h:240,blurb:"A 3D tower of crystal f
       m.perf++;nb={x:top.x,z:top.z,w:top.w,d:top.d,i:L,gold:1};if(locked)nb.lock=1;
       pts+=25+(m.perf>5?(m.perf-5)*10:0);m.flash=m.t;sfx.ok(5);
       // the longer the streak, the more the floor grows · MEND makes it much bigger · BOOST stops growth
-      let g=m.perf>=3?Math.min(14,2+(m.perf-2)*2):0;if(mended)g=Math.max(15,g*3);
-      if(boosted)g=0;if(g>0){this.grow(nb,g);mPop(m,80,70,`+${Math.round(g)} SIZE`,mended?"#86efac":"#5eead4");}
-      if(m.perf%20===0){m.arrows++;pts+=6000;nb.cupidium=1;nb.god=1;nb.arrow=1;m.arrow={t0:m.t,i:L,done:0};
-        this.say(m,m.arrows>1?`CUPID'S ARROW ×${m.arrows}!`:"CUPID'S ARROW!","#ff4d6d");burst(160);}
-      else if(m.perf%10===0||rocketed){m.god++;if(rocketed)this.say(m,"ROCKET PERFECT!","#fb923c");pts+=3000;nb.cupidium=1;nb.god=1;this.say(m,m.god>1?`GOD OF CUPIDIUM ×${m.god}!`:"GOD OF CUPIDIUM!","#ff8ad0");burst(120);mShake(m,500,3);m.fxq.push({k:"god",t:m.t,i:L});}
+      // BOOST and MEND merge: together they cancel out, so growth goes back to normal
+      let g=m.perf>=3?Math.min(14,2+(m.perf-2)*2):0;if(boosted&&mended){}else if(boosted)g=0;else if(mended)g=Math.max(15,g*3);
+      if(g>0){this.grow(nb,g);mPop(m,80,70,`+${Math.round(g)} SIZE`,mended&&!boosted?"#86efac":"#5eead4");}
+      if(m.perf===10&&(m.slow>0||m.boost>0))mPop(m,80,92,"ORBS ARE BACK!","#ff8fe0");
+      // a perfect ROCKET drop is a CUPID'S ARROW too
+      if(m.perf%20===0||rocketed){m.arrows++;pts+=6000;nb.cupidium=1;nb.god=1;nb.arrow=1;m.arrow={t0:m.t,i:L,done:0};
+        this.say(m,rocketed?"ROCKET ARROW!":m.arrows>1?`CUPID'S ARROW ×${m.arrows}!`:"CUPID'S ARROW!","#ff4d6d");burst(160);}
+      else if(m.perf%10===0){m.god++;pts+=3000;nb.cupidium=1;nb.god=1;this.say(m,m.god>1?`GOD OF CUPIDIUM ×${m.god}!`:"GOD OF CUPIDIUM!","#ff8ad0");burst(120);this.shake(m,500,3);m.fxq.push({k:"god",t:m.t,i:L});}
       if(m.perf%5===0&&m.perf%10!==0&&m.perf%20!==0&&!rocketed){m.oic++;pts+=1000;nb.cupidium=1;this.say(m,m.oic>1?`ONE IN A CUPIDIUM ×${m.oic}!`:"ONE IN A CUPIDIUM!","#ff8fe0");burst(50);m.fxq.push({k:"oic",t:m.t});}}
     else{nb=ax==="x"?{x:l,w:ov,z:top.z,d:top.d,i:L}:{z:l,d:ov,x:top.x,w:top.w,i:L};m.perf=0;pts+=10;sfx.ok(2);
       const cut=c[S]-ov,cs=c[P]<top[P]?c[P]:r;m.chips.push(ax==="x"?{x:cs,w:cut,z:c.z,d:c.d,i:L,vy:0,y:0}:{z:cs,d:cut,x:c.x,w:c.w,i:L,vy:0,y:0});
-      if(mended&&!boosted){this.grow(nb,6);mPop(m,80,70,"+6 SIZE","#86efac");}}
+      if(mended){this.grow(nb,6);mPop(m,80,70,"+6 SIZE","#86efac");}}
     if(boosted)nb.boost=1;
     const got=Math.round(pts*mult);m.score+=got;if(mult!==1&&got>30)mPop(m,80,80,`+${got}${boosted?" ×"+mult:""}`,boosted?"#fca5a5":"#cbd5e1");
     else if(pts>=1000)mPop(m,80,80,"+"+got,"#ff8fe0");
@@ -5984,7 +5994,7 @@ MGAMES.stack={name:"CUPIDIUM STACKER",w:160,h:240,blurb:"A 3D tower of crystal f
     this.spawnAtom(m,L+1);this.hudT(m);this.next(m);},
   // the arrow lands: the floor triples in size
   hitArrow(m){const A=m.arrow;if(!A||A.done)return;A.done=1;const b=m.blocks[A.i]||m.blocks[m.blocks.length-1];const W=b.w*3,D=b.d*3;b.x-=(W-b.w)/2;b.z-=(D-b.d)/2;b.w=W;b.d=D;b.grew=1;
-    mShake(m,600,4);sfx.ok(5);mPop(m,80,74,"×3 SIZE!","#ff4d6d");if(A.i===m.blocks.length-1)this.next(m);if(!this.vfxOn())m.arrow=null;},
+    this.shake(m,600,4);sfx.ok(5);mPop(m,80,74,"×3 SIZE!","#ff4d6d");if(A.i===m.blocks.length-1)this.next(m);if(!this.vfxOn())m.arrow=null;},
   choices(){return Object.keys(this.POW);},
   calStart(m){m.cal={t0:performance.now()+1200,iv:700,n:8,taps:[],beat:-1};this.say(m,"","#fff");},
   calUpdate(m){const C=m.cal,now=performance.now(),k=Math.floor((now-C.t0)/C.iv);
@@ -6005,29 +6015,48 @@ MGAMES.stack={name:"CUPIDIUM STACKER",w:160,h:240,blurb:"A 3D tower of crystal f
   loaded(m){m.zoom=m.zoom||1;m.ox=m.ox||0;m.alt=m.alt||0;m.mend=m.mend|0;m.boost=m.boost|0;m.arrows=m.arrows|0;m.fxq=[];m.view=null;m.dead=m.dead||0;if(m.arrow&&!m.arrow.done)this.hitArrow(m);m.arrow=null;
     if(m.cur&&m.cur.lo==null)this.range(m);this.hudT(m);},
   // isometric projection: world (x, z) on floor i -> screen (zoomed out for giant floors)
-  bh(m){return this.BH*Math.max(.45,m.zoom||1);},
-  proj(m,x,z,i){const K=this.K*(m.zoom||1);return[80+(x-z)*.866*K+(m.ox||0),168+(x+z)*.5*K-i*this.bh(m)+(m.cam||0)-(m.view?m.view.off:0)];},
-  camera(m){const top=m.blocks[m.blocks.length-1],zw=Math.min(this.zs(top),m.cur?this.zs(m.cur):1);m.zoom+=(zw-m.zoom)*.07;
-    const K=this.K*m.zoom,tx=top.x+top.w/2,tz=top.z+top.d/2,n=m.blocks.length;
-    if(!m.view)m.ox+=(-(tx-tz)*.866*K-m.ox)*.08;const want=Math.max(0,96-(168+(tx+tz)*.5*K-n*this.bh(m)));m.cam+=(want-m.cam)*.08;
-    const V=m.view;if(V){const E=this.vExt(m),vm=this.vMin(m);V.z=V.z||1;V.zw=Math.max(vm,Math.min(1,V.zw||1));V.z+=(V.zw-V.z)*.2;
-      const mid=(E[0]+E[1])/2-120;V.want=Math.max(Math.min(0,mid),Math.min(Math.max(m.cam,mid),V.want));if(V.zw<=vm+1e-3&&V.drag==null)V.want=mid;V.off+=(V.want-V.off)*.18;
-      if(V.zw<=vm+1e-3||V.z<.95){const cx=(E[2]+E[3])/2;m.ox+=(80-cx)*.15;}}
+  ez(m){return m.view&&m.view.disp?1:(m.zoom||1);},// the view of a huge tower is drawn at one fixed scale (see vSetup)
+  vb(m){return m.view&&m.view.disp||m.blocks;},
+  bh(m){return this.BH*Math.max(.45,this.ez(m));},
+  proj(m,x,z,i){const K=this.K*this.ez(m);return[80+(x-z)*.866*K+(m.ox||0),168+(x+z)*.5*K-i*this.bh(m)+(m.cam||0)-(m.view?m.view.off:0)];},
+  camera(m){const V=m.view,n=m.blocks.length;
+    if(V&&V.disp)m.cam=Math.max(0,96-(168-n*this.bh(m)));// big-tower view: its own scale, with the top of the tower at the usual height
+    else{const top=m.blocks[n-1],zw=Math.min(this.zs(top),m.cur?this.zs(m.cur):1);m.zoom+=(zw-m.zoom)*.07;
+      const K=this.K*m.zoom,tx=top.x+top.w/2,tz=top.z+top.d/2;
+      if(!V)m.ox+=(-(tx-tz)*.866*K-m.ox)*.08;const want=Math.max(0,96-(168+(tx+tz)*.5*K-n*this.bh(m)));m.cam+=(want-m.cam)*.08;}
+    if(V){const E=this.vExt(m),vm=Math.min(1,226/Math.max(1,E[1]-E[0]),152/Math.max(1,E[3]-E[2]));V.E=E;V.vm=vm;V.z=V.z||1;V.zw=Math.max(vm,Math.min(1,V.zw||1));V.z+=(V.zw-V.z)*.2;
+      // scroll limits come from where the tower really is (top and bottom of the drawing at this zoom), not from the play camera
+      const z=V.z,mid=(E[0]+E[1])/2-120,lo=E[0]-120+96/z,hi=E[1]-120-100/z,ok=lo<=hi;
+      V.want=Math.max(ok?lo:mid,Math.min(ok?hi:mid,V.want));if(V.zw<=vm+1e-3&&V.drag==null)V.want=mid;V.off+=(V.want-V.off)*.18;
+      if(V.zw<=vm+1e-3||z<.95){const cx=(E[2]+E[3])/2;m.ox+=(80-cx)*.15;}
+      else{// zoomed in: keep the floor in the middle of the screen centred sideways, so a leaning tower doesn't slide out of sight as you scroll
+        const B=this.vb(m),K=this.K*this.ez(m),bh=this.bh(m);let bi=0,bd=1e18;
+        for(let i=0;i<n;i++){const b=B[i],y=168+(b.x+b.w/2+b.z+b.d/2)*.5*K-(i+.5)*bh+(m.cam||0)-V.off,dd=Math.abs(120+(y-120)*z-120);if(dd<bd){bd=dd;bi=i;}}
+        const b=B[bi];m.ox+=(-(b.x+b.w/2-b.z-b.d/2)*.866*K-m.ox)*.1;}}
     m.alt+=(n-1-m.alt)*.05;},
-  key(m,k,down,first,raw){if(m.over){if(!m.view||!down)return;if(k==="dn")m.view.want+=40;else if(k==="u")m.view.want-=40;else if(raw==="-"||raw==="_")this.vZoom(m,.8);else if(raw==="="||raw==="+")this.vZoom(m,1.25);else if(k==="sp"||k==="ent"){$("mgo").hidden=false;}return;}
+  key(m,k,down,first,raw){if(m.over){if(!m.view||!down)return;if(k==="dn")m.view.want+=60/(m.view.z||1);else if(k==="u")m.view.want-=60/(m.view.z||1);else if(k==="home")m.view.want=-1e12;else if(k==="end")m.view.want=1e12;else if(raw==="-"||raw==="_")this.vZoom(m,.8);else if(raw==="="||raw==="+")this.vZoom(m,1.25);else if(k==="sp"||k==="ent"){$("mgo").hidden=false;}return;}
     if(!down||!first)return;if(m.cal){if(k==="sp"||k==="ent")this.calTap(m);return;}if(m.choose){const i="1234".indexOf(raw);if(i>=0&&m.choose[i])this.pick(m,m.choose[i]);return;}if(raw==="r")return this.rocket(m);if(k==="sp"||k==="ent")this.drop(m);},
   // tower view: how far out you can zoom (enough to fit the whole tower on screen)
   // the tower's top and bottom on screen (ignoring the current scroll)
-  vExt(m){const n=m.blocks.length,top=m.blocks[n-1],b0=m.blocks[0],o=m.view?m.view.off:0;
-    let ty=1e9,lx=1e9,rx=-1e9;m.blocks.forEach((b,i)=>{ty=Math.min(ty,this.proj(m,b.x,b.z,i+1)[1]);lx=Math.min(lx,this.proj(m,b.x,b.z+b.d,i)[0]);rx=Math.max(rx,this.proj(m,b.x+b.w,b.z,i)[0]);});ty+=o-6;const by=this.proj(m,b0.x+b0.w,b0.z+b0.d,-4)[1]+o+4;return[ty,by,lx-4,rx+4];},
+  vExt(m){const B=this.vb(m),n=B.length,b0=B[0],o=m.view?m.view.off:0;
+    let ty=1e9,by=-1e9,lx=1e9,rx=-1e9;
+    for(let i=0;i<n;i++){const b=B[i];ty=Math.min(ty,this.proj(m,b.x,b.z,i+1)[1]);by=Math.max(by,this.proj(m,b.x+b.w,b.z+b.d,i)[1]);lx=Math.min(lx,this.proj(m,b.x,b.z+b.d,i)[0]);rx=Math.max(rx,this.proj(m,b.x+b.w,b.z,i)[0]);}
+    by=Math.max(by,this.proj(m,b0.x+b0.w,b0.z+b0.d,-4)[1]);return[ty+o-6,by+o+4,lx-4,rx+4];},
   // fit the whole tower: its height AND its width (very wide or leaning towers used to run off the sides)
-  vMin(m){const E=this.vExt(m);return Math.min(1,226/Math.max(1,E[1]-E[0]),152/Math.max(1,E[3]-E[2]));},
+  vMin(m){const V=m.view;if(V&&V.vm!=null)return V.vm;const E=this.vExt(m);return Math.min(1,226/Math.max(1,E[1]-E[0]),152/Math.max(1,E[3]-E[2]));},
+  // Cupid's arrows triple the floor, so a big tower's top can be thousands of times wider than its bottom. At one scale the lower floors
+  // shrink to nothing and the view looked stuck on the top. When the sizes are that far apart, the view draws every floor with its width on a
+  // log scale (aspect kept, centred on the tower), so the whole tower stays visible and scrollable.
+  vSetup(m){const V=m.view;if(!V)return;const B=m.blocks,M=B.map(b=>Math.max(1,b.w,b.d));let lo=1e308,hi=0;for(const v of M){if(v<lo)lo=v;if(v>hi)hi=v;}
+    V.disp=null;V.vm=null;if(!(hi/lo>25))return;
+    const a=Math.log(lo),span=Math.max(1e-9,Math.log(hi)-a);
+    V.disp=B.map((b,i)=>{const D=36+68*(Math.log(M[i])-a)/span,w=Math.max(6,D*b.w/M[i]),d=Math.max(6,D*b.d/M[i]);return Object.assign({},b,{x:-w/2,z:-d/2,w,d});});},
   vZoom(m,f){const V=m.view;if(!V)return;V.zw=Math.max(this.vMin(m),Math.min(1,(V.zw||1)*f));},
   wheel(m,dy,e){if(!m.over||!m.view)return false;if(e&&e.ctrlKey)this.vZoom(m,dy>0?.9:1/.9);else m.view.want+=dy*.4/(m.view.z||1);return true;},
   ptr(m,x,y,t){if(m.over){const V=m.view;if(!V)return;if(t==="pointerdown"){if(x>m.W-46&&y<20){$("mgo").hidden=false;return;}
         if(y>m.H-36&&y<m.H-18){if(x>m.W-58&&x<m.W-42)return this.vZoom(m,.7);if(x>m.W-40&&x<m.W-24)return this.vZoom(m,1/.7);if(x>m.W-22)return void(V.zw=this.vMin(m));}V.drag=y;V.moved=0;}
       else if(t==="pointermove"&&V.drag!=null){const d=(y-V.drag)/(V.z||1);V.drag=y;V.want-=d;V.off-=d;V.moved+=Math.abs(d);}else if(t==="pointerup")V.drag=null;return;}
-    if(t!=="pointerdown")return;if(m.cal)return this.calTap(m);if(m.choose){const i=Math.floor((y-76)/36);if(x>=14&&x<=146&&i>=0&&i<m.choose.length&&y>=76)this.pick(m,m.choose[i]);return;}if(x<50&&y<17)return this.rocket(m);if(x>m.W-32&&y<17)return ACT.mgQuit();this.drop(m);},
+    if(t!=="pointerdown")return;if(m.cal)return this.calTap(m);if(m.choose){const i=Math.floor((y-76)/36);if(x>=14&&x<=146&&i>=0&&i<m.choose.length&&y>=76)this.pick(m,m.choose[i]);return;}if(x<50&&y<17)return this.rocket(m);this.drop(m);},
   update(m,dt){for(const ch of m.chips){ch.vy+=.0009*dt;ch.y+=ch.vy*dt;}m.chips=m.chips.filter(ch=>ch.y<80);
     if(m.dead){if(m.t-m.dead>900){mgEnd("IT FELL!",`${m.deadTxt||""}<br><button class="pbtn sm" data-act="stackView" style="margin-top:8px">👀 VIEW YOUR TOWER</button>`);}return;}
     if(m.cal)return this.calUpdate(m);if(m.choose)return;
@@ -6159,9 +6188,9 @@ MGAMES.stack={name:"CUPIDIUM STACKER",w:160,h:240,blurb:"A 3D tower of crystal f
   draw(m,x,t,dt){t=t||0;dt=dt||0;const h=m.blocks.length-1;this.camera(m);this.bg(m,x,t);
     // one solid pedestal straight under the first floor (same footprint, so the start is even)
     const V=m.view,vz=V?V.z||1:1;if(V){x.save();x.translate(80,120);x.scale(vz,vz);x.translate(-80,-120);}
-    const b0=m.blocks[0];this.box(m,x,{x:b0.x,z:b0.z,w:b0.w,d:b0.d,ped:4},-1,0,t);
-    m.blocks.forEach((b,i)=>{const p=this.proj(m,b.x+b.w/2,b.z+b.d/2,i),py=120+(p[1]-120)*vz;if(py>m.H+200||py<-200)return;this.box(m,x,b,i,0,t);});
-    for(const a of m.atoms){const[sx,sy]=this.proj(m,a.x,a.z,a.lv+1);const y=sy-4+Math.sin(t*.005+a.x)*1.5;if(y<-10||y>m.H)continue;mD(x,sx,sy+1,1.5,"#00000044");
+    const VB=this.vb(m),b0=VB[0],cmp=!!(V&&V.disp);this.box(m,x,{x:b0.x,z:b0.z,w:b0.w,d:b0.d,ped:4},-1,0,t);
+    VB.forEach((b,i)=>{const p=this.proj(m,b.x+b.w/2,b.z+b.d/2,i),py=120+(p[1]-120)*vz;if(py>m.H+200||py<-200)return;this.box(m,x,b,i,0,t);});
+    if(!cmp)for(const a of m.atoms){const[sx,sy]=this.proj(m,a.x,a.z,a.lv+1);const y=sy-4+Math.sin(t*.005+a.x)*1.5;if(y<-10||y>m.H)continue;mD(x,sx,sy+1,1.5,"#00000044");
       if(a.relic){const Q=this.REL[a.relic];mGlow(x,sx,y,8,Q.c,.5+.2*Math.sin(t*.01));x.fillStyle=Q.c;x.beginPath();x.moveTo(sx,y-4);x.lineTo(sx+3,y);x.lineTo(sx,y+4);x.lineTo(sx-3,y);x.closePath();x.fill();mR(x,sx-1,y-2,1,1,"#fff");}
       else mAtom(x,sx,y,a.gold?3.2:2.6,a.gold?"#fde047":CUPC,t);}
     if(!m.over&&!m.dead){const top=m.blocks[m.blocks.length-1],L=m.blocks.length;if(m.lock>0)this.box(m,x,{x:top.x,z:top.z,w:top.w,d:top.d},L,0,t,true);
@@ -6170,17 +6199,16 @@ MGAMES.stack={name:"CUPIDIUM STACKER",w:160,h:240,blurb:"A 3D tower of crystal f
         const c=m.cur,zz=m.zoom||1,X=c.ax==="x",back=c.dir>0?(X?c.x:c.z):(X?c.x+c.w:c.z+c.d),sd=-c.dir;
         for(const f of[.28,.72]){const wx=X?back:c.x+c.w*f,wz=X?c.z+c.d*f:back,[sx,sy]=this.proj(m,wx,wz,L+.5);mR(x,sx-2,sy-2,4,4,"#475569");mR(x,sx-1,sy-1,2,2,"#94a3b8");
           for(let k=1;k<=6;k++){const fl=k*(3+Math.random()*2)/zz,[fx,fy]=this.proj(m,X?wx+sd*fl:wx,X?wz:wz+sd*fl,L+.5);mD(x,fx,fy,Math.max(.6,2.6-k*.35),k<3?"#fde047":k<5?"#fb923c":"#ef4444");}}}}
-    for(const ch of m.chips){x.globalAlpha=Math.max(0,1-ch.y/80);this.box(m,x,ch,ch.i,ch.y,t);x.globalAlpha=1;}if(V)x.restore();
+    if(!cmp)for(const ch of m.chips){x.globalAlpha=Math.max(0,1-ch.y/80);this.box(m,x,ch,ch.i,ch.y,t);x.globalAlpha=1;}if(V)x.restore();
     if(!m.over){this.vfx(m,x,t);this.boostFx(m,x,t);if(this.vfxOn())this.arrowFx(m,x,t);}
     mFx(m,x,dt);mPops(m,x,dt);
-    if(m.over){if(m.view){mT(x,"DRAG / SCROLL · − + TO ZOOM",m.W/2-10,m.H-8,"#e9d5ff",5);
+    if(m.over){if(m.view){mT(x,"DRAG / SCROLL · − + TO ZOOM",m.W/2-10,m.H-8,"#e9d5ff",5);if(V.disp)mT(x,"WIDTHS NOT TO SCALE",m.W/2-10,m.H-16,"#c4b5fd",4);
       [["−",m.W-50],["+",m.W-32],["FIT",m.W-12]].forEach(([s2,bx])=>{mRR(x,bx-8,m.H-35,16,16,3,"#241b40");mT(x,s2,bx,m.H-27,"#ff8fe0",s2==="FIT"?5:9);});mRR(x,m.W-46,3,43,14,3,"#241b40");mT(x,"▲ SCORE",m.W-24.5,10,"#ff8fe0",5);mT(x,`${h} FLOORS`,6,10,"#e9d5ff",6,"left");}return;}
     if(m.t-m.flash<600){x.globalAlpha=1-(m.t-m.flash)/600;mT(x,"PERFECT!",m.W/2,40,"#c4b5fd",12);x.globalAlpha=1;}
     if(m.msg&&m.t-m.msg.t<1800){x.globalAlpha=Math.min(1,(1800-(m.t-m.msg.t))/300);mT(x,m.msg.txt,m.W/2,58,m.msg.c,m.msg.txt.length>30?5:m.msg.txt.length>22?6:8);x.globalAlpha=1;}
-    mT(x,`${h} FLOORS`,m.W/2,10,"#e9d5ff",8);mT(x,`${m.score.toLocaleString()} PTS`,m.W/2,19,"#ff8fe0",6);
-    // exit button (top right)
-    mRR(x,m.W-31,3,28,13,3,"#3b1d2e");mT(x,"EXIT ✕",m.W-17,10,"#fda4af",5);
-    if(m.perf>1){const n5=5-(m.perf%5),n10=10-(m.perf%10),n20=20-(m.perf%20);mT(x,`PERFECT x${m.perf} · ${n20<=5?n20+" to 💘":n10<=5?n10+" to 👑":n5+" to ✦"}`,m.W/2,28,"#c4b5fd",6);}
+    // (score and QUIT live in the bar above the game, so they aren't drawn here a second time)
+    mT(x,`${h} FLOORS`,m.W/2,10,"#e9d5ff",8);
+    if(m.perf>1){const n5=5-(m.perf%5),n10=10-(m.perf%10),n20=20-(m.perf%20);mT(x,`PERFECT x${m.perf} · ${n20<=5?n20+" to 💘":n10<=5?n10+" to 👑":n5+" to ✦"}`,m.W/2,20,"#c4b5fd",6);}
     for(let i=0;i<3;i++){mD(x,8+i*8,m.H-8,3,"#0b1020");mD(x,8+i*8,m.H-8,2.4,i<m.cupM?CUPC:"#3b2a55");}
     const rel=Object.keys(m.rel);rel.forEach((k,i)=>{const Q=this.REL[k];mD(x,40+i*9,m.H-8,3,Q.c);});
     if(!m.choose&&!m.cal){const L=m.blocks.length,cost=this.rocketCost(L),on=m.cur&&m.cur.rocket,can=m.score>=cost&&m.lock<=0&&!m.arrow;
@@ -6189,7 +6217,7 @@ MGAMES.stack={name:"CUPIDIUM STACKER",w:160,h:240,blurb:"A 3D tower of crystal f
     pw.forEach(([s,c],i)=>mT(x,s,m.W-4,m.H-8-i*8,c,6,"right"));
     if(m.cal)return this.calDraw(m,x,t);
     if(m.choose){x.globalAlpha=.75;mR(x,0,0,m.W,m.H,"#0a0820");x.globalAlpha=1;mT(x,"PICK A POWER-UP",m.W/2,58,"#5eead4",8);mT(x,"perfect drops don't use a charge",m.W/2,68,"#c4b5fd",4.5);
-      m.choose.forEach((k,i)=>{const P=this.POW[k],y=76+i*36;mRR(x,14,y,132,32,4,"#241b40");mR(x,14,y,3,32,P.c);mT(x,`${i+1}  ${P.nm}`,22,y+10,P.c,7,"left");mT(x,P.d,22,y+23,"#e9d5ff",5,"left");});}}};
+      m.choose.forEach((k,i)=>{const P=this.POW[k],y=76+i*36;mRR(x,14,y,132,32,4,"#241b40");mR(x,14,y,3,32,P.c);mT(x,`${i+1}  ${P.nm}`,22,y+10,P.c,7,"left");mT(x,this.pd(m,k),22,y+23,"#e9d5ff",5,"left");});}}};
 // ---------- 4. CUPIDIUM RHYTHM ----------
 MGAMES.rhythm={persist:false,name:"CUPIDIUM RHYTHM",w:240,h:200,blurb:"A Project Sekai style rhythm game: 6 lanes, holds, flicks and gold criticals on a 3D highway. Pick a song and a difficulty.",
   controls:"Lanes: S D F J K L (or tap / hold the lanes). Tap notes: press. GREEN holds: keep holding until the end. PINK flicks: press the lane like any note (on a keyboard or mouse that's all you do; on touch you can also swipe up). Flicks score 1.5×. GOLD criticals score double. Song select: ← → song, ↑ ↓ difficulty, Enter to play. Esc during a song ends it.",
@@ -7349,8 +7377,9 @@ const ACT={
     const b=$("stAuto");if(b)b.textContent=`POWER-UPS: ${G.autoLabel(a)}`;if(a&&MG&&MG.id==="stack"&&MG.choose)G.pick(MG,a==="random"?MG.choose[Math.floor(Math.random()*MG.choose.length)]:a);
     toast(a?(a==="random"?"A random power-up will be picked for you":`Always picks ${G.POW[a].nm}`):"You'll choose power-ups");},
   stackVfx:()=>{const on=!MGAMES.stack.vfxOn();store.set("otc.stack.vfx",on);const b=$("stVfx");if(b)b.textContent=`✨ EFFECTS: ${on?"ON":"OFF"}`;toast(on?"Effects on":"Effects off");},
+  stackShake:()=>{const on=!MGAMES.stack.shakeOn();store.set("otc.stack.shake",on);const b=$("stShake");if(b)b.textContent=`📳 SHAKE: ${on?"ON":"OFF"}`;toast(on?"Screen shake on":"Screen shake off");},
   stackFocus:()=>{const on=!MGAMES.stack.focusOn();store.set("otc.stack.focus",on);const b=$("stFocus");if(b)b.textContent=`🎯 FOCUS: ${on?"ON":"OFF"}`;toast(on?"Focus mode: plain background":"Backgrounds on");},
-  stackView:()=>{if(MG&&MG.id==="stack"){$("mgo").hidden=true;MG.view={off:0,want:0,z:1,zw:1};}},
+  stackView:()=>{if(MG&&MG.id==="stack"){$("mgo").hidden=true;MG.view={off:0,want:0,z:1,zw:1};MG.G.vSetup(MG);}},
   stackSync:()=>{if(MG&&MG.id==="stack"&&!MG.over){MG.G.calStart(MG);MG.paused=false;$("mgo").hidden=true;}},
   catchN:b=>{MGAMES.catch.humans=+b.dataset.n;mgStart("catch");},theme3:b=>{setTheme(b.dataset.t);landing();},cup:()=>cupIntro(),cupGo:()=>startCup(),daily:()=>startSolo("daily"),practice:()=>startSolo("practice"),endless:()=>runAsk("endless"),rendless:()=>runAsk("rendless"),diffGo:b=>{const d=b.dataset.d;store.set("otc.endDiff",d);$("modal").hidden=true;window.__diffOK=d;const g=b.dataset.g==="1";b.dataset.m==="rendless"?startREndless(false,g):startEndless(false,g);},blitz:()=>startBlitz(),
   runCont:b=>{closeModal();b.dataset.m==="rendless"?startREndless(true,false):startEndless(true,false);},runNew:b=>{closeModal();b.dataset.m==="rendless"?startREndless(false,false):startEndless(false,false);},
