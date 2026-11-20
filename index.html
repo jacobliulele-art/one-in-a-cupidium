@@ -7620,7 +7620,7 @@ const modBans=()=>(MOD&&MOD.s.bans)||[];
 const modBanned=(id,n)=>modBans().some(b=>b[0]===id||n&&b[1]&&String(b[1]).toLowerCase()===String(n).toLowerCase());
 const modRemoved=(id,key,t)=>!!(MOD&&(MOD.s.rm&&MOD.s.rm.some(r=>r[0]===id&&(r[1]==="*"||r[1]===key)&&(t||0)<=r[2])||MOD.s.gone&&MOD.s.gone.includes(id)));
 // the highest score each board can really have (a daily is 7 rounds, 250 max each); anything above is thrown out
-function lbCap(key){const k=String(key).split(":")[0];return k==="xc"?36000-7800:k==="daily"||k==="dailyGeo"?ROUNDS*250+100:/^cp[A-Z]/.test(k)?1e5:/^cas/.test(k)?1e10:1e8;}
+function lbCap(key){const k=String(key).split(":")[0];return k==="xc"?36000-7560:k==="daily"||k==="dailyGeo"?ROUNDS*250+100:/^cp[A-Z]/.test(k)?1e5:/^cas/.test(k)?1e10:1e8;}
 // XC best 5Ks from before the realistic-pace update (Nov 19) are dropped; each player's game re-posts its converted time
 function lbBad(r,key){return r.s>lbCap(key)||key==="xc"&&(r.t||0)<1795147200000||modBanned(r.i,r.n)||modRemoved(r.i,key,r.t);}
 function modApply(){let ch=false;for(const k in LB.b){const n=LB.b[k].length;LB.b[k]=LB.b[k].filter(r=>!lbBad(r,k));if(LB.b[k].length!==n)ch=true;}if(ch){store.set("otc.lb",LB.b);if($("lbBox"))lbRender();}return ch;}
@@ -8290,9 +8290,9 @@ const XC_COURSES=[{id:"park",nm:"PARK LOOP",lv:1,hill:.25,mud:0,bot:3.15,sky:"#9
   {id:"state",nm:"STATE CHAMPS",lv:9,hill:.65,mud:.2,bot:4.75,sky:"#fde2e4",gr:"#22c55e"},{id:"nat",nm:"NATIONALS",lv:13,hill:.75,mud:.3,bot:5.1,sky:"#fbcfe8",gr:"#16a34a"}];
 const XC_BOTS=["MAYA","LEO","PRIYA","OWEN","SOFIA","KAI","ZARA","ELI","NOOR","FINN","IVY","DREW","LUNA","JAX"];
 const XC_TS=20;// race seconds per real second
-// realistic pace (Nov 19): a brand-new runner cruises about 25:15 on a flat 5K, and fitness tops out around 16:00 cruising;
-// with the best spikes, pushing, a kick and bicarb the fastest possible race is about 14:00 (no more 11-minute 5Ks)
-const XC_V0=3.3,XC_V1=1.9,XC_FK=20,XC_PUSH=1.08,XC_KICK=1.13,XC_BIC=.05,XC_MIN=810;
+// realistic pace (Nov 19): a brand-new runner cruises about 25:15 on a flat 5K, and fitness tops out around 14:45 cruising;
+// with the best spikes, pushing, a kick and bicarb the fastest possible race is about 12:45; nobody can beat the 12:35 world record
+const XC_V0=3.3,XC_V1=2.4,XC_FK=22,XC_PUSH=1.08,XC_KICK=1.13,XC_BIC=.05,XC_MIN=756;
 // sunglasses: SURGE = free speed (no stamina) while a rival is right in front of or behind you, stronger on bicarb
 const XC_SURGE_D=10,XC_SURGE=.035,XC_SURGE_BIC=.07,XC_SURGE_MAX=60,XC_SURGE_CD=60;
 // spiking (only with every spike shoe unlocked): slows the runner next to you, 15% chance an official disqualifies you
