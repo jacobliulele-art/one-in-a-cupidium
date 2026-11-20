@@ -787,13 +787,19 @@ body.gated>*:not(#gateBlock){visibility:hidden!important}
 #gateBlock .nxbtn{font:14px "Segoe UI",system-ui,Arial,sans-serif;padding:8px 16px;border-radius:20px;border:0;background:#1a73e8;color:#fff;cursor:pointer;box-shadow:none;text-transform:none;letter-spacing:0}
 #gateBlock .nxbtn:hover{background:#1765cc}#gateBlock .nxmsg{font-size:13px;margin-top:10px}
 #gateBlock .wfid{position:fixed;right:6px;bottom:4px;font:10px Arial,sans-serif;color:#9aa0a6}
-@media (hover:hover){#bvStage .kdrel{position:relative}
+#bvStage .kdrel{position:relative}
 .bvhud .bvquit{background:rgba(255,255,255,.25);color:#fff;border:0;border-radius:10px;padding:2px 10px;font-size:14px;cursor:pointer;box-shadow:none}
-#bvStage .bvopts{margin-left:auto;margin-right:auto}#bvStage .bvopts.spotopts{display:flex!important;justify-content:center;flex-wrap:wrap}#bvStage .spotopts .bvo{width:104px}
+/* choices are always centered, even when a row is not full (3 pictures, 5 words...) */
+#bvStage .bvopts:not(.pad){display:flex;flex-wrap:wrap;justify-content:center;max-width:460px;margin-left:auto;margin-right:auto}
+#bvStage .bvopts:not(.pad)>.bvo{flex:0 0 calc((100% - 24px)/4);min-width:0}
+#bvStage .bvopts.six:not(.pad)>.bvo{flex-basis:calc((100% - 16px)/3)}
+#bvStage .bvopts.bvtvo>.bvo{flex:0 0 auto;padding:6px}
+#bvStage .bvopts.spotopts>.bvo{flex:0 0 104px}
+@media (max-width:440px){#bvStage .bvopts:not(.pad):not(.shapes):not(.tiles):not(.cards):not(.six)>.bvo{flex-basis:calc((100% - 8px)/2)}}
 #bvPad .bventer{grid-column:1/-1;font-size:18px}#bvPad .bvdel{font-size:22px}
 .bvclsrow{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:4px 0 8px}.bvclsrow .bvbtn{border-color:var(--cc)}.bvclsrow .bvbtn.go{background:var(--cc);color:#1a0f2e}
-#bvStage .bvcross{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-areas:". u ." "l . r" ". d .";gap:8px;max-width:420px;margin-left:auto;margin-right:auto}
-#bvStage .bvcross>:nth-child(1){grid-area:u}#bvStage .bvcross>:nth-child(2){grid-area:l}#bvStage .bvcross>:nth-child(3){grid-area:r}#bvStage .bvcross>:nth-child(4){grid-area:d}#bvStage [data-kd]{overflow:visible!important}#bvStage [data-kd]::after{content:attr(data-kd);position:absolute;top:-9px;left:-9px;font:bold 11px/1 system-ui,sans-serif;color:#fff;background:rgba(20,16,50,.85);padding:3px 6px;border-radius:4px;pointer-events:none;z-index:3;box-shadow:0 0 0 1px rgba(255,255,255,.35)}}
+/* key hints in the corner of each choice: 1 2 3 4 for pictures and words, arrows only where the game is about directions */
+@media (hover:hover){#bvStage [data-kd]{overflow:visible!important}#bvStage [data-kd]::after{content:attr(data-kd);position:absolute;top:-9px;left:-9px;width:22px;height:22px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font:700 12px/1 system-ui,sans-serif;color:#fff;background:rgba(20,16,50,.92);border:1px solid rgba(255,255,255,.5);border-radius:4px;pointer-events:none;z-index:3}}
 #bvStage .kbf{outline:3px solid #ffe14d!important;outline-offset:2px}.center{text-align:center}
 .trmaps{flex-wrap:wrap}.trmaps button.on{background:#ffe14d!important;color:#1a0f2e!important}
 .bvcat{background:color-mix(in srgb,var(--bc) 14%,transparent);border:2px solid color-mix(in srgb,var(--bc) 35%,transparent)}
@@ -829,6 +835,22 @@ body.gated>*:not(#gateBlock){visibility:hidden!important}
 .bvprow{background:rgba(255,255,255,.07)}.bvprow em{color:#3ddc84}
 .bvwheel{background:rgba(255,255,255,.1);box-shadow:0 3px 0 rgba(0,0,0,.35);color:color-mix(in srgb,var(--bc) 70%,#fff);display:inline-flex;align-items:center;gap:8px}
 .bvresav{line-height:0;margin-bottom:6px}
+/* menu cards: dark glass panels with a colored top edge, like the rest of the game (no more solid color blocks) */
+.bvhub{grid-template-columns:1fr 1fr;gap:10px}
+.bvbig2{position:relative;align-items:flex-start;text-align:left;gap:6px;padding:16px 12px 14px 14px;min-height:124px;color:var(--ink);
+ background:linear-gradient(180deg,color-mix(in srgb,var(--bc) 26%,var(--glass2,rgba(20,16,50,.85))),color-mix(in srgb,var(--bc) 8%,var(--glass2,rgba(20,16,50,.85))));
+ border:2px solid color-mix(in srgb,var(--bc) 55%,var(--edge,#fff));
+ box-shadow:0 4px 0 rgba(0,0,0,.4),inset 0 4px 0 var(--bc),inset 0 0 0 1px rgba(255,255,255,.07);transition:transform .08s,box-shadow .12s}
+.bvbig2 b{color:color-mix(in srgb,var(--bc) 50%,#fff);font-size:13px;line-height:1.3}
+.bvbig2 small{color:rgba(241,244,255,.85)!important;font-size:12px;line-height:1.35;opacity:1}
+.bvbig2:hover{transform:translateY(-2px);box-shadow:0 6px 0 rgba(0,0,0,.4),inset 0 4px 0 var(--bc),0 0 16px color-mix(in srgb,var(--bc) 55%,transparent)}
+.bvbig2:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.4),inset 0 4px 0 var(--bc)}
+.bvbig2 .bvpx{align-self:flex-start}.bvbig2:disabled{opacity:.45;cursor:default;transform:none}
+.bvfoot .bvbtn{padding:8px 14px}
+@media (max-width:440px){.bvhub{grid-template-columns:1fr 1fr;gap:8px}.bvbig2{padding:14px 8px 10px 10px;min-height:0}.bvbig2 b{font-size:11px}.bvbig2 small{font-size:10.5px}}
+.bvo.hit{outline:4px solid #3ddc84;outline-offset:-3px;box-shadow:0 0 18px rgba(61,220,132,.85),0 3px 0 rgba(0,0,0,.4)}
+.bvo.miss{outline:4px solid #ff5a5a;outline-offset:-3px;box-shadow:0 0 18px rgba(255,90,90,.85),0 3px 0 rgba(0,0,0,.4)}
+.bvo.hit.ffp,.bvo.miss.ffp{border-color:transparent}
 
 .bvdone{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px;background:color-mix(in srgb,var(--bc) 16%,transparent);border:2px solid color-mix(in srgb,var(--bc) 40%,transparent)}
 .bvdone b{font-family:var(--head)!important;font-size:24px;letter-spacing:.1em;color:color-mix(in srgb,var(--bc) 70%,#fff)}.bvdone span{font-size:18px}
@@ -8118,6 +8140,7 @@ Object.assign(ACT,{abMore:()=>{const box=$("ablist"),st=box?box.scrollTop:0;AB.n
 
 // ===== update log =====
 function updList(){return [
+ {v:"4.2",t:"Academy fixes",d:"Nov 20, 2026",s:{"Cupidium Academy":["New look for the Academy menu: dark glass cards with a colored edge instead of solid color blocks","PLAY WITH FRIENDS, TAKE THE TEST, PRACTICE and GHOST CLASH sit in a 2x2 grid; CUSTOMIZE is a small button next to LEADERBOARDS","Choices show a number (1, 2, 3...) in the same corner every time, in the order you see them, and the numbers no longer move around in Speed Sorting. Arrow keys / WASD are only used where the game is about directions (Whack Match, Train Turn, Tick-Tock Turn)","Choices are centered, even when a row isn't full","The right answer lights up green when you miss, and the one you tapped lights up red or green","Frame Filler now moves like the real game: the shapes spin and drift, the pieces in the tray move too, and only one keeps moving like the picture","Get In Shape and Match Blast accept every valid solution, not just one","True View never shows two choices that look the same","Higher scores: faster answers and answer streaks now earn bonus points"]}},
  {v:"4.1",t:"Smarter checking",d:"Nov 19, 2026",s:{"Autocorrect":["Autocorrect now ALWAYS asks 'did you mean…?' first (only the Rapid modes skip it), even when you type another name for an answer: saint kitts → saint kitts and nevis, hot spring monkey → snow monkey","Leaving words out now gets a 'did you mean…?': satanic gecko → satanic leaf-tailed gecko, bosnia → bosnia and herzegovina","A shortened name asks first too (sun → sun tzu), and your own name stays yours (salvator rosa no longer turns into a film title)","Typos are corrected against every answer in the game, not just this prompt's list (truto → truro)"],"AI checking":["Before turning an answer down, the AI takes a second careful look at every meaning of it, so you rarely need IT'S REAL (eon, turkey)","Theories, jokes and related things no longer count as the thing (pentagon pizza theory is not a Mexican food), and the color or condition in a prompt is checked (tepig is not black and white)","An answer that needed a check is never common: tier 2 at least (tier 3 for long names), whatever Wikipedia page views say"],"Answers":["More explanations under obscure prompts (what the Hanseatic League was, and about 200 more)","Rarity fixes: dumb ways to die, zugzwang, hans gruber, vatican city and more","ONE IN A CUPIDIUM picks for countries, capitals and states now rotate every week so they can't be memorized, and a few too-famous picks were swapped","Former names of countries: turkey, czech republic, macedonia and more"]}},
  {v:"4.0",t:"Daniel Simons Mode",d:"Nov 17, 2026",s:{"New":["DANIEL SIMONS MODE (on the main menu): 245 super-niche prompts you only see in this mode, 15 seconds each, with its own dailies, runs and leaderboards","Cupidium Rhythm is now Project Sekai style: 6 lanes on a 3D highway, holds, flicks, gold criticals, 4 songs and 5 difficulties","Endless shows a graph of your fuel over the run","Mihir’s Cupididdium Token: every Daily hides one secret deep-cut answer. Say it to get any chip shop item free (or 1,500 chips)","58 new prompts, including 19 geography ones, so the dailies and category days last longer","Usernames are unique now: nobody can take a name someone else already has"],
   "Ultimate Chicken Horse":["All 4 maps rebuilt: shorter, and every map can be finished with nothing placed","Zoom in and out (mouse wheel, pinch, + and - buttons) and a WHOLE MAP button","Spectate the others after your run, and PLAY AS GHOST to run the course just for fun","Moving and flying platforms show the path they'll travel before you place them","Spikes are easier to see, and nothing floats in the air anymore","Clearer points screen with bars that fill toward the win line","Portals are rarer and their two ends must be close together, away from the flag","Pick the map on the party page","The view keeps scrolling when your mouse goes past the edge"],
@@ -8946,21 +8969,36 @@ const BBG={
      f.addEventListener("pointermove",mv);f.addEventListener("pointerdown",mv);ready();},
      pick(v){if(phase==="look"){if(v!=="got")return;phase="pick";const st=this._st,f=$("bvSpot");if(f){f.classList.add("off");f.style.cursor="default";}st.querySelector("[data-v=got]").remove();st.insertAdjacentHTML("beforeend",bbOpts(bSH(sp),"big spotopts"));return;}
        return v===sp[0];}};}},
- frame:{cat:"ident",name:"FRAME FILLER",how:"Fill in the missing piece! Pick the square that fits the hole in the picture.",k:4,gen(lv){
-   // a picture of overlapping shapes with one square cut out; later classes use see-through shapes and trick pieces that are turned or flipped
+ frame:{cat:"ident",name:"FRAME FILLER",how:"Which piece belongs in the ? box? Pay attention to movement! Everything in the picture spins and drifts, and the right piece keeps moving the same way.",k:4,gen(lv){
+   // like the real game, the picture is alive: every shape spins and wobbles around its spot, and the pieces in the tray move too.
+   // Only one piece keeps moving like the picture. Later classes add pieces that move the wrong way, or are turned or flipped.
    const C=bbCls(lv),cols=["#ef4444","#2f80ed","#22c55e","#f2b705","#ec4899","#9b5de5","#06b6d4","#f97316"],kind=bP(["circle","star","flower","leaf"]),n=8+C*3,op=C<2?1:C<4?.6:.45;
    const star=(x,y,r)=>[...Array(10)].map((_,i)=>{const a=Math.PI/5*i-Math.PI/2,q=i%2?r*.45:r;return (x+q*Math.cos(a)).toFixed(1)+","+(y+q*Math.sin(a)).toFixed(1);}).join(" ");
-   let art="";for(let i=0;i<n;i++){const x=bR(0,300),y=bR(0,200),r=bR(C<2?34:24,C<2?60:48),c=bP(cols.slice(0,C<1?4:8)),rot=bR(0,359);
-     art+=kind==="circle"?`<circle cx="${x}" cy="${y}" r="${r}" fill="${c}" opacity="${op}"/>`:kind==="star"?`<polygon points="${star(x,y,r)}" fill="${c}" opacity="${op}" transform="rotate(${rot} ${x} ${y})"/>`
-       :kind==="flower"?`<g fill="${c}" opacity="${op}" transform="rotate(${rot} ${x} ${y})">${[0,72,144,216,288].map(a=>`<ellipse cx="${x}" cy="${y-r*.5}" rx="${r*.28}" ry="${r*.55}" transform="rotate(${a} ${x} ${y})"/>`).join("")}</g>`
-       :`<path d="M${x} ${y-r} Q${x+r} ${y-r*.2} ${x} ${y+r} Q${x-r} ${y-r*.2} ${x} ${y-r}Z" fill="${c}" opacity="${op}" transform="rotate(${rot} ${x} ${y})"/>`;}
-   const cx=bR(0,2),cy=bR(0,1),X=cx*100,Y=cy*100,crop=(x,y,tf)=>`<svg viewBox="${x} ${y} 100 100"><rect x="${x}" y="${y}" width="100" height="100" fill="#fff"/><g ${tf?`transform="${tf.replace(/C/g,(x+50)+" "+(y+50))}"`:""}>${art}</g></svg>`;
-   const opts=[crop(X,Y)],cells=bSH([[0,0],[1,0],[2,0],[0,1],[1,1],[2,1]].filter(([a,b])=>a!==cx||b!==cy));
-   const tricks=bSH(["rotate(90 C)","rotate(180 C)","rotate(270 C)",`translate(${X*2+100} 0) scale(-1 1)`,`translate(0 ${Y*2+100}) scale(1 -1)`]);
-   for(let i=0;opts.length<3;i++)opts.push(C>=2&&i<(C>=4?2:1)?crop(X,Y,tricks[i]):crop(cells[i][0]*100,cells[i][1]*100));
+   const body=s=>kind==="circle"?`<circle cx="${s.x}" cy="${s.y}" r="${s.r}"/>`:kind==="star"?`<polygon points="${star(s.x,s.y,s.r)}"/>`
+     :kind==="flower"?[0,72,144,216,288].map(a=>`<ellipse cx="${s.x}" cy="${s.y-s.r*.5}" rx="${s.r*.28}" ry="${s.r*.55}" transform="rotate(${a} ${s.x} ${s.y})"/>`).join("")
+     :`<path d="M${s.x} ${s.y-s.r} Q${s.x+s.r} ${s.y-s.r*.2} ${s.x} ${s.y+s.r} Q${s.x-s.r} ${s.y-s.r*.2} ${s.x} ${s.y-s.r}Z"/>`;
+   const cx=bR(0,2),cy=bR(0,1),X=cx*100,Y=cy*100,sgn=()=>bbRng()<.5?-1:1;let S,cells,all=[];
+   for(let a=0;a<3;a++)for(let b=0;b<2;b++)if(a!==cx||b!==cy)all.push([a,b]);
+   // does this shape reach into that square of the picture? (used to be sure the pieces really look different)
+   const hits=(s,gx,gy)=>s.x+s.r*.7+s.oR>gx*100&&s.x-s.r*.7-s.oR<gx*100+100&&s.y+s.r*.7+s.oR>gy*100&&s.y-s.r*.7-s.oR<gy*100+100;
+   const sigOf=(gx,gy)=>S.map((s,i)=>hits(s,gx,gy)?i:-1).filter(i=>i>=0).join(",");
+   for(let t=0;t<40;t++){S=[...Array(n)].map(()=>({x:bR(0,300),y:bR(0,200),r:bR(C<2?34:24,C<2?60:48),c:bP(cols.slice(0,C<1?4:8)),rot:bR(0,359),
+       sp:kind==="circle"?0:sgn()*bR(28,70),ph:bR(0,628)/100,ow:sgn()*bR(10,20)/10,oR:bR(kind==="circle"?8:5,kind==="circle"?15:11)}));
+     const s0=sigOf(cx,cy);cells=all.filter(([a,b])=>sigOf(a,b)&&sigOf(a,b)!==s0);if(s0&&cells.length>=2)break;}
+   if(cells.length<2)cells=all;
+   const TR=bSH(["rotate(90 C)","rotate(180 C)","rotate(270 C)",`translate(${X*2+100} 0) scale(-1 1)`,`translate(0 ${Y*2+100}) scale(1 -1)`]),bag=bSH(cells);let ci=0;
+   const D={cell:()=>{const c=bag[ci++%bag.length];return{gx:c[0],gy:c[1],tf:"",sg:1,po:0};},rev:()=>({gx:cx,gy:cy,tf:"",sg:-1,po:1}),trick:()=>({gx:cx,gy:cy,tf:TR[0],sg:1,po:0})};
+   const plan=C<1?["cell","cell"]:C<2?["cell","rev"]:["rev","trick"],opts=[{gx:cx,gy:cy,tf:"",sg:1,po:0},...plan.map(p=>D[p]())];
+   const gs=S.map((s,i)=>`<g class="fs" data-i="${i}" fill="${s.c}" opacity="${op}">${body(s)}</g>`).join("");
+   const crop=o=>{const x=o.gx*100,y=o.gy*100,tf=o.tf?o.tf.replace(/C/g,(x+50)+" "+(y+50)):"";return `<svg class="ffs" data-sg="${o.sg}" data-po="${o.po}" viewBox="${x} ${y} 100 100"><rect x="${x}" y="${y}" width="100" height="100" fill="#fff"/><g${tf?` transform="${tf}"`:""}>${gs}</g></svg>`;};
    const ord=bSH([0,1,2]);
-   return {html:`<p class="bvq">Fill in the missing piece!</p><div class="bvff"><svg viewBox="0 0 300 200"><rect width="300" height="200" fill="#fff"/>${art}<rect x="${X}" y="${Y}" width="100" height="100" fill="#111"/><text x="${X+50}" y="${Y+68}" text-anchor="middle" font-size="56" font-weight="900" fill="#ffe34d">?</text></svg></div>
-     <div class="bvffo">${ord.map(i=>`<button class="bvo ffp" data-v="${i}">${opts[i]}</button>`).join("")}</div>`,ans:0};}},
+   return {mount(st,ready,live){
+       st.innerHTML=`<p class="bvq">Which piece belongs in the <b>?</b> box?</p><p class="bvq small">Pay attention to movement!</p><div class="bvff"><svg class="ffs" data-sg="1" data-po="0" viewBox="0 0 300 200"><rect width="300" height="200" fill="#fff"/><g>${gs}</g><rect x="${X}" y="${Y}" width="100" height="100" fill="#111"/><text x="${X+50}" y="${Y+68}" text-anchor="middle" font-size="56" font-weight="900" fill="#ffe34d">?</text></svg></div>
+         <div class="bvffo">${ord.map(i=>`<button class="bvo ffp" data-v="${i}">${crop(opts[i])}</button>`).join("")}</div>`;
+       const items=[];st.querySelectorAll("svg.ffs").forEach(sv=>{const sg=+sv.dataset.sg,po=+sv.dataset.po;sv.querySelectorAll("g.fs").forEach(g=>items.push([g,S[+g.dataset.i],sg,po]));});
+       const t0=performance.now(),tick=()=>{const t=(performance.now()-t0)/1000;for(const[g,s,sg,po]of items){const a=s.rot+po*70+sg*s.sp*t,b=s.ph+po*1.9+sg*s.ow*t;
+         g.setAttribute("transform",`translate(${(s.oR*Math.cos(b)).toFixed(1)} ${(s.oR*Math.sin(b)).toFixed(1)}) rotate(${a.toFixed(1)} ${s.x} ${s.y})`);}};
+       tick();ready();const loop=()=>{if(!live()||!st.isConnected)return;tick();requestAnimationFrame(loop);};requestAnimationFrame(loop);},ans:0};}},
  focus:{cat:"ident",name:"FAST FOCUS",how:"What is this a picture of? Squares uncover it bit by bit. How fast can you figure it out?",k:4,gen(lv){
    const C=bbCls(lv),g=bP(GROUPS.slice(0,5)),e=bP(g),opts=bSH([e,...bSH(g.filter(x=>x!==e)).slice(0,3)]),N=C<2?5:C<4?6:8,ms=Math.max(2600,4200+C*500),zoom=C>=4?1.6:1;
    return {mount(st,ready,live){const ord=bSH([...Array(N*N).keys()]);
@@ -9037,11 +9075,15 @@ const BBG={
    do{start=mk();let cur=start.map(p=>p.map(c=>c.slice()));sol=new Set();for(let i=0;i<steps;i++){const live=cur.map((p,j)=>p?j:-1).filter(j=>j>=0&&!sol.has(j));const j=bP(live);sol.add(j);cur[j]=null;cur=settle(cur);}
      target=sig(cur);}while(tries++<60&&(target.flat().filter(Boolean).length<2||JSON.stringify(target)===JSON.stringify(sig(start))));
    let cur=start.map(p=>p.map(c=>c.slice()));const T=JSON.stringify(target),gone=new Set(),U=100;
+   // more than one set of blocks can give the same shape, so a break is fine when the shape can still be reached from there
+   const cp=s=>s.map(p=>p?p.map(c=>c.slice()):null),tcnt=target.flat().filter(Boolean).length,cnt=s=>s.reduce((a,p)=>a+(p?p.length:0),0),memo=new Map();
+   const reach=s=>{if(JSON.stringify(sig(s))===T)return true;if(cnt(s)<=tcnt)return false;const k=s.map(p=>p?p.map(c=>c[0]+"."+c[1]).join(";"):"x").join("|");if(memo.has(k))return memo.get(k);memo.set(k,false);
+     let ok=false;for(let j=0;j<s.length&&!ok;j++){if(!s[j])continue;ok=reach(settle(cp(s.map((p,i)=>i===j?null:p))));}memo.set(k,ok);return ok;};
    const draw=()=>cur.map((p,i)=>p?`<button class="bvmbp" data-v="${i}" style="--bc:${COL}">${p.map(([x,y])=>`<i style="left:${x*U/w}%;top:${y*U/h}%;width:${U/w}%;height:${U/h}%;${[["t",0,-1],["r",1,0],["b",0,1],["l",-1,0]].map(([s,dx,dy])=>p.some(c=>c[0]===x+dx&&c[1]===y+dy)?`border-${{t:"top",r:"right",b:"bottom",l:"left"}[s]}-width:0;`:"").join("")}"></i>`).join("")}</button>`:"").join("");
    const tg=`<div class="bvmbt" style="width:${w*30}px;aspect-ratio:${w}/${h};grid-template-columns:repeat(${w},1fr)">${target.flat().map(c=>`<i style="${c?"background:"+COL:""}"></i>`).join("")}</div>`;
    return {html:`<p class="bvq">Break blocks to copy the top shape!</p>${tg}<div class="bvmbb" id="bvMB" style="width:${w*46}px;aspect-ratio:${w}/${h}">${draw()}</div>`,
-     pick(v){v=+v;if(!cur[v])return;if(!sol.has(v))return false;gone.add(v);cur[v]=null;cur=settle(cur);const b=$("bvMB");if(b)b.innerHTML=draw();
-       if(JSON.stringify(sig(cur))===T||gone.size>=sol.size)return true;}};}},
+     pick(v){v=+v;if(!cur[v])return;const nx=settle(cp(cur.map((p,i)=>i===v?null:p)));if(!reach(nx))return false;gone.add(v);cur=nx;const b=$("bvMB");if(b)b.innerHTML=draw();
+       if(JSON.stringify(sig(cur))===T)return true;}};}},
  sort:{cat:"ana",name:"SPEED SORTING",how:"Which picture fits the description? Tap every picture that fits. Some ask you to tap them in order, like largest to smallest.",k:4,gen(lv){
    const C=bbCls(lv),n=C<4?4:6,ordOK=C>=2&&bbRng()<.45;
    if(ordOK){const kind=bP(["size","speed"]),M=kind==="size"?SORT_SIZE:SORT_SPEED,ks=Object.keys(M).filter(k=>BBART[k]);let pick=[],g=0;
@@ -9109,13 +9151,22 @@ const BBG={
    while(dec.length<nDec&&g++<400){let d;const base=pieces[bP(holes)];
      if(bbRng()<.5){d=bbRng()<.5?shRot(base):shMir(base);}else{d=shNorm(base).map(p=>p.slice());const i=bR(0,d.length-1),[dx,dy]=bP([[1,0],[-1,0],[0,1],[0,-1]]);if(bbRng()<.5&&d.length<4)d.push([d[i][0]+dx,d[i][1]+dy]);else d[i]=[d[i][0]+dx,d[i][1]+dy];}
      if(new Set(d.map(String)).size!==d.length||all().includes(shKey(d))||!shConn(d))continue;dec.push(d);}
-   const tray=bSH([...holes.map(i=>({c:pieces[i],h:i})),...dec.map(c=>({c,h:-1}))]),done=new Set();
-   const U=34,svgT=()=>`<svg viewBox="0 0 ${W*U} ${H*U}" style="width:${W*U*1.1}px;max-width:90%">${pieces.map((p,i)=>{const hole=holes.includes(i)&&!done.has(i);
-       return p.map(([x,y])=>`<rect x="${x*U}" y="${y*U}" width="${U}" height="${U}" fill="${hole?"#111":"#f06418"}"/>`).join("")+(hole?"":p.map(([x,y])=>`<rect x="${x*U+1}" y="${y*U+1}" width="${U-2}" height="${U-2}" fill="none" stroke="#ff9a5c" stroke-width="2"/>`).join(""));}).join("")}</svg>`;
+   const tray=bSH([...holes.map(i=>({c:pieces[i],h:i})),...dec.map(c=>({c,h:-1}))]),used=new Set(),filled=new Set(),holeCells=new Set();
+   holes.forEach(i=>pieces[i].forEach(c=>holeCells.add(c[0]+","+c[1])));
+   // There can be several ways to fill the black space (a long piece or two small ones...), so a piece counts when it fits somewhere
+   // AND the rest of the space can still be filled with the pieces that are left. Pieces can't be turned.
+   const cellsAt=(nrm,dx,dy)=>nrm.map(q=>(q[0]+dx)+","+(q[1]+dy));
+   const canFill=(rem,avail)=>{if(!rem.size)return true;const f=[...rem].map(k=>k.split(",").map(Number)).sort((a,b)=>a[1]-b[1]||a[0]-b[0])[0];
+     for(const i of avail){const nrm=shNorm(tray[i].c);for(const p of nrm){const cs=cellsAt(nrm,f[0]-p[0],f[1]-p[1]);if(cs.every(c=>rem.has(c))){const r2=new Set(rem);cs.forEach(c=>r2.delete(c));if(canFill(r2,avail.filter(j=>j!==i)))return true;}}}return false;};
+   const U=34,svgT=()=>`<svg viewBox="0 0 ${W*U} ${H*U}" style="width:${W*U*1.1}px;max-width:90%">${pieces.map((p,i)=>{const hole=holes.includes(i);
+       return p.map(([x,y])=>{const open=hole&&!filled.has(x+","+y);return `<rect x="${x*U}" y="${y*U}" width="${U}" height="${U}" fill="${open?"#111":"#f06418"}"/>`+(open?"":`<rect x="${x*U+1}" y="${y*U+1}" width="${U-2}" height="${U-2}" fill="none" stroke="#ff9a5c" stroke-width="2"/>`);}).join("");}).join("")}</svg>`;
    const svgP=c=>{const n=shNorm(c),w=Math.max(...n.map(z=>z[0]))+1,h=Math.max(...n.map(z=>z[1]))+1,u=20;return `<svg viewBox="0 0 ${w*u} ${h*u}" style="width:${w*u}px">${n.map(([x,y])=>`<rect x="${x*u}" y="${y*u}" width="${u}" height="${u}" fill="#f06418" stroke="#ffb38a" stroke-width="1.5"/>`).join("")}</svg>`;};
    return {mount(st,ready){this._st=st;st.innerHTML=`<p class="bvq">Which pieces complete the puzzle?</p><div class="bvgis" id="bvGis">${svgT()}</div><div class="bvgtray">${tray.map((t,i)=>`<button class="bvo gp" data-v="${i}">${svgP(t.c)}</button>`).join("")}</div>`;ready();},
-     pick(v,el){const t=tray[+v];if(!t||el.disabled)return;const want=holes.filter(i=>!done.has(i));const m=want.find(i=>shKey(pieces[i])===shKey(t.c));if(m==null)return false;
-       done.add(m);el.disabled=true;el.classList.add("gone");$("bvGis").innerHTML=svgT();return done.size>=holes.length?true:undefined;}};}},
+     pick(v,el){const i=+v,t=tray[i];if(!t||el.disabled)return;const rem=new Set([...holeCells].filter(k=>!filled.has(k))),avail=tray.map((_,j)=>j).filter(j=>j!==i&&!used.has(j)),nrm=shNorm(t.c);
+       for(const f of rem){const[fx,fy]=f.split(",").map(Number);for(const p of nrm){const cs=cellsAt(nrm,fx-p[0],fy-p[1]);if(!cs.every(c=>rem.has(c)))continue;
+         const r2=new Set(rem);cs.forEach(c=>r2.delete(c));
+         if(canFill(r2,avail)){cs.forEach(c=>filled.add(c));used.add(i);el.disabled=true;el.classList.add("gone");$("bvGis").innerHTML=svgT();return r2.size===0?true:undefined;}}}
+       return false;}};}},
  shadow:{cat:"vis",name:"SHADOW SHIFT",how:"Match the picture to the shadow! The shadow is made by several things piled up and turned around. Pick every one of them.",k:4,gen(lv){
    const C=bbCls(lv),k=[1,2,2,3,3,4][C],no=[3,3,4,6,6,6][C],SG=[GROUPS[2],GROUPS[3],GROUPS[4],GROUPS[5]],g=bP(SG),inS=bSH(C<2?SG.flat():g.concat(bP(SG.filter(x=>x!==g)))).slice(0,k);
    const pool=(C<3?SG.flat():g).filter(x=>!inS.includes(x)),opts=bSH([...inS,...bSH(pool).slice(0,no-k)]),got=new Set();
@@ -9143,12 +9194,17 @@ const BBG={
  view:{cat:"vis",name:"TRUE VIEW",how:"How does it look from the arrow? Pick the picture you would see standing where the red arrow is.",k:5,gen(lv){
    // like the real game: an object on a platform, a red arrow from one side (or above), and 2 or 3 pictures to pick from
    const C=bbCls(lv),names=C<2?TV_EASY:Object.keys(TV_MODELS),m=tvRot(TV_MODELS[bP(names)],bR(0,3)),dirs=C<2?["pz","px","nx","nz"]:["pz","px","nx","nz","top"],d=bP(dirs),NO=C<2?2:3;
-   const K=g=>JSON.stringify(g),mir=g=>g.map(r=>r.slice().reverse()),ans=tvView(m,d),opts=[ans];
+   const cd=(a,b)=>{const f=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)),p=f(a),q=f(b);return Math.abs(p[0]-q[0])+Math.abs(p[1]-q[1])+Math.abs(p[2]-q[2]);},
+     diff=(a,b)=>{let n=0;for(let y=0;y<a.length;y++)for(let x=0;x<a[y].length;x++){const p=a[y][x],q=b[y][x];if(!p!==!q||(p&&q&&cd(p,q)>60))n++;}return n;},
+     // a mirror image is flipped inside the object's own outline, so it never ends up as the same picture shifted over by one square
+     mir=g=>{let x0=99,x1=-1;g.forEach(r=>r.forEach((c,x)=>{if(c){x0=Math.min(x0,x);x1=Math.max(x1,x);}}));return x1<0?g:g.map(r=>{const o=r.slice();for(let x=x0;x<=x1;x++)o[x]=r[x0+x1-x];return o;});},
+     ans=tvView(m,d),opts=[ans],fresh=c=>opts.every(o=>diff(o,c)>=4);
    const others=bSH(dirs.filter(x=>x!==d).map(x=>tvView(m,x))),cands=C>=3?[mir(ans),...others]:others;
-   for(const c of cands)if(opts.length<NO&&!opts.some(o=>K(o)===K(c)))opts.push(c);
-   for(const n of bSH(Object.keys(TV_MODELS)))if(opts.length<NO){const c=tvView(TV_MODELS[n],d);if(!opts.some(o=>K(o)===K(c)))opts.push(c);}
+   for(const c of cands)if(opts.length<NO&&fresh(c))opts.push(c);
+   for(const n of bSH(Object.keys(TV_MODELS)))if(opts.length<NO){const c=tvView(TV_MODELS[n],d);if(fresh(c))opts.push(c);}
+   for(const c of others)if(opts.length<NO&&!opts.includes(c))opts.push(c);
    const ord=bSH(opts.map((_,i)=>i));
-   return {html:`<p class="bvq">How does it look from the arrow?</p><div class="bvtvb">${tvIso(m,d,C<2?8:7)}</div><div class="bvopts shapes bvtvo">${ord.map(i=>`<button class="bvo" data-v="${i}">${tvViewSvg(opts[i],80)}</button>`).join("")}</div>`,ans:0};}}
+   return {html:`<p class="bvq">How does it look from the arrow?</p><div class="bvtvb">${tvIso(m,d,C<2?8:7)}</div><div class="bvopts shapes bvtvo">${ord.map(i=>`<button class="bvo" data-v="${i}">${tvViewSvg(opts[i],96)}</button>`).join("")}</div>`,ans:0};}}
 };
 const BB_MEDALS=[[800,"plat","PLATINUM"],[600,"gold","GOLD"],[400,"silver","SILVER"],[200,"bronze","BRONZE"]];
 const bbStars=s=>{const m=BB_MEDALS.find(x=>s>=x[0]);if(!m)return 0;const nx=BB_MEDALS[BB_MEDALS.indexOf(m)-1],top=nx?nx[0]:m[0]+200;return 1+Math.min(2,Math.floor((s-m[0])/((top-m[0])/3)));};
@@ -9192,13 +9248,12 @@ function brainLab(){BB=null;mgClose();if(N&&N.mode!=="brain")leaveNet();L=null;S
    <div class="bvme"><div class="bvmeav">${bbAvatar(null,88)}</div><div><b>${esc(lbMe()||"You")}</b><small>${st.best?`BEST TEST ${st.best.toLocaleString()} BRAWN · GRADE ${st.gr[1]}`:"NO TEST TAKEN YET"}</small>
      <span class="bvmeds">${["plat","gold","silver","bronze"].map(k=>`<i>${bbMedIco(k,18)}${st.med[k]}</i>`).join("")}</span></div></div>
    <div class="bvhub">
-    <button class="bvbig2" style="--bc:#9b5de5" data-act="bbFriends">${bbIco("i_party",40)}<b>PARTY</b></button>
+    <button class="bvbig2" style="--bc:#9b5de5" data-act="bbFriends">${bbIco("i_party",40)}<b>PLAY WITH FRIENDS</b><small>Make a party room. Same puzzle for everyone, fastest answer scores most. First to 100 wins.</small></button>
     <button class="bvbig2" style="--bc:#ef4444" data-act="bbTest">${bbIco("i_test",40)}<b>TAKE THE TEST</b><small>One activity from each category. What's your Big Brain Brawn?</small></button>
-    <button class="bvbig2" style="--bc:#2bb673" data-act="bbPractice">${bbIco("i_dumb",40)}<b>PRACTICE</b></button>
+    <button class="bvbig2" style="--bc:#2bb673" data-act="bbPractice">${bbIco("i_dumb",40)}<b>PRACTICE</b><small>Play any of the 20 activities and earn medals.</small></button>
     <button class="bvbig2" style="--bc:#6d6bd8" data-act="bbGhosts">${bbIco("ghost",40)}<b>GHOST CLASH</b><small>Race a ghost through one activity per category. First to 100 wins. ${bbTrophies()} trophies.</small></button>
-    <button class="bvbig2" style="--bc:#f2b705" data-act="bbCustom">${bbIco("i_palette",40)}<b>CUSTOMIZE</b><small>Pick a buddy, colors, hats and extras.</small></button>
    </div>
-   <div class="bvfoot"><button class="bvbtn" data-act="leaderboards" data-back="brainLab" data-k="brainB">${bbIco("i_trophy",16)} LEADERBOARDS</button></div>`),{cls:"menu"});}
+   <div class="bvfoot"><button class="bvbtn" data-act="leaderboards" data-back="brainLab" data-k="brainB">${bbIco("i_trophy",16)} LEADERBOARDS</button><button class="bvbtn" data-act="bbCustom">${bbIco("i_palette",16)} CUSTOMIZE</button></div>`),{cls:"menu"});}
 function bbPractice(){BB=null;bbRng=Math.random;const bs=bbBests();
   showPanel(bbWrap(`<div class="bvtop"><button class="bvback" data-act="brainLab">◀</button><h2>PRACTICE</h2><span></span></div>
    ${bbSuperOk()?`<div class="bvfoot" style="margin:0 0 8px"><button class="bvbtn ${store.get("otc.bb.super",false)?"go":""}" data-act="bbSuper">SUPER PRACTICE: ${store.get("otc.bb.super",false)?"ON (starts at Advanced)":"OFF"}</button></div>`:`<p class="bvsub center">Get gold on all 20 activities to unlock Super Practice.</p>`}<p class="bvsub bvmedkey">${BB_MEDALS.slice().reverse().map(m=>`<i>${bbMedIco(m[1],16)} ${m[0]}</i>`).join("")}</p>
@@ -9262,7 +9317,7 @@ function bbClashQ(){const c=BB.c,st=$("bvStage");if(!st)return;c.n++;c.done=fals
   const go=()=>{if(!live())return;q.ready=true;q.t0=performance.now();const ga=bbGhostAns(c.n,c.lv);c.gt=setTimeout(()=>{if(!live()||c.done)return;c.ghr={ok:ga.ok,at:performance.now()};
       const e=$("bvStGh");if(e)e.textContent=ga.ok?"✓":"✗";bbClashCheck();},Math.min(ga.ms,29000));c.wt=setTimeout(()=>{if(live()&&!c.done)bbClashEnd();},30000);};
   if(q.mount)q.mount(st,go,live);else if(q.flash){st.innerHTML=q.flash;setTimeout(()=>{if(!live())return;st.innerHTML=q.html;go();},q.ms);}else{st.innerHTML=q.html;go();}}
-function bbClashPick(v,b){const c=BB.c,q=BB.cur;if(!q||!q.ready||c.done||c.mine)return;const r=q.pick?q.pick(v,b):String(v)===String(q.ans);if(r===undefined)return;
+function bbClashPick(v,b){const c=BB.c,q=BB.cur;if(!q||!q.ready||c.done||c.mine)return;const r=q.pick?q.pick(v,b):String(v)===String(q.ans);if(r===undefined)return;bbMark(q,b,r);
   c.mine={ok:r,at:performance.now()};const st=$("bvStage");st.classList.add(r?"ok":"no");if(r)sfx.ok(3);else sfx.bad();const e=$("bvStMe");if(e)e.textContent=r?"✓":"✗";
   if(r){c.run++;if(c.run%2===0&&c.lv<BB_LVMAX)c.lv++;}else{c.run=0;c.lv=Math.max(1,c.lv-1);}bbClashCheck();}
 // first right answer opens a 10 s window for the other; the puzzle ends when both are in or the window closes
@@ -9303,12 +9358,15 @@ function bbRun(id,startLv,done,seed,opt){opt=opt||{};const g=BBG[id],[cn,em,col]
 function bbNext(){const G=BB.g,st=$("bvStage");if(!st)return;G.qn++;G.qlv=G.lv;G.mk=[];G.r="";if(G.seed)bbRng=bbSeed(G.seed+"|"+G.qn+"|"+G.lv);const q=G.q=BBG[G.id].gen(G.lv);G.ph=q.flash?"flash":"play";
   q.ready=false;const my=tok,live=()=>tok===my&&BB&&BB.g===G&&G.q===q,ready=()=>{if(live()){q.ready=true;q.t0=performance.now();if(G.ph!=="play"){G.ph="play";bbSpecPub(1);}}};
   if(q.mount)q.mount(st,ready,live);else if(q.flash){st.innerHTML=q.flash;setTimeout(()=>{if(!live())return;st.innerHTML=q.html;ready();},q.ms);}else{st.innerHTML=q.html;ready();}if(G.seed)bbRng=Math.random;bbSpecPub(1);try{window.bbLabel&&window.bbLabel();}catch(e){}}
-function bbPick(v,b){const G=BB.g,q=G.q,r=q.pick?q.pick(v,b):String(v)===String(q.ans);if(r===undefined)return;const st=$("bvStage");G.lock=true;
+// colors the choice you tapped, and on a wrong answer also shows the right choice
+function bbMark(q,b,r){try{if(b&&b.classList)b.classList.add(r?"hit":"miss");
+  if(!r&&q&&!q.pick&&q.ans!==undefined){const st=document.getElementById("bvStage"),c=st&&[...st.querySelectorAll("[data-v]")].find(x=>x.dataset.v===String(q.ans));if(c)c.classList.add("hit");}}catch(e){}}
+function bbPick(v,b){const G=BB.g,q=G.q,r=q.pick?q.pick(v,b):String(v)===String(q.ans);if(r===undefined)return;const st=$("bvStage");G.lock=true;bbMark(q,b,r);
   (G.log=G.log||[]).length<80&&G.log.push([Math.round(performance.now()-q.t0),r?1:0]);
-  G.ans++;G.r=r?"ok":"no";if(r){const fast=performance.now()-q.t0<2500?2:0,pts=10+5*bbCls(G.lv)+(fast?5:0);G.score+=pts;G.right++;G.run++;if(!G.count&&G.lv<(G.cap||BB_LVMAX))G.lv++;G.maxLv=Math.max(G.maxLv||0,G.lv);sfx.ok(Math.min(5,bbCls(G.lv)));st.classList.add("ok");st.dataset.pts="+"+pts;}
+  G.ans++;G.r=r?"ok":"no";if(r){const dt=performance.now()-q.t0,fast=dt<1500?10:dt<3000?5:0,streak=Math.min(G.run,10)*2,pts=10+5*bbCls(G.lv)+fast+streak;G.score+=pts;G.right++;G.run++;if(!G.count&&G.lv<(G.cap||BB_LVMAX))G.lv++;G.maxLv=Math.max(G.maxLv||0,G.lv);sfx.ok(Math.min(5,bbCls(G.lv)));st.classList.add("ok");st.dataset.pts="+"+pts;}
   else{G.wrong++;G.run=0;G.score=Math.max(0,G.score-10);if(!G.count)G.lv=Math.max(1,G.lv-2);sfx.bad();st.classList.add("no");st.dataset.pts="✗";}
   if(G.count)G.lv=Math.min(BB_LVMAX,G.lv0+Math.floor(G.ans/2));$("bvSc").textContent=G.count?`${G.right}/${G.count}`:G.score;$("bvCls").textContent=BB_CLASS[bbCls(G.lv)];const my=tok;
-  setTimeout(()=>{if(tok!==my||BB.g!==G)return;st.classList.remove("ok","no");G.lock=false;if(G.count&&G.ans>=G.count)return bbOver();if(G.left>0)bbNext();},r?380:800);}
+  setTimeout(()=>{if(tok!==my||BB.g!==G)return;st.classList.remove("ok","no");G.lock=false;if(G.count&&G.ans>=G.count)return bbOver();if(G.left>0)bbNext();},r?300:800);}
 function bbOver(){const G=BB.g;if(!G)return;G.el=Math.min(G.tot*100,Math.round(performance.now()-(G.start||performance.now())));bbSpecPub(1,G);BB.g=null;G.done(G);}
 function bbGo(){const id=BB.list[BB.ix],lv0=BB.mode==="test"?1+BB.ix:BB.mode==="prac"?(store.get("otc.bb.sprout",false)?1:BB.lv0||(store.get("otc.bb.super",false)&&bbSuperOk()?7:1)):1;
   bbRun(id,lv0,G=>{const gr=bbGrams(G.id,G.score);BB.res.push({id:G.id,score:G.score,g:gr,right:G.right,wrong:G.wrong});
@@ -9396,7 +9454,7 @@ function bbVQ(m){if(!BB||BB.mode!=="vs"||BB.i!==m.i)return;if(!$("bvStage")||BB.
   BB.q=m.q;BB.done=false;BB.cdEnd=0;bbVBoard(m.sc);bbVStatus([]);const st=$("bvStage"),lv=Math.min(BB_LVMAX,BB.lv0+Math.floor(m.q/2));st.classList.remove("ok","no");$("bvMsg").textContent="";
   bbRng=bbSeed(BB.seed+"|"+m.q+"|"+lv);const q=BB.cur=BBG[BB.id].gen(lv);q.ready=false;const my=tok,live=()=>tok===my&&BB&&BB.cur===q,ready=()=>{if(live()){q.ready=true;q.t0=performance.now();}};
   if(q.mount)q.mount(st,ready,live);else if(q.flash){st.innerHTML=q.flash;setTimeout(()=>{if(!live())return;st.innerHTML=q.html;ready();},q.ms);}else{st.innerHTML=q.html;ready();}bbRng=Math.random;}
-function bbVPick(v,b){const q=BB&&BB.cur;if(!q||!q.ready||BB.done)return;const r=q.pick?q.pick(v,b):String(v)===String(q.ans);if(r===undefined)return;BB.done=true;
+function bbVPick(v,b){const q=BB&&BB.cur;if(!q||!q.ready||BB.done)return;const r=q.pick?q.pick(v,b):String(v)===String(q.ans);if(r===undefined)return;BB.done=true;bbMark(q,b,r);
   const ms=Math.round(performance.now()-q.t0),st=$("bvStage");st.classList.add(r?"ok":"no");if(r)sfx.ok(3);else sfx.bad();$("bvMsg").textContent=r?"Correct! Waiting for the others…":"Wrong! Waiting for the others…";
   const msg={t:"bba",r:BB.i,i:bbvKey(BB.i,BB.q),q:BB.q,ok:r,ms,av:bbAvGet()};if(N.host)bbVAnswer("me",msg);else sendAns(msg);}
 function bbVRes(m){if(!BB||BB.mode!=="vs"||BB.i!==m.i)return;N.phaseAt=Date.now();N.phaseLimit=20000;bbVBoard(m.sc);const me=m.res.find(r=>r.n===N.me),st=$("bvStage");
@@ -9492,54 +9550,65 @@ Object.assign(ACT,{bbSpView:b=>{if(!BBSP)return;BBSP.view=b.dataset.v;store.set(
 ACT.bbQuit=()=>{const m=$("modal");m.hidden=false;m.innerHTML=`<div class="glass"><h3 style="font-size:14px">LEAVE THIS ${BB&&BB.mode==="test"?"TEST":"ACTIVITY"}?</h3><p class="hint">This run won't be saved.</p><div class="row" style="justify-content:center"><button class="pbtn c m-fire" data-act="bbQuitYes">LEAVE</button><button class="pbtn" data-act="closeModal">KEEP PLAYING</button></div></div>`;};
 ACT.bbQuitYes=()=>{closeModal();const prac=BB&&BB.mode==="prac";if(BB){BB.g=null;if(BB.c){clearTimeout(BB.c.gt);clearTimeout(BB.c.wt);clearInterval(BB.c.tk);BB.c.done=true;}}prac?bbPractice():brainLab();};
 ACT.bbSuper=()=>{store.set("otc.bb.super",!store.get("otc.bb.super",false));bbPractice();};
-// ---------- keyboard: type answers instead of clicking (numbers, keypad keys, Backspace; 1-4 picks pictures/shapes) ----------
+// ---------- keyboard: 1-9 pick the nth choice (the number shows in its corner); number answers and keypads are typed (Backspace works, ENTER submits); arrow keys / WASD only where the game is about directions ----------
+const BB_IDX=".bvffo,.bvtvo,.bvadc,.bvgtray",BB_NOTYPE=BB_IDX+",.bvmbb,.bvstack,.bvcg2,.bvballoons";
+const bbEn=st=>[...st.querySelectorAll("[data-v]")].filter(b=>!b.disabled&&b.offsetParent!==null);
+// the numbered choices, in the order you see them (picked ones keep their number)
+function bbChoices(st){const all=[...st.querySelectorAll(".bvopts>[data-v],.bvffo>[data-v],.bvropts>[data-v],.bvadc>[data-v],.bvgtray>[data-v]")].filter(b=>b.offsetParent!==null);
+  if(!all.length||all.some(b=>b.dataset.v==="⌫"||b.dataset.v==="↵"))return[];
+  if(!st.querySelector(BB_IDX)&&all.every(b=>/^-?\d+(\.\d+)?$/.test(b.dataset.v)))return[];return all;}
 {let kb="",kbT=0,kbQ=null;
  window.addEventListener("keydown",e=>{const st=document.getElementById("bvStage");if(!st||e.ctrlKey||e.metaKey||e.altKey)return;
   const t=e.target;if(t&&(t.tagName==="INPUT"||t.tagName==="TEXTAREA"||t.isContentEditable))return;
-  const btns=[...st.querySelectorAll("[data-v]")].filter(b=>!b.disabled&&b.offsetParent!==null);if(!btns.length)return;
+  const btns=bbEn(st);if(!btns.length)return;
   const cur=BB&&(BB.cur||(BB.g&&BB.g.q));if(cur!==kbQ){kbQ=cur;kb="";}if(Date.now()-kbT>1500)kb="";kbT=Date.now();
   const val=b=>String(b.dataset.v),k=e.key;
   if(k==="Backspace"){const b=btns.find(b=>val(b)==="⌫");if(b){b.click();e.preventDefault();}kb="";return;}
-  if(k==="Enter"){const b=btns.find(b=>val(b)==="↵");if(b){b.click();e.preventDefault();e.stopImmediatePropagation();}kb="";return;}
+  if(k==="Enter"||k===" "){let b=btns.find(b=>val(b)==="↵");if(!b){const act=btns.filter(b=>b.classList.contains("bvbtn"));if(act.length===1)b=act[0];}
+    if(b){b.click();e.preventDefault();e.stopImmediatePropagation();}kb="";return;}
   if(k.length!==1)return;const key=k.toLowerCase();
+  const ch=bbChoices(st);
+  if(ch.length){if(/^[1-9]$/.test(key)){const b=ch[+key-1];if(b&&!b.disabled){e.preventDefault();b.click();}}return;}
+  if(st.querySelector(BB_NOTYPE))return;
   // an exact single-key button (keypads, letters)
   const exact=btns.filter(b=>val(b).toLowerCase()===key);
   const numeric=btns.every(b=>/^-?\d+(\.\d+)?$/.test(val(b)));
   if(numeric&&/[\d-]/.test(key)){kb+=key;let pre=btns.filter(b=>val(b).startsWith(kb));if(!pre.length){kb=key;pre=btns.filter(b=>val(b).startsWith(kb));}
     if(!pre.length){kb="";return;}e.preventDefault();const hit=pre.find(b=>val(b)===kb);if(hit&&pre.length===1){hit.click();kb="";}return;}
-  if(exact.length===1){e.preventDefault();exact[0].click();return;}
-  // pictures, shapes and words: 1-9 picks the nth choice
-  if(/^[1-9]$/.test(key)){const b=btns[+key-1];if(b){e.preventDefault();b.click();}}});
+  if(exact.length===1){e.preventDefault();exact[0].click();return;}});
  // when a numeric answer is a prefix of a longer choice (e.g. 1 and 12), Enter submits what you've typed
  window.addEventListener("keydown",e=>{if(e.key!=="Enter"||!kb)return;const st=document.getElementById("bvStage");if(!st)return;
   const b=[...st.querySelectorAll("[data-v]")].find(b=>!b.disabled&&String(b.dataset.v)===kb);if(b){e.preventDefault();b.click();kb="";}});}
-// ---------- arrows / WASD: hit the choice in that direction (up to 4 choices); with more, move a highlight and press Space or Enter ----------
-{const DIRS={arrowup:[0,-1,"▲"],w:[0,-1,"▲"],arrowdown:[0,1,"▼"],s:[0,1,"▼"],arrowleft:[-1,0,"◀"],a:[-1,0,"◀"],arrowright:[1,0,"▶"],d:[1,0,"▶"]},ORDER=[[0,-1,"▲"],[1,0,"▶"],[0,1,"▼"],[-1,0,"◀"]];
- const live=()=>{const st=document.getElementById("bvStage");if(!st)return null;const bs=[...st.querySelectorAll("[data-v]")].filter(b=>!b.disabled&&b.offsetParent!==null);
-   // keypads and number answers keep their typing keys
-   if(!bs.length||bs.some(b=>b.dataset.v==="⌫")||bs.every(b=>/^-?\d+$/.test(b.dataset.v))&&bs.length>4)return null;return{st,bs,hl:bs.length>4||!!st.querySelector(".bvstack.mm,.bvmbb")};};
+// ---------- arrows / WASD: only for games that are about directions (whack holes, train turns, the clock) and to move a highlight over blocks, cages and balloons (Space or Enter hits it) ----------
+{const GL={up:"▲",left:"◀",right:"▶",down:"▼"},DIRS={arrowup:[0,-1,"up"],w:[0,-1,"up"],arrowdown:[0,1,"down"],s:[0,1,"down"],arrowleft:[-1,0,"left"],a:[-1,0,"left"],arrowright:[1,0,"right"],d:[1,0,"right"]};
+ const mode=st=>{if(st.querySelector(".bvclock"))return"clock";if(st.querySelector(".bvtra"))return"tra";if(st.querySelector(".bvdiamond"))return"dir";
+   if(st.querySelector(".bvmbb,.bvstack.mm,.bvcg2,.bvballoons"))return"hl";return bbChoices(st).length?"num":"";};
  const centers=bs=>bs.map(b=>{const r=b.getBoundingClientRect();return[r.left+r.width/2,r.top+r.height/2];});
- // best way to give each choice its own direction
- function assign(bs){if(bs.every(b=>b.dataset.dir)){const M={right:1,down:2,left:3,up:0};return bs.map(b=>M[b.dataset.dir]);}const c=centers(bs),mx=c.reduce((a,p)=>a+p[0],0)/c.length,my=c.reduce((a,p)=>a+p[1],0)/c.length,v=c.map(([x,y])=>{const dx=x-mx,dy=y-my,l=Math.hypot(dx,dy)||1;return[dx/l,dy/l];});
-   let best=null,bs2=-1e9;const perm=(arr,k,used,acc)=>{if(acc.length===k){const s=acc.reduce((a,d,i)=>a+v[i][0]*ORDER[d][0]+v[i][1]*ORDER[d][1],0);if(s>bs2){bs2=s;best=acc.slice();}return;}
-     for(let d=0;d<4;d++)if(!used[d]){used[d]=1;acc.push(d);perm(arr,k,used,acc);acc.pop();used[d]=0;}};perm(null,bs.length,[],[]);return best;}
- // four choices in one long row: lay them out like the arrow keys (one north, east, south and west) so each key points at its answer
- function cross(L){if(L.hl||L.bs.length!==4)return;const p=L.bs[0].parentElement;if(!p||p.classList.contains("bvcross")||!L.bs.every(b=>b.parentElement===p)||p.children.length!==4)return;
-   const c=centers(L.bs);if(Math.max(...c.map(x=>x[1]))-Math.min(...c.map(x=>x[1]))>12)return;p.classList.add("bvcross");}
- function label(){const L=live();if(L)cross(L);document.querySelectorAll("#bvStage [data-kd]").forEach(b=>{if(!L||!L.bs.includes(b))b.removeAttribute("data-kd");});if(!L||L.hl)return;
-   const a=assign(L.bs);L.bs.forEach((b,i)=>{const k=ORDER[a[i]][2];if(b.dataset.kd!==k)b.dataset.kd=k;if(!b.classList.contains("kdrel")&&getComputedStyle(b).position==="static")b.classList.add("kdrel");});}
+ // every hint has the same size and always sits on the same choice (a picked choice keeps its number)
+ function label(){const st=document.getElementById("bvStage"),set=new Map();
+   if(st){const m=mode(st);
+     if(m==="num")bbChoices(st).forEach((b,i)=>{if(i<9&&!b.disabled)set.set(b,String(i+1));});
+     else if(m==="dir")st.querySelectorAll(".bvhole").forEach(h=>{const d=["up","left","right","down"].find(x=>h.classList.contains(x));if(d)set.set(h,GL[d]);});
+     else if(m==="tra")[["L","◀"],["S","▲"],["R","▶"]].forEach(([v,g])=>{const b=st.querySelector(`.bvtra [data-v="${v}"]`);if(b)set.set(b,g);});
+     else if(m==="clock")[["-","◀"],["ok","↵"],["+","▶"]].forEach(([v,g])=>{const b=st.querySelector(`[data-v="${v}"]`);if(b)set.set(b,g);});}
+   document.querySelectorAll("#bvStage [data-kd]").forEach(b=>{if(!set.has(b))b.removeAttribute("data-kd");});
+   set.forEach((g,b)=>{if(b.dataset.kd!==g)b.dataset.kd=g;if(!b.classList.contains("kdrel")&&getComputedStyle(b).position==="static")b.classList.add("kdrel");});}
  setInterval(label,250);window.bbLabel=label;
  let foc=null;
  window.addEventListener("keydown",e=>{const k=e.key.toLowerCase();if(e.ctrlKey||e.metaKey||e.altKey)return;const t=e.target;if(t&&(t.tagName==="INPUT"||t.tagName==="TEXTAREA"))return;
-   const L=live();if(!L)return;
-   if((k===" "||k==="enter")&&L.hl&&foc&&L.bs.includes(foc)){e.preventDefault();e.stopImmediatePropagation();foc.classList.remove("kbf");foc.click();foc=null;return;}
+   const st=document.getElementById("bvStage");if(!st)return;const m=mode(st);if(!m||m==="num")return;
+   const fire=b=>{if(b&&!b.disabled){e.preventDefault();e.stopImmediatePropagation();b.click();}};
+   if(m==="clock"){const M={arrowleft:"-",a:"-",arrowright:"+",d:"+",enter:"ok"," ":"ok"};if(M[k])fire(st.querySelector(`[data-v="${M[k]}"]`));return;}
+   if(m==="tra"){const M={arrowleft:"L",a:"L",arrowup:"S",w:"S",arrowright:"R",d:"R"};if(M[k])fire(st.querySelector(`.bvtra [data-v="${M[k]}"]`));return;}
+   if(m==="dir"){const d=DIRS[k];if(!d)return;e.preventDefault();e.stopImmediatePropagation();const h=st.querySelector(".bvhole."+d[2]);if(h&&h.dataset.v)h.click();return;}
+   const bs=bbEn(st);if(!bs.length)return;
+   if((k===" "||k==="enter")&&foc&&bs.includes(foc)){e.preventDefault();e.stopImmediatePropagation();foc.classList.remove("kbf");foc.click();foc=null;return;}
    const d=DIRS[k];if(!d)return;e.preventDefault();e.stopImmediatePropagation();
-   if(!L.hl){label();const a=assign(L.bs),i=a.findIndex(x=>ORDER[x][0]===d[0]&&ORDER[x][1]===d[1]);if(i>=0)L.bs[i].click();return;}
-   // more than 4: move the highlight to the nearest choice that way
-   const c=centers(L.bs);let cur=foc&&L.bs.includes(foc)?L.bs.indexOf(foc):-1;
-   if(cur<0){const r=L.st.getBoundingClientRect(),o=[r.left+r.width/2,r.top+r.height/2];cur=c.reduce((bi,p,i)=>Math.hypot(p[0]-o[0],p[1]-o[1])<Math.hypot(c[bi][0]-o[0],c[bi][1]-o[1])?i:bi,0);}
+   // move the highlight to the nearest choice that way
+   const c=centers(bs);let cur=foc&&bs.includes(foc)?bs.indexOf(foc):-1;
+   if(cur<0){const r=st.getBoundingClientRect(),o=[r.left+r.width/2,r.top+r.height/2];cur=c.reduce((bi,p,i)=>Math.hypot(p[0]-o[0],p[1]-o[1])<Math.hypot(c[bi][0]-o[0],c[bi][1]-o[1])?i:bi,0);}
    else{let bi=-1,bd=1e9;c.forEach((p,i)=>{if(i===cur)return;const dx=p[0]-c[cur][0],dy=p[1]-c[cur][1],along=dx*d[0]+dy*d[1];if(along<=4)return;const side=Math.abs(dx*d[1]-dy*d[0]),sc=along+side*2;if(sc<bd){bd=sc;bi=i;}});if(bi>=0)cur=bi;}
-   if(foc)foc.classList.remove("kbf");foc=L.bs[cur];foc.classList.add("kbf");},true);}
+   if(foc)foc.classList.remove("kbf");foc=bs[cur];foc.classList.add("kbf");},true);}
 
 // ===== ULTIMATE CHICKEN HORSE: a party platformer in the style of Ultimate Chicken Horse / Party Chaos =====
 // Each round: everyone picks an item from the party box, places it on the course (you see each other's cursors live),
