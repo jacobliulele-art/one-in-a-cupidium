@@ -1008,6 +1008,43 @@ body.gated>*:not(#gateBlock){visibility:hidden!important}
 .bg-candy{background:repeating-linear-gradient(45deg,#fbcfe8 0 14px,#fdf2f8 14px 28px,#bae6fd 28px 42px,#fdf2f8 42px 56px) 0 0/79.2px 79.2px;animation:candy 3s linear infinite}
 .bg-candy .flcn,.bg-candy .flcs{text-shadow:0 1px 0 #fff;color:#3b0764}
 @keyframes candy{to{background-position:79.2px 0}}
+
+/* ===== Nov 19 (late night): tighter tabs/boxes, calmer and easier-to-read pages ===== */
+#panel>.inner{width:min(840px,100%);gap:14px}
+#panel>.inner.wide{width:min(1160px,100%)}
+/* boxes: more solid so the scenery behind doesn't compete with the text */
+.glass.card,.glass.lbgroups{background-color:var(--glass2);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+.hint{font-size:13px;line-height:1.5;letter-spacing:.01em}
+.lbl{color:var(--ink);opacity:.72;font-size:9px;letter-spacing:.16em}
+.card h3{line-height:1.3}
+/* red dot: plain neon */
+.nb{width:10px;height:10px;top:6px;left:6px;background:#ff2b4a;box-shadow:0 0 6px #ff2b4a,0 0 12px rgba(255,43,74,.75);font-size:0;animation:nbp 2.2s ease-in-out infinite}
+@keyframes nbp{50%{box-shadow:0 0 9px #ff2b4a,0 0 18px rgba(255,43,74,.9)}}
+/* party card: one slim row */
+.lcard.ptl{min-height:0;flex-direction:row;gap:14px;padding:10px 14px}
+.lcard.ptl b{font-size:inherit}
+/* tab bars hug their buttons instead of stretching across the page */
+.lbsec,.lbsub{align-self:center;width:auto;max-width:100%;justify-content:center;padding:3px;gap:2px}
+.lbsec button,.lbsub button{flex:0 0 auto;padding:7px 12px;font-size:10px}
+/* name box: small */
+.lbname{align-self:center;width:min(520px,100%);padding:8px 12px!important}
+.lbname input{padding:6px 10px;font-size:14px;min-height:0}
+.lbname .pbtn{padding:6px 12px}
+.lbname .hint{font-size:11px;margin:6px 0 0}
+/* board titles stand out from the rows */
+.lbcell h3,#lbBox>.card>h3{font-size:11px!important;color:var(--hl,#fde68a);letter-spacing:.1em;text-transform:uppercase;padding-bottom:5px;margin-bottom:5px;border-bottom:1px solid color-mix(in srgb,var(--hl,#fde68a) 35%,transparent)}
+/* board rows never wrap (flair badge, long names, live runs, difficulty) */
+.lbl2 li{flex-wrap:nowrap;min-width:0}
+button.lbn{display:flex;align-items:center;gap:4px;min-width:0;overflow:hidden;white-space:nowrap}
+button.lbn b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+button.lbn .flb{flex:0 0 auto;margin-right:2px}button.lbn .flt{flex:0 1 auto;overflow:hidden;text-overflow:ellipsis}
+.lbl2 .sc,.lbl2 .rk,.lbl2 .lbdiff,.lblive{flex:0 0 auto;white-space:nowrap}
+.lbgrid .lbdiff{font-size:8px;padding:0 3px;margin-left:2px;letter-spacing:0}
+.lbgrid .lblive{font-size:10px;margin-right:2px}
+.lbgrid .flt{display:none}
+.modegrid .fuelnote{display:none}
+.mbtn small{letter-spacing:.06em;opacity:.85}
+.dsmode{background:rgba(40,16,80,.62);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
 </style>
 
 <canvas id="scene"></canvas>
@@ -7823,7 +7860,7 @@ function leaderboards(back){LBV.back=back||LBV.back||"landing";
     <p class="hint">${lbOn()?"Boards are shared with everyone playing the GitHub version. Top "+LB_KEEP+" per game.":"This version can't reach the shared boards, so these are your own scores on this device."}</p></div>`,{cls:"wide"});
   lbRender();}
 function lbRender(){const box=$("lbBox");if(!box)return;const key=lbKeyFor(LBV.k),rows=LB.b[key]||[];
-  box.innerHTML=`<div class="glass card"><h3 style="font-size:13px">${esc(lbName(LBV.k))}${LBV.k==="daily"||LBV.k==="dailyGeo"||LBV.k==="speed"||LBV.k==="catd"||/^ds(Daily|DailyGeo|Speed|Catd)$/.test(LBV.k)||/^cp[A-Z]/.test(LBV.k)?" · "+today():LBV.k==="season"?" · week of "+weekKey():""}</h3>
+  box.innerHTML=`<div class="glass card"><h3 style="font-size:13px">${esc(lbName(LBV.k))}${LBV.k==="season"?" · week of "+weekKey():""}</h3>
     ${rows.length?`<ol class="lbl2">${rows.map((r,i)=>`<li class="${r.i===LB.id?"me":""}"><span class="rk">${["🥇","🥈","🥉"][i]||"#"+(i+1)}</span><b>${esc(r.n)}</b>${r.d&&/^r?endless/.test(LBV.k)?`<span class="lbdiff lbd-${r.d}">${{e:"EASY",n:"NORMAL",h:"HARD"}[r.d]||""}</span>`:""}<span class="sc">${MGAMES[key]&&MGAMES[key].fmt?MGAMES[key].fmt(r.s):r.s.toLocaleString()}</span></li>`).join("")}</ol>`
       :`<p class="hint">No scores yet. Be the first!</p>`}</div>`;}
 // the board opens on whatever you were just looking at (data-k), e.g. the arcade opens on the last game you played
@@ -10414,7 +10451,7 @@ const pxeObs=new MutationObserver(ms=>{for(const m of ms){if(m.type==="character
 function dailyDue(ds){const d=today(),x=ds?".ds":"",c=typeof catToday==="function"&&catToday();
   return{main:!store.get("oddball.daily."+d+x,null),geo:!store.get("oddball.dailyGeo."+d+x,null),speed:!store.get("otc.dspeed."+d+x,null),cat:!!c&&!store.get("otc.dcatd."+d+x,null)};}
 const anyDue=ds=>Object.values(dailyDue(ds)).some(Boolean);
-function nb(el){if(!el||el.querySelector(":scope>.nb"))return;el.classList.add("hasnb");el.insertAdjacentHTML("afterbegin",`<i class="nb" aria-label="not played today">!</i>`);}
+function nb(el){if(!el||el.querySelector(":scope>.nb"))return;el.classList.add("hasnb");el.insertAdjacentHTML("afterbegin",`<i class="nb" aria-label="not played today"></i>`);}
 {const _h=home;home=function(){_h();try{const P=$("panel"),ds=DSM(),u=dailyDue(ds);
   const xd=P.querySelector(".xdailies");if(xd&&!xd.querySelector('[data-act="tower"]')){const t=twMine();xd.insertAdjacentHTML("beforeend",`<button class="mbtn m-ice" data-act="tower">🏗 DAILY TOWER<small>${t.list.length?`${t.h} m · ${t.list.length} answer${t.list.length>1?"s":""}`:"one prompt all day · stack answers"}</small></button>`);}
   if(u.main)nb(P.querySelector("button.daily"));if(u.speed)nb(P.querySelector('[data-act="dSpeed"]'));if(u.cat)nb(P.querySelector('[data-act="dCat"]'));if(u.geo)nb(P.querySelector('[data-act="geo"]'));
