@@ -20,7 +20,7 @@ Relay (separate repo `lele-io/cupidium-relay`): Cloudflare Worker + one Durable 
 | `data/words.js` | Daily Cuepon lists `CW_OK`, `CW_BEE` |
 | `data/decks.js`, `data/art.js`, `data/maps.js` | Decks, pixel art, Chicken Horse maps |
 | `tools/check.js` | Syntax/data check |
-| `tools/trmaps.js`, `tools/trsolve.js` | Build / check Chicken Horse maps |
+| `tools/trmaps.js`, `tools/trsolve.js` | Build / check Chicken Horse maps (`trsolve` needs no installs) |
 
 ## Answers
 - Tiers `t:[0..4]`: 0 most common … 4 = ONE IN A CUPIDIUM. `|` between answers, `/` between aliases.
@@ -40,6 +40,32 @@ Relay (separate repo `lele-io/cupidium-relay`): Cloudflare Worker + one Durable 
 ## Relay usage (Cloudflare free tier: 13,000 GB-s/day of Durable Object awake time)
 - Live streams (`sseOpen`) keep a Durable Object awake the whole time they're open. Don't add new always-on streams or short polling;
   close streams when the tab is hidden or idle. Party-room WebSockets already hibernate.
+
+## Ultimate Chicken Horse (UCH) — `// ===== ULTIMATE CHICKEN HORSE` section, all names start with `tr`
+- Flow: host runs `trHost*` (pick → place → run → score; solo runs the same host code locally) and broadcasts the whole state
+  `{t:"tr",...st}`; every device rebuilds the course with `trBuild(st)` and runs its own racer (`trStep` physics, `trCheck` deaths/flag).
+  Clients send `tpk`/`tpl`/`tres`/`tcoin`/`trvote` to the host (routed in the "party room wiring" block at the end of the section).
+- Items: `TR_ITEMS` (+ `TR_BOX_W` box weights, `TR_SOLID` tile kinds, `TR_ROT`, `TR_HINT`). Art in `data/art.js` `OIC_DATA.TR_ART` (16×16 rows, `BBPAL` letters).
+  Kind numbers in the course grid: 2 solid, 3 ice, 4 spring, 5/6/16/17 conveyors, 7 honey, 8 fan, 9/10/18/19 boost, 11 slime, 20 truss.
+- Rules worth knowing: bombs only remove items; the rare `cnuke` adds `st.cor` (chipped/charred tiles, partial collision via `trCorRect`);
+  portals pair per owner in placement order (`trPortalPairs`); spikes/honey/ice need support (`trBaseOk`); a racer can never end up
+  inside a wall (`trStuck` snaps back to the last clear spot); `st.win` = points to win (`otc.tr.win`); `st.log` = every point scored, for the score bars.
+- Maps: edit `tools/trmaps.js` (never hand-edit `data/maps.js`), then `node tools/trmaps.js --print <id>` and `node tools/trsolve.js`
+  (plain Node, uses the game's own physics; `START=x,y GOAL=x,y` checks one stretch — y is the row above the tile you stand on).
+  The search heads straight for the flag, so maps with long detours need checking stretch by stretch.
+  Tile letters: `#` theme rock, s snow, i ice, d teal, v purple, g green, a sand, u dirt, r/b/e crystals, h white highlight, w wood,
+  l leaves, k grey trunk, n dark branch, o/p clouds, m metal, y yellow, z coral; `x` map spike (only on solid ground), deco `c P K F`.
+  New solid letters must go in BOTH `TR_TILE` (+ `TR_TCOL` colour) in index.html and `SOLID` in trmaps.js. Themes live in `TR_THEMES` + `trDrawSky`.
+  The 4 original maps follow the owner's own map recording (`.claude/6f34bc23-…-render-compressed.mp4` in their download folder); space/dream/ocean match the main game's themes.
+- Quick logic test without a browser: run the UCH section of index.html in a Node `vm` with stub `$`/canvas/`store`
+  (see how `tools/trsolve.js` slices the section out).
+
+## Layout rules (the owner is strict about these)
+- No empty bands: boxes hug their content; a lone short label must not sit in a full-width box.
+- Rows of cards/buttons are centred, including a leftover last row, and the text inside boxes is centred.
+  The CSS block at the end of the first `<style>` turns the card grids (`.landing .modegrid .xdailies .skins .casgrid .bvitems …`)
+  into centred flex-wrap rows; add new card grids to it. Leaderboard boards are dealt into columns by `lbMasonry` (no gaps).
+- Empty leaderboards show just their title (no "No scores yet" text).
 
 ## Testing in a browser
 `npm i playwright`, serve the repo with `python3 -m http.server`, hide `#nameGate` with a style tag.

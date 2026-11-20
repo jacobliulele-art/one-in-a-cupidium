@@ -889,6 +889,8 @@ body.gated>*:not(#gateBlock){visibility:hidden!important}
 .trpad{display:flex;gap:8px;align-items:center}
 .trtools{position:absolute;left:6px;top:6px;display:flex;flex-wrap:wrap;gap:4px;align-items:center;line-height:1.2;z-index:2;max-width:70%}.trtools .pbtn{padding:3px 8px;font-size:11px;opacity:.92}.trspec{display:inline-flex;align-items:center;gap:4px;background:rgba(10,8,30,.7);padding:2px 6px;font-size:11px}
 .trpv{width:min(760px,94vw);display:flex;flex-direction:column;gap:8px}.trpvpic{overflow:auto;max-height:60vh;border:2px solid var(--edge);background:#000}.trpvc{display:block;width:100%;image-rendering:pixelated}
+.trvotes{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:4px 0 8px}.trvote{display:flex;flex-direction:column;align-items:center;text-align:center;padding:5px 10px;border:2px solid var(--edge);background:rgba(255,255,255,.06)}
+.trvote.pick{border-color:var(--hl)}.trvote b{font-size:12px}.trvote .trvn{font-size:11px;color:var(--hl)}.trvote small{font-size:10px;opacity:.8}
 .trscore{max-width:720px}.trsc{display:flex;flex-direction:column;gap:8px;margin:10px 0}.trsrow{display:grid;grid-template-columns:120px 1fr 40px;gap:8px;align-items:center;text-align:left}
 .trsrow.me .trsn b{color:var(--hl)}.trsn{display:flex;flex-direction:column;line-height:1.2}.trsn small{font-size:10px;opacity:.75}.trsrow strong{font-size:18px;text-align:right}
 .trsbar{position:relative;height:22px;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.2);display:flex;overflow:visible}
@@ -1075,6 +1077,20 @@ button.lbn .flb{flex:0 0 auto;margin-right:2px}button.lbn .flt{flex:0 1 auto;ove
 .dsmode{width:fit-content;max-width:100%}
 .mbtn,.lcard{min-height:0}
 @media (max-width:420px){.daily{grid-template-columns:auto 1fr;width:100%}}
+/* ===== every row of boxes is centred (the last row too), boxes hug their content, and the text inside them is centred ===== */
+.landing,.arcade,.modegrid,.xdailies,.skins,.shopgrid,.casgrid,.achgrid,.bvhub,.bvgames,.bvitems,.bvspgrid,.tritems,.devmenu{display:flex!important;flex-wrap:wrap;justify-content:center;align-items:stretch}
+.landing>*{flex:0 1 calc(50% - 7px)}.arcade>*{flex:0 1 calc(50% - 5px)}
+.modegrid>*{flex:0 1 calc(33.333% - 7px);min-width:190px}.xdailies>*{flex:0 1 calc(33.333% - 8px);min-width:150px}
+.skins>*{flex:0 1 170px}.shopgrid>*{flex:0 1 140px}.casgrid>*{flex:0 1 calc(33.333% - 7px);min-width:150px}.achgrid>*{flex:0 1 260px}
+.bvhub>*{flex:0 1 calc(50% - 5px)}.bvgames>*{flex:0 1 calc(50% - 3px)}.bvitems>*{flex:0 1 118px}.bvspgrid>*{flex:0 1 270px}.tritems>*{flex:0 1 104px}.devmenu>*{flex:0 1 220px}
+.modegrid .mbtn.wide,.landing .lcard.ptl{flex:0 1 auto;width:fit-content;max-width:100%;padding-inline:32px;align-self:center}
+.lcard,.lcard.bbl,.lcard.ptl,.mbtn{min-height:0!important}
+#panel>.inner>button,#panel>.inner>.pbtn,#panel>.inner>.row>.pbtn.big{align-self:center;width:fit-content;max-width:100%}
+.lcard,.mbtn,.skin,.bvitem,.bvgame,.tritem,.glass.card,.casgrid>*,.shopgrid>*,.achgrid>*,.devmenu>*,.skin h3,.skin canvas{text-align:center;margin-inline:auto}
+.lcard,.mbtn,.skin{align-items:center;justify-content:center}
+@media (max-width:560px){.modegrid>*,.xdailies>*,.casgrid>*{flex-basis:calc(50% - 6px);min-width:0}}
+/* leaderboards: boards stack in columns (see lbMasonry) */
+.lbgrid.masonry{display:flex;gap:8px;align-items:flex-start}.lbcol{flex:1 1 0;display:flex;flex-direction:column;gap:8px;min-width:0}
 </style>
 
 <canvas id="scene"></canvas>
@@ -7905,7 +7921,7 @@ function leaderboards(back){LBV.back=back||LBV.back||"landing";
 function lbRender(){const box=$("lbBox");if(!box)return;const key=lbKeyFor(LBV.k),rows=LB.b[key]||[];
   box.innerHTML=`<div class="glass card"><h3 style="font-size:13px">${esc(lbName(LBV.k))}${LBV.k==="season"?" · week of "+weekKey():""}</h3>
     ${rows.length?`<ol class="lbl2">${rows.map((r,i)=>`<li class="${r.i===LB.id?"me":""}"><span class="rk">${["🥇","🥈","🥉"][i]||"#"+(i+1)}</span><b>${esc(r.n)}</b>${r.d&&/^r?endless/.test(LBV.k)?`<span class="lbdiff lbd-${r.d}">${{e:"EASY",n:"NORMAL",h:"HARD"}[r.d]||""}</span>`:""}<span class="sc">${MGAMES[key]&&MGAMES[key].fmt?MGAMES[key].fmt(r.s):r.s.toLocaleString()}</span></li>`).join("")}</ol>`
-      :`<p class="hint">No scores yet. Be the first!</p>`}</div>`;}
+      :""}</div>`;}
 // the board opens on whatever you were just looking at (data-k), e.g. the arcade opens on the last game you played
 Object.assign(ACT,{leaderboards:b=>{const d=(b&&b.dataset)||{};let k=d.k==="lastArc"?store.get("otc.lastArc","cup"):d.k;if(k&&DSM()&&DS_LB[k])k=DS_LB[k];if(k){LBV.k=k;LBV.sec=null;LBV.sub=null;}else if(d.s&&d.s!==LBV.sec){LBV.sec=d.s;LBV.k=null;LBV.sub=null;}leaderboards(d.back);},lbTab:b=>{LBV.k=b.dataset.k;leaderboards();},lbSec:b=>{LBV.sec=b.dataset.s;LBV.sub=null;leaderboards();},lbSub:b=>{LBV.sub=+b.dataset.g;leaderboards();},
   lbSetName:async()=>{const v=($("lbName").value||"").trim().slice(0,16);if(!v)return;if(v.toLowerCase()!==String(lbMe()).toLowerCase()&&!await nameFree(v))return toast(`<b>${esc(v)}</b> is taken. Try another name.`);store.set("oddball.name",v);if(SOC.me){SOC.me.name=v;socSave();}
@@ -8350,6 +8366,10 @@ Object.assign(ACT,{abMore:()=>{const box=$("ablist"),st=box?box.scrollTop:0;AB.n
 
 // ===== update log =====
 function updList(){return [
+ {v:"4.3",t:"Chicken Horse overhaul",d:"Nov 20, 2026",s:{
+   "Ultimate Chicken Horse maps":["Frozen Peaks, Crystal Cavern, Tropical Islands and Sunset Woods are rebuilt to match the original maps: ice staircases, the ice mountain with a cave, giant crystals, palm-top climbs and red acacia canopies","3 new maps: Moon Base (space, low gravity), Cloud Kingdom (dream, rainbow bridge) and Coral Reef (ocean, dive down to the flag)","Preview any map from the map picker","In a party room, players can vote for a map. The host still picks; votes just show what everyone wants"],
+   "Ultimate Chicken Horse rules":["Points to win setting (50 to 200, default 100), and solo practice now scores and ends","The score screen shows the whole game: every point, coloured by what earned it","Bombs, dynamite and nukes only blow up placed items. The rare Cupidium Nuke scorches the map itself","A bomb, dynamite or nuke shows up at least every 2 rounds; the nuke looks like an atomic bomb","Spikes, honey and ice must sit on a block; honey and ice are full blocks","One portal per pick (your next portal links to it); one coin grab per round","Trusses are solid and climbable, the candy cane carries you, frozen players don't fall, the angry cube sleeps until you go near it, fans are a touch weaker","See a fan's reach (and flamethrowers, freeze rays, crossbows) while placing; turrets and bullets are much easier to see","You can't move before GO, can't get stuck inside walls, and Play as Ghost only shows once you're out","Customize button on the Chicken Horse menu"],
+   "Look":["Boxes hug their content: no more big empty bands","Rows of buttons and cards are centred, including the last row, and their text is centred","Leaderboards stack neatly with no random gaps, and empty boards no longer say 'No scores yet'"]}},
  {v:"4.2",t:"Academy fixes",d:"Nov 20, 2026",s:{"Cupidium Academy":["New look for the Academy menu: dark glass cards with a colored edge instead of solid color blocks","PLAY WITH FRIENDS, TAKE THE TEST, PRACTICE and GHOST CLASH sit in a 2x2 grid; CUSTOMIZE is a small button next to LEADERBOARDS","Choices show a number (1, 2, 3...) in the same corner every time, in the order you see them, and the numbers no longer move around in Speed Sorting. Arrow keys / WASD are only used where the game is about directions (Whack Match, Train Turn, Tick-Tock Turn)","Choices are centered, even when a row isn't full","The right answer lights up green when you miss, and the one you tapped lights up red or green","Frame Filler now moves like the real game: the shapes spin and drift, the pieces in the tray move too, and only one keeps moving like the picture","Get In Shape and Match Blast accept every valid solution, not just one","True View never shows two choices that look the same","Higher scores: faster answers and answer streaks now earn bonus points"]}},
  {v:"4.1",t:"Smarter checking",d:"Nov 19, 2026",s:{"Autocorrect":["Autocorrect now ALWAYS asks 'did you mean…?' first (only the Rapid modes skip it), even when you type another name for an answer: saint kitts → saint kitts and nevis, hot spring monkey → snow monkey","Leaving words out now gets a 'did you mean…?': satanic gecko → satanic leaf-tailed gecko, bosnia → bosnia and herzegovina","A shortened name asks first too (sun → sun tzu), and your own name stays yours (salvator rosa no longer turns into a film title)","Typos are corrected against every answer in the game, not just this prompt's list (truto → truro)"],"AI checking":["Before turning an answer down, the AI takes a second careful look at every meaning of it, so you rarely need IT'S REAL (eon, turkey)","Theories, jokes and related things no longer count as the thing (pentagon pizza theory is not a Mexican food), and the color or condition in a prompt is checked (tepig is not black and white)","An answer that needed a check is never common: tier 2 at least (tier 3 for long names), whatever Wikipedia page views say"],"Answers":["More explanations under obscure prompts (what the Hanseatic League was, and about 200 more)","Rarity fixes: dumb ways to die, zugzwang, hans gruber, vatican city and more","ONE IN A CUPIDIUM picks for countries, capitals and states now rotate every week so they can't be memorized, and a few too-famous picks were swapped","Former names of countries: turkey, czech republic, macedonia and more"]}},
  {v:"4.0",t:"Daniel Simons Mode",d:"Nov 17, 2026",s:{"New":["DANIEL SIMONS MODE (on the main menu): 245 super-niche prompts you only see in this mode, 15 seconds each, with its own dailies, runs and leaderboards","Cupidium Rhythm is now Project Sekai style: 6 lanes on a 3D highway, holds, flicks, gold criticals, 4 songs and 5 difficulties","Endless shows a graph of your fuel over the run","Mihir’s Cupididdium Token: every Daily hides one secret deep-cut answer. Say it to get any chip shop item free (or 1,500 chips)","58 new prompts, including 19 geography ones, so the dailies and category days last longer","Usernames are unique now: nobody can take a name someone else already has"],
@@ -9903,16 +9923,21 @@ const TR_THEMES={
  peaks:{sky:["#6f8fe8","#e9c8f0"],rock:"#6f6f7a",rock2:"#55555f",top:"#ffffff",top2:"#cde6ff",ice:"#9fdcff",ice2:"#5fb3e8",haz:["#dff6ff","#8fd0ff"],far:"#b9d8f2",far2:"#e8f4ff"},
  crystal:{sky:["#05060f","#1a1d33"],rock:"#8c8c94",rock2:"#6e6e78",top:"#a4a4ae",top2:"#8c8c94",haz:["#ff6b6b","#8fe39a","#9fd0ff","#ff6b6b"],far:"#1a1030",far2:"#3a2160"},
  tropical:{sky:["#ff8a3d","#ffd98a"],rock:"#e6b46a",rock2:"#c48a3a",top:"#7ccf4f",top2:"#4f9f3a",wood:"#8a5a32",wood2:"#5e3b1f",leaf:"#3fae4a",leaf2:"#1f7a3a",haz:["#ffffff","#cfd8e8"],far:"#ff9f5a",far2:"#ffc27a"},
+ space:{sky:["#02030c","#141a3a"],rock:"#8e8e9a",rock2:"#6a6a78",top:"#c4c4d0",top2:"#9a9aa8",haz:["#ffe14d","#ff4d6d"],far:"#20284a",far2:"#2e3a66"},
+ dream:{sky:["#ffb8e6","#b8e6ff"],rock:"#c9a3ff",rock2:"#a07ae0",top:"#7ccf4f",top2:"#4f9f3a",haz:["#ff6fae","#ffe14d"],far:"#ffd6f2",far2:"#fff0fa"},
+ ocean:{sky:["#3fb6e0","#06204a"],rock:"#3a5a7a",rock2:"#2a4060",top:"#e6d39a",top2:"#c4ad6e",wood:"#6a4a2a",wood2:"#3e2a14",haz:["#ff7a9a","#ffd1e0"],far:"#0f3a6a",far2:"#1a5a8a"},
  woods:{sky:["#5a1020","#ff8a3a"],rock:"#5a2a24",rock2:"#3e1c18",top:"#a83a2a",top2:"#7a2620",wood:"#5a2e1e",wood2:"#3e1e14",leaf:"#c8382a",leaf2:"#8a1f1a",haz:["#3a1a1a","#7a2a2a"],far:"#8a2a2a",far2:"#b8402e"}};
 let TRM=null,TR_BASE=null,TR_BASEC=null,TR_START={x:2,y:2},TR_GOAL={x0:0,x1:3,y0:0,y1:2};
-const TR_TILE={"#":1,i:3,s:1,d:1,v:1,g:1,a:1,r:1,b:1,e:1,w:12,l:13};
+const TR_TILE={"#":1,i:3,s:1,d:1,v:1,g:1,a:1,r:1,b:1,e:1,w:12,l:13,h:1,k:1,n:1,u:1,o:1,p:1,m:1,y:1,z:1};
 // tile colors: [main, alt, edge]
 const TR_TCOL={s:["#ffffff","#cfe6ff","#9fc8f0"],i:["#7fc4ff","#a8d8ff","#4f94d8"],d:["#1f6f7a","#2a8a8f","#14505a"],v:["#7a4fc9","#9a6fe0","#4e2f8a"],g:["#3f9f6a","#55b77e","#2a7048"],
- a:["#f0c27a","#f6d394","#c99a52"],r:["#c8323c","#ff6b6b","#7a1a22"],b:["#3b82f6","#9fd0ff","#1e3a8a"],e:["#2f9e44","#8fe39a","#1b5e2a"]};
+ a:["#f0c27a","#f6d394","#c99a52"],r:["#c8323c","#ff6b6b","#7a1a22"],b:["#3b82f6","#9fd0ff","#1e3a8a"],e:["#2f9e44","#8fe39a","#1b5e2a"],
+ h:["#f4f4fa","#ffffff","#c8c8d8"],k:["#8a8a92","#a2a2aa","#5c5c64"],n:["#2a0e12","#3a161a","#14060a"],u:["#7a3e1e","#8e4c28","#4e2410"],o:["#ffffff","#f4eaff","#d8c8f0"],
+ p:["#ffc2ef","#ffd8f5","#e08ccf"],m:["#b8c0d0","#d0d8e6","#6a7488"],y:["#ffe14d","#fff1a0","#c9a81a"],z:["#ff7a9a","#ffa0b8","#c84868"]};
 function trSetMap(id){if(TRM&&TRM.id===id)return;const d=TR_MAPDATA[id]||TR_MAPDATA.peaks,R=d.rows;TR_H=R.length;TR_W=R[0].length;
   TR_BASE=new Uint8Array(TR_W*TR_H);TR_BASEC=new Array(TR_W*TR_H).fill("");const hz=[],deco=[];
   for(let y=0;y<TR_H;y++)for(let x=0;x<TR_W;x++){const c=R[y][x],k=y*TR_W+x;if(TR_TILE[c]){TR_BASE[k]=TR_TILE[c];TR_BASEC[k]=c;}
-    else if(c==="x"){if(y+1<TR_H&&TR_TILE[R[y+1][x]])hz.push([x,y]);}else if(c==="c"||c==="P"){if(y+1<TR_H&&TR_TILE[R[y+1][x]])deco.push([x,y,c]);}else if(c==="S")TR_START={x,y};else if(c==="G")TR_GOAL={x0:x-1,x1:x+2,y0:y-2,y1:y};}
+    else if(c==="x"){if(y+1<TR_H&&TR_TILE[R[y+1][x]])hz.push([x,y]);}else if("cPKF".includes(c)){if(y+1<TR_H&&TR_TILE[R[y+1][x]])deco.push([x,y,c]);}else if(c==="S")TR_START={x,y};else if(c==="G")TR_GOAL={x0:x-1,x1:x+2,y0:y-2,y1:y};}
   TRM=Object.assign({id},d,{th:TR_THEMES[d.theme]||TR_THEMES.peaks,hz,deco});}
 // the spawn safe area: nothing can be built here (a bit bigger than it used to be: 7 wide, 5 tall)
 const TR_SAFE={dx:3,up:4,dn:0};
@@ -10117,7 +10142,7 @@ function trDrawGround(x,C,cam){const th=TRM.th,t0x=Math.max(0,Math.floor(cam.x/T
       if("rbe".includes(c)){x.fillStyle=tc[1];if((tx+ty)%3===0)x.fillRect(px+2,py+2,3,12);x.fillStyle=tc[2];if(!trSolid(C,tx+1,ty))x.fillRect(px+13,py,3,16);if(!trSolid(C,tx,ty+1))x.fillRect(px,py+13,16,3);}
       else{x.fillStyle=tc[2];if(!trSolid(C,tx,ty+1))x.fillRect(px,py+12,16,4);if(c==="i"&&v>.7){x.fillStyle="#ffffff";x.fillRect(px+3,py+3,5,1);}}
       if(open&&c!=="s"&&!"rbe".includes(c)){x.fillStyle="rgba(255,255,255,.35)";x.fillRect(px,py,16,2);}return;}
-    if(TRM.theme==="crystal"||TRM.theme==="peaks"){const v=pxHash(tx,ty,3);x.fillStyle=v<.3?th.rock2:v>.8?th.top:th.rock;x.fillRect(px,py,16,16);return;}
+    if(TRM.theme==="crystal"||TRM.theme==="peaks"||TRM.theme==="space"){const v=pxHash(tx,ty,3);x.fillStyle=v<.3?th.rock2:v>.8?th.top:th.rock;x.fillRect(px,py,16,16);return;}
     x.fillStyle=th.rock;x.fillRect(px,py,16,16);x.fillStyle=th.rock2;x.fillRect(px+((tx*5+ty*3)%12),py+((tx*3+ty*7)%12),4,3);
     if(!trSolid(C,tx-1,ty)||!C.base[k-1]){x.fillStyle=th.rock2;x.fillRect(px,py,2,16);}
     if(!trSolid(C,tx,ty+1)){x.fillStyle=th.rock2;x.fillRect(px,py+13,16,3);}
@@ -10127,7 +10152,7 @@ function trDrawGround(x,C,cam){const th=TRM.th,t0x=Math.max(0,Math.floor(cam.x/T
     if(cr&&C.base[k]){const q=trCorRect(tx,ty,cr[0],cr[1]);x.save();x.beginPath();x.rect(q.l,q.t,q.r-q.l,q.b-q.t);x.clip();one(tx,ty);x.restore();trDrawChar(x,q,cr,tx,ty);}else one(tx,ty);}
   // map hazards (spikes, thorns, crystal shards) and decorations
   for(const [hx,hy] of TRM.hz){if(!C.kind||C.kind[hy*TR_W+hx])continue;const px=hx*TR_TS,py=hy*TR_TS;if(px<cam.x-16||px>cam.x+trVW())continue;
-    const SPK={crystal:["#ff3d7f","#ffd1e3"],peaks:["#e8f6ff","#7fb8e8"],tropical:["#f4f4f4","#9aa6b8"],woods:["#c0392b","#ff9a8a"]}[TRM.theme]||["#ff4d6d","#ffd1d9"];
+    const SPK={crystal:["#ff3d7f","#ffd1e3"],peaks:["#e8f6ff","#7fb8e8"],tropical:["#f4f4f4","#9aa6b8"],woods:["#c0392b","#ff9a8a"],space:["#ffe14d","#fff6c2"],dream:["#ff6fae","#ffd1ec"],ocean:["#3a1a4a","#ff7a9a"]}[TRM.theme]||["#ff4d6d","#ffd1d9"];
     x.fillStyle="rgba(20,8,30,.9)";x.beginPath();for(let i=0;i<3;i++){const bx=px+i*5.33;x.moveTo(bx-.5,py+16.5);x.lineTo(bx+2.67,py+4.5);x.lineTo(bx+5.83,py+16.5);}x.fill();
     x.fillStyle=SPK[0];x.beginPath();for(let i=0;i<3;i++){const bx=px+i*5.33;x.moveTo(bx+.6,py+16);x.lineTo(bx+2.67,py+6.5);x.lineTo(bx+4.73,py+16);}x.fill();
     x.fillStyle=SPK[1];for(let i=0;i<3;i++){const bx=px+i*5.33;x.fillRect(bx+2.2,py+8,1,4);}
@@ -10135,6 +10160,8 @@ function trDrawGround(x,C,cam){const th=TRM.th,t0x=Math.max(0,Math.floor(cam.x/T
   for(const [dx,dy,c] of TRM.deco){const px=dx*TR_TS,py=dy*TR_TS;if(px<cam.x-80||px>cam.x+trVW()+40)continue;
     if(c==="c"){const cols=th.haz;[[3,9,0],[7,13,1],[11,8,2]].forEach(([ox,hh,i])=>{x.fillStyle=cols[(dx+i)%cols.length];x.fillRect(px+ox,py+16-hh,3,hh);x.fillRect(px+ox+1,py+15-hh,1,1);x.fillStyle="rgba(255,255,255,.45)";x.fillRect(px+ox,py+17-hh,1,hh-3);});
       x.fillStyle="rgba(255,255,255,.08)";x.beginPath();x.arc(px+8,py+10,14,0,7);x.fill();}
+    if(c==="K"){const sw=trNow()/600+dx;for(let i=0;i<4;i++){const ox=Math.round(Math.sin(sw+i*.8)*2);x.fillStyle=i%2?"#2f9e44":"#3fbf5a";x.fillRect(px+5+ox,py+16-(i+1)*8,3,8);x.fillRect(px+9-ox,py+16-(i+1)*7,2,7);}}
+    if(c==="F"){[[3,"#ff6fae"],[8,"#ffe14d"],[12,"#b47cff"]].forEach(([ox,col],i)=>{const hh=5+((dx+i)%3)*2;x.fillStyle="#3f9f3a";x.fillRect(px+ox,py+16-hh,1,hh);x.fillStyle=col;x.fillRect(px+ox-1,py+15-hh,3,3);x.fillStyle="#fff6c2";x.fillRect(px+ox,py+16-hh,1,1);});}
     if(c==="P"){x.fillStyle="#8a5a32";for(let i=0;i<5;i++){const ox=Math.round(Math.sin(i*.5)*3);x.fillRect(px+6+ox,py+16-(i+1)*13,4,13);x.fillStyle=i%2?"#8a5a32":"#6e4422";}
       const tx=px+8+Math.round(Math.sin(2.5)*3),ty=py+16-65;x.fillStyle="#2f8f3a";[[-18,4],[18,4],[-12,-6],[12,-6],[0,-10]].forEach(([ox,oy])=>{x.beginPath();x.ellipse(tx+ox/2,ty+oy/2+2,13,4,Math.atan2(oy,ox)*.6,0,7);x.fill();});
       x.fillStyle="#4fbf4a";x.fillRect(tx-10,ty-1,20,3);x.fillStyle="#6b3e1e";x.fillRect(tx-3,ty+2,3,3);x.fillRect(tx+1,ty+3,3,3);}}}
@@ -10144,6 +10171,16 @@ function trDrawSky(x,cv,t,cam){const th=TRM.th,W=cv.width,H=cv.height,sky=x.crea
   if(T==="peaks"){x.fillStyle="#8aa0e8";x.fillRect(0,H*.55-cam.y*.05,W,H);for(let r=0;r<2;r++){const f=r?.35:.15,ox=-(cam.x*f)%480;x.fillStyle=r?th.far:th.far2;for(let i=-1;i<4;i++){const bx=ox+i*480;x.beginPath();x.moveTo(bx,H);x.lineTo(bx+120,H-200+r*50+py(f*.3));x.lineTo(bx+240,H-60);x.lineTo(bx+360,H-230+r*60+py(f*.3));x.lineTo(bx+480,H);x.fill();
       x.fillStyle="#ffffff";x.beginPath();x.moveTo(bx+120,H-200+r*50+py(f*.3));x.lineTo(bx+100,H-170+r*50+py(f*.3));x.lineTo(bx+140,H-170+r*50+py(f*.3));x.fill();x.fillStyle=r?th.far:th.far2;}}
     x.fillStyle="rgba(255,255,255,.8)";for(let i=0;i<40;i++)x.fillRect((i*71+t*14*(1+i%3)-cam.x*.2+4000)%W,(i*37+t*24*(1+i%2))%H,2,2);}
+  if(T==="space"){for(let i=0;i<120;i++){const tw=.4+.6*Math.abs(Math.sin(t*1.3+i));x.fillStyle=`rgba(255,255,255,${tw*.8})`;x.fillRect(((i*97-cam.x*.05)%W+W)%W,((i*53-cam.y*.05)%H+H)%H,i%7?1:2,i%7?1:2);}
+    const ex=W*.78-cam.x*.02,ey=H*.28-cam.y*.02;x.fillStyle="#2a6fd8";x.beginPath();x.arc(ex,ey,46,0,7);x.fill();x.fillStyle="#3fae4a";x.beginPath();x.ellipse(ex-12,ey-8,16,10,.4,0,7);x.fill();x.beginPath();x.ellipse(ex+16,ey+14,12,8,-.3,0,7);x.fill();
+    x.fillStyle="rgba(255,255,255,.35)";x.beginPath();x.ellipse(ex+4,ey-24,22,4,0,0,7);x.fill();x.fillStyle="rgba(2,3,12,.35)";x.beginPath();x.arc(ex+16,ey+10,44,0,7);x.fill();
+    const rx=W*.18-cam.x*.04,ry=H*.2-cam.y*.03;x.fillStyle="#e0a060";x.beginPath();x.arc(rx,ry,20,0,7);x.fill();x.strokeStyle="rgba(255,220,170,.8)";x.lineWidth=3;x.beginPath();x.ellipse(rx,ry,36,8,-.3,0,7);x.stroke();x.lineWidth=1;}
+  if(T==="dream"){const cx=W*.5-cam.x*.05,cy=H*.95-cam.y*.04;["#ff6b6b","#ffb020","#ffe14d","#3ddc84","#67b8f9","#b47cff"].forEach((c,i)=>{x.strokeStyle=c;x.globalAlpha=.35;x.lineWidth=10;x.beginPath();x.arc(cx,cy,H*.7-i*10,Math.PI,0);x.stroke();});x.globalAlpha=1;x.lineWidth=1;
+    x.fillStyle="rgba(255,255,255,.75)";for(let i=0;i<7;i++){const bx=((i*167+t*10-cam.x*.15)%(W+160)+W+160)%(W+160)-80,by=40+(i*53)%(H*.5)-cam.y*.05;[[0,0,26],[22,4,20],[-22,5,18],[10,-10,18]].forEach(([ox,oy,r])=>{x.beginPath();x.arc(bx+ox,by+oy,r,0,7);x.fill();});}
+    x.fillStyle="#fff6c2";for(let i=0;i<30;i++){if(Math.sin(t*2+i*1.7)>.6)x.fillRect(((i*131-cam.x*.1)%W+W)%W,((i*71-cam.y*.1)%H+H)%H,2,2);}}
+  if(T==="ocean"){x.fillStyle="rgba(255,255,255,.07)";for(let i=0;i<6;i++){const bx=((i*150-cam.x*.1)%(W+200)+W+200)%(W+200)-100;x.beginPath();x.moveTo(bx,0);x.lineTo(bx+40,0);x.lineTo(bx+140+Math.sin(t+i)*20,H);x.lineTo(bx+60+Math.sin(t+i)*20,H);x.fill();}
+    x.fillStyle="rgba(10,30,60,.5)";for(let i=0;i<5;i++){const fx=((i*211+t*(20+i*6)-cam.x*.2)%(W+80)+W+80)%(W+80)-40,fy=H*.3+(i*61)%(H*.5)-cam.y*.05;x.beginPath();x.ellipse(fx,fy,12,5,0,0,7);x.fill();x.beginPath();x.moveTo(fx-10,fy);x.lineTo(fx-18,fy-5);x.lineTo(fx-18,fy+5);x.fill();}
+    x.strokeStyle="rgba(220,245,255,.55)";for(let i=0;i<40;i++){const bx=((i*73-cam.x*.3)%W+W)%W,by=(((i*97-t*(30+i%4*12)-cam.y*.3)%H)+H)%H;x.beginPath();x.arc(bx,by,1.5+i%3,0,7);x.stroke();}}
   if(T==="crystal"){x.fillStyle="rgba(255,255,255,.8)";for(let i=0;i<90;i++)x.fillRect(((i*97-cam.x*.1)%W+W)%W,((i*53-cam.y*.1)%H+H)%H,1,1);
     x.fillStyle="rgba(90,90,130,.22)";for(let i=0;i<6;i++){const bx=((i*173+t*6-cam.x*.15)%(W+200)+W+200)%(W+200)-100;x.beginPath();x.ellipse(bx,60+i*45-cam.y*.05,90,14,0,0,7);x.fill();}
     for(let i=0;i<0;i++){const f=.25,bx=((i*97-cam.x*f)%(W+60)+W+60)%(W+60)-30,by=((i*61-cam.y*f)%(H+60)+H+60)%(H+60)-30,c=th.haz[i%4];x.globalAlpha=.25;x.fillStyle=c;x.fillRect(bx,by,4,14);x.fillRect(bx+5,by+6,3,8);x.globalAlpha=.08;x.beginPath();x.arc(bx+4,by+8,22,0,7);x.fill();}x.globalAlpha=1;}
@@ -10495,25 +10532,38 @@ function trPreview(id,act){const ids=Object.keys(TR_MAPDATA);if(!TR_MAPDATA[id])
   m.innerHTML=`<div class="glass trpv"><div class="row" style="justify-content:space-between"><h3 style="font-size:14px;margin:0">MAP PREVIEW</h3><button class="pbtn sm" data-act="trPvClose">✕</button></div>
     <div class="seg">${ids.map(k=>`<button class="pbtn sm ${k===id?"on":""}" data-act="trPv" data-k="${k}">${TR_MAPDATA[k].n}</button>`).join("")}</div>
     <div class="trpvpic" id="trPvPic"></div><p class="hint">${esc(d.n)} · ${d.rows[0].length} × ${d.rows.length} tiles · purple = start, yellow = flag</p>
-    <div class="row" style="justify-content:center"><button class="pbtn c m-mint" data-act="trPvUse" data-k="${id}">USE THIS MAP</button></div></div>`;
+    <div class="row" style="justify-content:center">${N&&!N.host&&N.trMode?`<button class="pbtn c m-mint" data-act="trPvVote" data-k="${id}">VOTE FOR THIS MAP</button>`:`<button class="pbtn c m-mint" data-act="trPvUse" data-k="${id}">USE THIS MAP</button>`}</div></div>`;
   const c=trMapPic(id,4);c.className="trpvc";$("trPvPic").appendChild(c);}
 Object.assign(ACT,{trapHub:()=>trapHub(),trSolo:()=>{trStop();trBegin(true);trHostStart(true);},trFriends:()=>{store.set("otc.partyMode","trap");partyMenu();},
-  trPick:b=>{if(!TRG)return;trSend({t:"tpk",r:TRG.st.r,i:+b.dataset.i});},trRot:()=>{if(TRG&&TRG.my.ty&&TR_ROT[TRG.my.ty]){TRG.my.rot=TR_ROT[TRG.my.ty]===2?(TRG.my.rot?0:1):((TRG.my.rot||0)+1)%4;trPanel();}},trPlace:()=>trPlaceNow(),trMap:b=>{store.set("otc.tr.map",b.dataset.k);document.querySelectorAll('[data-act="trMap"]').forEach(x=>x.classList.toggle("on",x===b));},trMapLobby:b=>{store.set("otc.tr.map",b.dataset.k);document.querySelectorAll('[data-act="trMapLobby"]').forEach(x=>x.classList.toggle("on",x===b));},
+  trPick:b=>{if(!TRG)return;trSend({t:"tpk",r:TRG.st.r,i:+b.dataset.i});},trRot:()=>{if(TRG&&TRG.my.ty&&TR_ROT[TRG.my.ty]){TRG.my.rot=TR_ROT[TRG.my.ty]===2?(TRG.my.rot?0:1):((TRG.my.rot||0)+1)%4;trPanel();}},trPlace:()=>trPlaceNow(),trMap:b=>{store.set("otc.tr.map",b.dataset.k);document.querySelectorAll('[data-act="trMap"]').forEach(x=>x.classList.toggle("on",x===b));},trMapLobby:b=>{store.set("otc.tr.map",b.dataset.k);document.querySelectorAll('[data-act="trMapLobby"]').forEach(x=>x.classList.toggle("on",x===b));trVotesSend();},
+  trVote:b=>{if(!N||N.host||!TR_MAPDATA[b.dataset.k])return;N.trMyVote=b.dataset.k;try{N.conn.send({t:"trvote",k:b.dataset.k});}catch(e){}document.querySelectorAll('[data-act="trVote"]').forEach(x=>x.classList.toggle("on",x===b));toast("Voted for "+esc(TR_MAPDATA[b.dataset.k].n));},
   trWin:b=>{store.set("otc.tr.win",+b.dataset.v);document.querySelectorAll('[data-act="trWin"]').forEach(x=>x.classList.toggle("on",x===b));},
-  trPreview:()=>trPreview(null,document.querySelector('[data-act="trMapLobby"]')?"trMapLobby":"trMap"),trPv:b=>trPreview(b.dataset.k),trPvClose:()=>closeModal(),
-  trPvUse:b=>{store.set("otc.tr.map",b.dataset.k);const act=(TRPV&&TRPV.act)||"trMap";document.querySelectorAll(`[data-act="${act}"]`).forEach(x=>x.classList.toggle("on",x.dataset.k===b.dataset.k));closeModal();toast("Map: "+esc(TR_MAPDATA[b.dataset.k].n));},
+  trPreview:()=>trPreview(null,document.querySelector('[data-act="trMapLobby"]')?"trMapLobby":"trMap"),trPvVote:b=>{closeModal();const t=document.querySelector(`[data-act="trVote"][data-k="${b.dataset.k}"]`);if(t)ACT.trVote(t);},trPv:b=>trPreview(b.dataset.k),trPvClose:()=>closeModal(),
+  trPvUse:b=>{store.set("otc.tr.map",b.dataset.k);const act=(TRPV&&TRPV.act)||"trMap";document.querySelectorAll(`[data-act="${act}"]`).forEach(x=>x.classList.toggle("on",x.dataset.k===b.dataset.k));closeModal();trVotesSend();toast("Map: "+esc(TR_MAPDATA[b.dataset.k].n));},
   trQuit:()=>{if(TRG&&TRG.solo){trStop();trapHub();}else abortAsk();}});
 
 // ---------- party room wiring ----------
 {const _lb=lobby;lobby=function(){if(N&&N.host&&!N.mode&&store.get("otc.partyMode","")==="trap"){N.mode="trap";store.set("otc.partyMode","");}_lb();try{if(!N||!(N.host?N.mode==="trap":N.trMode))return;
   const cards=document.querySelectorAll("#panel .glass.card");if(N.host){const opt=[...cards].find(c=>c.querySelector('[data-act="nrounds"]'));if(opt)opt.innerHTML=`<h3 style="font-size:13px">ULTIMATE CHICKEN HORSE</h3><p class="hint">Everyone races at the same time as their Cupidium Academy buddy. Works best with 2 to 6 players.</p>
-      <span class="lbl">MAP</span>${trMapSeg("trMapLobby")}<span class="lbl">POINTS TO WIN</span>${trWinSeg()}`;
-    const pr=[...cards].find(c=>c.querySelector('[data-act="ngeo"]'));if(pr){const g=pr.querySelector('[data-act="ngeo"]').closest(".seg");if(g){g.previousElementSibling&&g.previousElementSibling.remove();g.remove();}}}}catch(e){}};}
-{const _pl=pushLobby;pushLobby=function(){if(N&&N.host)broadcast({t:"trmode",on:N.mode==="trap"});return _pl();};}
+      <span class="lbl">MAP</span>${trMapSeg("trMapLobby")}<span class="lbl">PLAYER VOTES</span><div id="trVotes" class="trvotes"></div><span class="lbl">POINTS TO WIN</span>${trWinSeg()}`;
+    const pr=[...cards].find(c=>c.querySelector('[data-act="ngeo"]'));if(pr){const g=pr.querySelector('[data-act="ngeo"]').closest(".seg");if(g){g.previousElementSibling&&g.previousElementSibling.remove();g.remove();}}}
+  else{const wait=[...cards].pop();if(wait)wait.insertAdjacentHTML("beforebegin",`<div class="glass card center"><h3 style="font-size:13px">VOTE FOR A MAP</h3><p class="hint">The host picks the map. Your vote just shows them what you'd like to play.</p>
+      <div class="seg trmaps">${Object.entries(TR_MAPDATA).map(([k,v])=>`<button class="pbtn ${N.trMyVote===k?"on":""}" data-act="trVote" data-k="${k}">${v.n}</button>`).join("")}</div>
+      <div class="row" style="margin-top:6px"><button class="pbtn sm" data-act="trPreview">👁 PREVIEW MAPS</button></div><div id="trVotes" class="trvotes"></div></div>`);}
+  trVotesShow();}catch(e){}};}
+// map votes: {player name: map id}; shown as a count per map with who voted, plus the host's current pick
+function trVotesData(){if(!N)return{v:{},pick:"random"};if(N.host){const live=new Set(names());const v={};for(const n in N.trVotes||{})if(live.has(n))v[n]=N.trVotes[n];return{v,pick:store.get("otc.tr.map","random")};}return N.trVotesView||{v:{},pick:"random"};}
+function trVotesShow(){const el=$("trVotes");if(!el)return;const {v,pick}=trVotesData(),by={};for(const n in v)(by[v[n]]=by[v[n]]||[]).push(n);
+  const ids=Object.keys(by).filter(k=>TR_MAPDATA[k]).sort((a,b)=>by[b].length-by[a].length);
+  el.innerHTML=(ids.length?ids.map(k=>`<div class="trvote${k===pick?" pick":""}"><b>${esc(TR_MAPDATA[k].n)}</b><span class="trvn">${by[k].length} vote${by[k].length>1?"s":""}</span><small>${by[k].map(esc).join(", ")}</small></div>`).join(""):`<p class="hint">No votes yet.</p>`)
+    +`<p class="hint">Host's pick: <b>${pick==="random"||!TR_MAPDATA[pick]?"Random":esc(TR_MAPDATA[pick].n)}</b></p>`;}
+function trVotesSend(){if(N&&N.host&&N.mode==="trap"&&!N.started)broadcast({t:"trvotes",...trVotesData()});trVotesShow();}
+{const _pl=pushLobby;pushLobby=function(){if(N&&N.host)broadcast({t:"trmode",on:N.mode==="trap"});const r=_pl();if(N&&N.host&&N.mode==="trap")broadcast({t:"trvotes",...trVotesData()});return r;};}
 {const _hs=hostStart;hostStart=function(){if(N&&N.mode==="trap"){N.started=true;N.players.forEach(p=>p.score=0);broadcast({t:"start",names:names()});trBegin(false);trHostStart(false);return;}return _hs();};}
-{const _cd=clientData;clientData=function(d){if(d&&d.t==="trmode"){N.trMode=!!d.on;return;}if(d&&d.t==="tr"){if(!TRG||TRG.dead)trBegin(false);N.phaseAt=Date.now();N.phaseLimit=(TR_RUN+30)*1000;trApply(d);return;}
+{const _cd=clientData;clientData=function(d){if(d&&d.t==="trmode"){N.trMode=!!d.on;return;}if(d&&d.t==="trvotes"){N.trVotesView={v:d.v||{},pick:d.pick||"random"};trVotesShow();return;}if(d&&d.t==="tr"){if(!TRG||TRG.dead)trBegin(false);N.phaseAt=Date.now();N.phaseLimit=(TR_RUN+30)*1000;trApply(d);return;}
   if(d&&(d.t==="end"||d.t==="lobby"))trStop();return _cd(d);};}
-{const _hc=hostConn;hostConn=function(c){const on=c.on.bind(c);c.on=(e,f)=>on(e,e!=="data"?f:d=>{if(d&&/^t(pk|pl|res|coin)$/.test(d.t)){if(!N||!N.host||!TRG||!TRG.H)return;const p=N.players.find(x=>x.id===c.peer);if(!p)return;
+{const _hc=hostConn;hostConn=function(c){const on=c.on.bind(c);c.on=(e,f)=>on(e,e!=="data"?f:d=>{if(d&&d.t==="trvote"){if(!N||!N.host)return;const p=N.players.find(x=>x.id===c.peer);if(!p||!TR_MAPDATA[d.k])return;N.trVotes=N.trVotes||{};N.trVotes[p.name]=d.k;trVotesSend();toast(esc(p.name)+" voted for "+esc(TR_MAPDATA[d.k].n));return;}
+  if(d&&/^t(pk|pl|res|coin)$/.test(d.t)){if(!N||!N.host||!TRG||!TRG.H)return;const p=N.players.find(x=>x.id===c.peer);if(!p)return;
   if(d.t==="tpk")trHostPick(p.name,+d.i);else if(d.t==="tpl")trHostPlace(p.name,d);else if(d.t==="tcoin")trHostCoin(p.name,d);else trHostRes(p.name,d);return;}return f(d);});_hc(c);};}
 {const _he=hostEnd;hostEnd=function(){trStop();return _he();};}
 {const _ln=leaveNet;leaveNet=function(){trStop();return _ln();};}
@@ -10621,7 +10671,12 @@ const pxeObs=new MutationObserver(ms=>{for(const m of ms){if(m.type==="character
 // ---- leaderboards: on the Off the Charts / Casino / Cuepon tabs every board of the section shows side by side.
 // Each cell gets rendered by the normal one-board renderer (so flair, live runs and dev buttons still work).
 {const _one=lbRender;lbRender=function(){const g=document.getElementById("lbGrid");if(!g||!LBV.grid)return _one();const keep=LBV.k,h=document.getElementById("lbBox");if(h)h.id="lbBoxH";
-  try{g.querySelectorAll(".lbcell").forEach(c=>{c.id="lbBox";LBV.k=c.dataset.k;try{_one();}catch(e){}c.id="";});}finally{LBV.k=keep;const h2=document.getElementById("lbBoxH");if(h2)h2.id="lbBox";}};}
+  try{g.querySelectorAll(".lbcell").forEach(c=>{c.id="lbBox";LBV.k=c.dataset.k;try{_one();}catch(e){}c.id="";});}finally{LBV.k=keep;const h2=document.getElementById("lbBoxH");if(h2)h2.id="lbBox";}lbMasonry(g);};}
+// boards have different heights, so a plain grid leaves holes under the short ones. Deal them, in order, into columns: each board goes to the shortest column.
+function lbMasonry(g){const cells=[...g.querySelectorAll(".lbcell")].sort((a,b)=>(+a.dataset.i||0)-(+b.dataset.i||0));if(!cells.length)return;cells.forEach((c,i)=>{if(c.dataset.i==null)c.dataset.i=i;});
+  const n=Math.max(1,Math.min(cells.length,Math.floor((g.clientWidth+8)/238)||1));g.classList.add("masonry");g.innerHTML="";const cols=[...Array(n)].map(()=>{const d=document.createElement("div");d.className="lbcol";g.appendChild(d);return d;});
+  for(const c of cells){let best=cols[0];for(const col of cols)if(col.offsetHeight<best.offsetHeight)best=col;best.appendChild(c);}}
+{let t=null;addEventListener("resize",()=>{clearTimeout(t);t=setTimeout(()=>{const g=document.getElementById("lbGrid");if(g&&LBV.grid)lbMasonry(g);},200);});}
 // ---- red "!" on daily buttons you haven't played today ----
 function dailyDue(ds){const d=today(),x=ds?".ds":"",c=typeof catToday==="function"&&catToday();
   return{main:!store.get("oddball.daily."+d+x,null),geo:!store.get("oddball.dailyGeo."+d+x,null),speed:!store.get("otc.dspeed."+d+x,null),cat:!!c&&!store.get("otc.dcatd."+d+x,null)};}
@@ -10706,7 +10761,7 @@ function twDraw(){const st=$("twStage");if(!st)return;const t=twMine(),day=today
   st.innerHTML=rows.length?rows.map(r=>{const me=r.i===LB.id,b=me?t.list.map(x=>x.t).join(""):(TWO[day]||{})[r.i];
     const inner=b&&b.length?[...b].map(c=>`<i style="--c:${TIERS[+c].c};height:${Math.max(1,TW_H[+c]*px).toFixed(1)}px"></i>`).join(""):"";
     return`<div class="twcol${me?" me":""}"><span class="twh">${r.s} m</span><div class="twstack${inner?"":" solid"}" style="${inner?"":`height:${Math.max(2,r.s*px).toFixed(1)}px`}">${inner}</div><small title="${esc(r.n)}">${esc(r.n)}</small></div>`;}).join("")
-    :`<p class="hint" style="align-self:center;margin:auto">No towers yet today. Be the first to build!</p>`;
+    :"";
   const a=$("twAns");if(a)a.innerHTML=t.list.length?t.list.slice().reverse().map(x=>`<span style="--c:${TIERS[x.t].c}">${esc(x.d)} +${TW_H[x.t]}</span>`).join(""):`<p class="hint">Nothing stacked yet.</p>`;
   const h=$("twMyH"),n=$("twMyN");if(h)h.textContent=t.h;if(n)n.textContent=t.list.length;}
 function twFb(html){const f=$("twFb");if(f)f.innerHTML=html;}

@@ -13,7 +13,9 @@ vm.runInContext(fs.readFileSync(path.join(root, "data", "maps.js"), "utf8"), ctx
 vm.runInContext(html.slice(a, b) + "\n;trSendRes=()=>{};trSend=()=>{};trPub=()=>{};trDie=(P)=>{P.st='dead';};this.__api={trSetMap,trBuild,trStep,trCheck,get TRM(){return TRM},get START(){return TR_START},get GOAL(){return TR_GOAL},get W(){return TR_W},get H(){return TR_H},TRP,TR_TS};", ctx);
 const A = ctx.__api, TS = A.TR_TS;
 function solve(id, LIM) {
-  A.trSetMap(id); const C = A.trBuild({ items: [], holes: [], map: id }), g = A.GOAL; let S = A.START; if (process.env.START) { const [sx, sy] = process.env.START.split(",").map(Number); S = { x: sx, y: sy }; }// START=x,y tests from another spot
+  A.trSetMap(id); const C = A.trBuild({ items: [], holes: [], map: id }); let g = A.GOAL, S = A.START;
+  // GOAL=x,y checks one stretch: done when the racer stands within a tile of that spot
+  const sub = process.env.GOAL ? process.env.GOAL.split(",").map(Number) : null; if (sub) g = { x0: sub[0] - 1, x1: sub[0] + 1, y0: sub[1] - 1, y1: sub[1] }; if (process.env.START) { const [sx, sy] = process.env.START.split(",").map(Number); S = { x: sx, y: sy }; }// START=x,y tests from another spot
   const P0 = { coins: {}, x: S.x * TS + 2, y: S.y * TS + 16 - A.TRP.h - 1, vx: 0, vy: 0, w: A.TRP.w, h: A.TRP.h, f: 1, st: "run", t: 0, coy: 0, buf: 0 };
   const acts = []; for (const h of [-1, 0, 1]) for (const j of [0, 1, 2]) acts.push({ h, j });
   const key = P => [Math.round(P.x / 6), Math.round(P.y / 6), Math.round(P.vx / 80), Math.round(P.vy / 140), P.coy > 0 ? 1 : 0].join(",");
@@ -24,6 +26,7 @@ function solve(id, LIM) {
   while (Hp.length && n < LIM) { const St = pop();
     for (const ac of acts) { const P = JSON.parse(JSON.stringify(St)); const inp = { l: ac.h < 0, r: ac.h > 0, j: false, jp: false }; let t = P.t;
       for (let f = 0; f < 8; f++) { inp.j = ac.j === 2 || (ac.j === 1 && f < 4); if (f === 0 && ac.j) inp.jp = true; A.trStep(P, C, inp, 1 / 60, t); t += 1 / 60; A.trCheck(P, C, t); if (P.st !== "run") break; }
+      if (sub && P.st === "run" && Math.abs(P.x / TS - sub[0]) < 1.5 && Math.abs((P.y + P.h) / TS - sub[1] - 1) < 1.5) P.st = "win";
       n++; if (P.st === "win") return { id, ok: true, steps: n, time: +P.t.toFixed(1), size: A.W + "x" + A.H };
       if (P.st !== "run") continue; const k = key(P); if (seen.has(k)) continue; seen.add(k); push(P, dist(P) + P.t * 4); if (dist(P) < dist(best)) best = P; } }
   return { id, ok: false, steps: n, closest: [Math.floor(best.x / TS), Math.floor(best.y / TS)], start: [S.x, S.y], goal: [g.x0 + 1, g.y1], size: A.W + "x" + A.H };
