@@ -1,27 +1,33 @@
 // Checks every Ultimate Chicken Horse map can be finished with nothing placed, using the game's own physics.
-// Needs Playwright. Serve the repo first (python3 -m http.server 8810), then: node tools/trsolve.js [maps] [max steps]
-// can a racer reach the flag with nothing placed? BFS over short input bursts using the game's own physics
-const {chromium}=require('playwright');
-(async()=>{const b=await chromium.launch({args:['--no-proxy-server']});const p=await b.newPage();
-p.on('pageerror',e=>{if(!/fetch/i.test(e.message))console.log('ERR',e.message)});
-await p.goto('http://127.0.0.1:8810/index.html');await p.waitForTimeout(2000);
-const maps=(process.argv[2]||"crystal,peaks,tropical,woods").split(",");
-for(const id of maps){const r=await p.evaluate(({id,LIM})=>{trSetMap(id);TRM.id=null;trSetMap(id);const C=trBuild({items:[],holes:[],map:id});TRG=null;
-  let dead=false,won=false;window.trDie=(P)=>{P.st="dead";};window.trSendRes=()=>{};
-  const P0={coins:{},x:TR_START.x*TR_TS+2,y:TR_START.y*TR_TS+16-TRP.h-1,vx:0,vy:0,w:TRP.w,h:TRP.h,f:1,st:"run",t:0,coy:0,buf:0};
-  const acts=[];for(const h of [-1,0,1])for(const j of [0,1,2])acts.push({h,j});// j: 0 none, 1 tap jump (press+hold 4 frames), 2 hold jump all 8 frames
-  const key=P=>[Math.round(P.x/6),Math.round(P.y/6),Math.round(P.vx/80),Math.round(P.vy/140),P.coy>0?1:0].join(",");
-  const g=TR_GOAL,gx=(g.x0+1.5)*TR_TS,gy=g.y1*TR_TS,dist=P=>Math.hypot(P.x-gx,(P.y-gy)*1.3);
-  const H=[],push=(P,d)=>{H.push([d,P]);let i=H.length-1;while(i>0){const j=(i-1)>>1;if(H[j][0]<=H[i][0])break;[H[i],H[j]]=[H[j],H[i]];i=j;}},
-    pop=()=>{const top=H[0],last=H.pop();if(H.length){H[0]=last;let i=0;for(;;){const l=2*i+1,r=l+1;let m=i;if(l<H.length&&H[l][0]<H[m][0])m=l;if(r<H.length&&H[r][0]<H[m][0])m=r;if(m===i)break;[H[i],H[m]]=[H[m],H[i]];i=m;}}return top[1];};
-  const seen=new Set([key(P0)]),q=[P0];push(P0,dist(P0));let best=P0,n=0;
-  while(H.length&&n<LIM){const S=pop();
-    for(const a of acts){const P=JSON.parse(JSON.stringify(S));const inp={l:a.h<0,r:a.h>0,j:false,jp:false};let t=P.t;
-      for(let f=0;f<8;f++){inp.j=a.j===2||(a.j===1&&f<4);if(f===0&&a.j)inp.jp=true;trStep(P,C,inp,1/60,t);t+=1/60;trCheck(P,C,t);if(P.st!=="run")break;}
-      n++;if(P.st==="win"){return{id,ok:true,n,t:P.t.toFixed(1)};}if(P.st!=="run")continue;
-      const k=key(P);if(seen.has(k))continue;seen.add(k);q.push(P);push(P,dist(P)+P.t*4);if(P.x>best.x)best=P;}}
-  // furthest along: report where it got stuck
-  const far=q.reduce((m,s)=>Math.hypot(s.x-(g.x0+1)*TR_TS,s.y-g.y1*TR_TS)<Math.hypot(m.x-(g.x0+1)*TR_TS,m.y-g.y1*TR_TS)?s:m,q[0]);
-  return{id,ok:false,n,states:q.length,closest:[Math.floor(far.x/TR_TS),Math.floor(far.y/TR_TS)],maxX:[Math.floor(best.x/TR_TS),Math.floor(best.y/TR_TS)],start:[TR_START.x,TR_START.y],goal:[g.x0,g.y1],W:TR_W,H:TR_H};},{id,LIM:+process.argv[3]||400000});
- console.log(JSON.stringify(r));}
-await b.close();})();
+// No installs needed: node tools/trsolve.js [maps] [max steps]
+// It loads data/maps.js and the UCH physics straight out of index.html into a sandbox, then searches short input bursts
+// (left / none / right × no jump / tap / hold) for a way from the start to the flag.
+const fs = require("fs"), path = require("path"), vm = require("vm");
+const root = path.join(__dirname, "..");
+const html = fs.readFileSync(path.join(root, "index.html"), "utf8").replace(/\r\n/g, "\n");
+const a = html.indexOf("const TR_TS=16"), b = html.indexOf("// ---------- drawing (all pixel art, no emoji) ----------");
+if (a < 0 || b < 0) throw new Error("couldn't find the UCH physics in index.html");
+const ctx = { window: {}, console, Math, JSON, performance: { now: () => 0 }, sfx: { ok() {}, bad() {}, whoosh() {}, go() {} }, burst() {}, store: { get: (k, d) => d } };
+ctx.window = ctx; vm.createContext(ctx);
+vm.runInContext(fs.readFileSync(path.join(root, "data", "maps.js"), "utf8"), ctx);
+vm.runInContext(html.slice(a, b) + "\n;trSendRes=()=>{};trSend=()=>{};trPub=()=>{};trDie=(P)=>{P.st='dead';};this.__api={trSetMap,trBuild,trStep,trCheck,get TRM(){return TRM},get START(){return TR_START},get GOAL(){return TR_GOAL},get W(){return TR_W},get H(){return TR_H},TRP,TR_TS};", ctx);
+const A = ctx.__api, TS = A.TR_TS;
+function solve(id, LIM) {
+  A.trSetMap(id); const C = A.trBuild({ items: [], holes: [], map: id }), g = A.GOAL; let S = A.START; if (process.env.START) { const [sx, sy] = process.env.START.split(",").map(Number); S = { x: sx, y: sy }; }// START=x,y tests from another spot
+  const P0 = { coins: {}, x: S.x * TS + 2, y: S.y * TS + 16 - A.TRP.h - 1, vx: 0, vy: 0, w: A.TRP.w, h: A.TRP.h, f: 1, st: "run", t: 0, coy: 0, buf: 0 };
+  const acts = []; for (const h of [-1, 0, 1]) for (const j of [0, 1, 2]) acts.push({ h, j });
+  const key = P => [Math.round(P.x / 6), Math.round(P.y / 6), Math.round(P.vx / 80), Math.round(P.vy / 140), P.coy > 0 ? 1 : 0].join(",");
+  const gx = (g.x0 + 1.5) * TS, gy = g.y1 * TS, dist = P => Math.hypot(P.x - gx, (P.y - gy) * 1.3);
+  const Hp = [], push = (P, d) => { Hp.push([d, P]); let i = Hp.length - 1; while (i > 0) { const j = (i - 1) >> 1; if (Hp[j][0] <= Hp[i][0]) break; [Hp[i], Hp[j]] = [Hp[j], Hp[i]]; i = j; } },
+    pop = () => { const top = Hp[0], last = Hp.pop(); if (Hp.length) { Hp[0] = last; let i = 0; for (;;) { const l = 2 * i + 1, r = l + 1; let m = i; if (l < Hp.length && Hp[l][0] < Hp[m][0]) m = l; if (r < Hp.length && Hp[r][0] < Hp[m][0]) m = r; if (m === i) break; [Hp[i], Hp[m]] = [Hp[m], Hp[i]]; i = m; } } return top[1]; };
+  const seen = new Set([key(P0)]); push(P0, dist(P0)); let n = 0, best = P0;
+  while (Hp.length && n < LIM) { const St = pop();
+    for (const ac of acts) { const P = JSON.parse(JSON.stringify(St)); const inp = { l: ac.h < 0, r: ac.h > 0, j: false, jp: false }; let t = P.t;
+      for (let f = 0; f < 8; f++) { inp.j = ac.j === 2 || (ac.j === 1 && f < 4); if (f === 0 && ac.j) inp.jp = true; A.trStep(P, C, inp, 1 / 60, t); t += 1 / 60; A.trCheck(P, C, t); if (P.st !== "run") break; }
+      n++; if (P.st === "win") return { id, ok: true, steps: n, time: +P.t.toFixed(1), size: A.W + "x" + A.H };
+      if (P.st !== "run") continue; const k = key(P); if (seen.has(k)) continue; seen.add(k); push(P, dist(P) + P.t * 4); if (dist(P) < dist(best)) best = P; } }
+  return { id, ok: false, steps: n, closest: [Math.floor(best.x / TS), Math.floor(best.y / TS)], start: [S.x, S.y], goal: [g.x0 + 1, g.y1], size: A.W + "x" + A.H };
+}
+const maps = (process.argv[2] || Object.keys(ctx.OIC_DATA.TR_MAPDATA).join(",")).split(",");
+let bad = 0; for (const id of maps) { const r = solve(id, +process.argv[3] || 400000); if (!r.ok) bad++; console.log(JSON.stringify(r)); }
+process.exit(bad ? 1 : 0);

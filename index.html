@@ -888,11 +888,14 @@ body.gated>*:not(#gateBlock){visibility:hidden!important}
 .trres{display:flex;flex-direction:column;gap:4px;text-align:left}.trres div{display:grid;grid-template-columns:1fr 1.2fr 1.4fr 40px;gap:6px;padding:4px 8px;background:rgba(255,255,255,.06);font-size:13px}.trres div.me{outline:2px solid #ffe14d}.trres em{font-style:normal;color:#3ddc84}.trres strong{text-align:right}
 .trpad{display:flex;gap:8px;align-items:center}
 .trtools{position:absolute;left:6px;top:6px;display:flex;flex-wrap:wrap;gap:4px;align-items:center;line-height:1.2;z-index:2;max-width:70%}.trtools .pbtn{padding:3px 8px;font-size:11px;opacity:.92}.trspec{display:inline-flex;align-items:center;gap:4px;background:rgba(10,8,30,.7);padding:2px 6px;font-size:11px}
+.trpv{width:min(760px,94vw);display:flex;flex-direction:column;gap:8px}.trpvpic{overflow:auto;max-height:60vh;border:2px solid var(--edge);background:#000}.trpvc{display:block;width:100%;image-rendering:pixelated}
 .trscore{max-width:720px}.trsc{display:flex;flex-direction:column;gap:8px;margin:10px 0}.trsrow{display:grid;grid-template-columns:120px 1fr 40px;gap:8px;align-items:center;text-align:left}
 .trsrow.me .trsn b{color:var(--hl)}.trsn{display:flex;flex-direction:column;line-height:1.2}.trsn small{font-size:10px;opacity:.75}.trsrow strong{font-size:18px;text-align:right}
 .trsbar{position:relative;height:22px;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.2);display:flex;overflow:visible}
 .trsbar i{display:block;height:100%;position:relative;transition:width .45s cubic-bezier(.2,.8,.2,1);overflow:hidden}.trsbar i.old{background:repeating-linear-gradient(45deg,#6b6493,#6b6493 4px,#5a5480 4px,#5a5480 8px)}
 .trsbar i.new span{position:absolute;left:3px;top:3px;font-size:9px;white-space:nowrap;color:#1a0f2e;font-weight:bold}.trsbar .goal{position:absolute;top:-14px;transform:translateX(-50%);font-style:normal;font-size:12px}.trsbar .goal::after{content:"";position:absolute;left:50%;top:14px;width:2px;height:22px;background:#ffe14d}
+.trsbar i.past{background-image:repeating-linear-gradient(45deg,rgba(26,15,46,.4) 0 2px,transparent 2px 6px)}.trsbar i.new{background-image:none}.trsbar i.rend{box-shadow:inset -2px 0 rgba(26,15,46,.75)}
+.trsbar .tick{position:absolute;top:-3px;bottom:-3px;width:0;border-left:2px dashed rgba(180,124,255,.45);z-index:1;pointer-events:none}.trsn .trbrk{font-size:9px;opacity:.95}.trsn .trbrk i{font-style:normal}
 .trkey{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;font-size:11px}.trkey i{display:inline-block;width:10px;height:10px;margin-right:4px;vertical-align:middle}.trpad span{flex:1}.trpad button{min-width:70px;height:58px;font-size:22px;background:rgba(255,255,255,.1);border:2px solid var(--edge);color:var(--ink);touch-action:none}.trpad button.j{min-width:110px;font-family:var(--head);font-size:14px}
 @media (hover:hover) and (pointer:fine){.trpad{display:none!important}}
 .pxe{display:inline-block;width:1.15em;height:1.15em;vertical-align:-.2em;font-style:normal;line-height:0}.pxe svg{width:100%;height:100%;display:block}
@@ -1065,7 +1068,13 @@ button.lbn .flb{flex:0 0 auto;margin-right:2px}button.lbn .flt{flex:0 1 auto;ove
 @media (max-width:560px){.casgrid,.casgrid.cp3{grid-template-columns:1fr 1fr}}
 /* boxes hug their content: no tall empty bands */
 .card{padding:10px 12px}
-.lcard{min-height:112px}
+.lcard{min-height:0}
+/* no wide empty bands inside boxes: full-row boxes shrink to their content and sit centred, and nothing stretches its middle out */
+.daily{grid-template-columns:auto auto auto;width:fit-content;max-width:100%;align-self:center;justify-content:center;column-gap:18px}
+.modegrid .mbtn.wide,.xdailies .mbtn.wide{justify-self:center;width:fit-content;max-width:100%;padding-inline:26px}
+.dsmode{width:fit-content;max-width:100%}
+.mbtn,.lcard{min-height:0}
+@media (max-width:420px){.daily{grid-template-columns:auto 1fr;width:100%}}
 </style>
 
 <canvas id="scene"></canvas>
@@ -5518,9 +5527,21 @@ const PEER_OPTS={config:{iceServers:[
 // Live connections to the free relay. A plain EventSource reconnects every few seconds forever when the relay says
 // "slow down", and every retry uses up more of the network's small request allowance, so the relay stays "busy".
 // These back off (8s, 16s … up to 5 min), resume from the last message, and wait while a party game is running.
-const SSE_ALL=new Set();
-function sseOpen(url,opt){opt=opt||{};const o={onmessage:null,onopen:null,onerror:null,closed:false,lastId:null,fails:0,es:null};let timer=null;SSE_ALL.add(o);
+// Streams that aren't party rooms also go to sleep while the tab is hidden or after 10 minutes with no input, and wake up
+// (resuming from the last message they saw) when the tab is shown again or on the next input. Party rooms never sleep.
+const SSE_ALL=new Set(),SSE_IDLE_MS=10*60*1000;let SSE_INPUT=Date.now();
+const sseAsleep=()=>document.hidden||Date.now()-SSE_INPUT>SSE_IDLE_MS;
+function sseSleepAll(){for(const o of SSE_ALL)o._sleep&&o._sleep();}
+function sseWakeAll(){if(sseAsleep())return;for(const o of SSE_ALL)o._wake&&o._wake();}
+document.addEventListener("visibilitychange",()=>{if(document.hidden)sseSleepAll();else sseWakeAll();});
+{let lastWake=0;const onInput=()=>{SSE_INPUT=Date.now();if(SSE_INPUT-lastWake>1000){lastWake=SSE_INPUT;sseWakeAll();}};
+  for(const ev of ["pointerdown","pointermove","keydown","wheel","touchstart","scroll"])addEventListener(ev,onInput,{passive:true,capture:true});}
+setInterval(()=>{if(sseAsleep())sseSleepAll();},30000);
+function sseOpen(url,opt){opt=opt||{};const o={onmessage:null,onopen:null,onerror:null,closed:false,lastId:null,fails:0,es:null,asleep:false};let timer=null;SSE_ALL.add(o);
+  if(!opt.party){o._sleep=()=>{if(o.closed||o.asleep)return;o.asleep=true;clearTimeout(timer);timer=null;const es=o.es;o.es=null;try{es&&es.close();}catch(x){}};
+    o._wake=()=>{if(o.closed||!o.asleep)return;o.asleep=false;o.fails=0;connect();};}
   const connect=()=>{timer=null;if(o.closed)return;
+    if(!opt.party&&sseAsleep()){o.asleep=true;return;}// sleeping: reconnect on the next input or when the tab is shown
     if(!opt.party&&typeof N!=="undefined"&&N){timer=setTimeout(connect,20000);return;}// don't compete with the party room for the relay
     let u=url;if(o.lastId)u=/[?&]since=/.test(u)?u.replace(/([?&])since=[^&]*/,"$1since="+o.lastId):u+(u.includes("?")?"&":"?")+"since="+o.lastId;
     let es;try{es=new EventSource(u);}catch(e){timer=setTimeout(connect,30000);return;}o.es=es;const t0=Date.now();
@@ -5530,7 +5551,8 @@ function sseOpen(url,opt){opt=opt||{};const o={onmessage:null,onopen:null,onerro
       o.fails=Date.now()-t0>60000?1:o.fails+1;const lim=Date.now()-(window.__relay429||0)<180000;
       const d=Math.min(300000,(lim?30000:8000)*Math.pow(2,Math.max(0,o.fails-1)))*(.8+Math.random()*.4);timer=setTimeout(connect,opt.party?Math.min(d,20000):d);};};
   o.close=()=>{o.closed=true;SSE_ALL.delete(o);clearTimeout(timer);try{o.es&&o.es.close();}catch(x){}};
-  Object.defineProperty(o,"readyState",{get:()=>o.es?o.es.readyState:2});connect();return o;}
+  // a sleeping stream reports CONNECTING, so callers that rebuild closed streams don't open a duplicate
+  Object.defineProperty(o,"readyState",{get:()=>o.es?o.es.readyState:o.asleep?0:2});connect();return o;}
 const RELAY="https://ntfy.sh/",rtopic=code=>"offthecharts-v1-room-"+code.toLowerCase();
 // Party rooms listen on several free relays at once and post to whichever one isn't rate-limiting this network,
 // so one busy relay (common on school/shared Wi-Fi) no longer blocks joining.
@@ -9484,17 +9506,20 @@ function bbPractice(){BB=null;bbRng=Math.random;const bs=bbBests();
   showPanel(bbWrap(`<div class="bvtop"><button class="bvback" data-act="brainLab">◀</button><h2>PRACTICE</h2><span></span></div>
    ${bbSuperOk()?`<div class="bvfoot" style="margin:0 0 8px"><button class="bvbtn ${store.get("otc.bb.super",false)?"go":""}" data-act="bbSuper">SUPER PRACTICE: ${store.get("otc.bb.super",false)?"ON (starts at Advanced)":"OFF"}</button></div>`:`<p class="bvsub center">Get gold on all 20 activities to unlock Super Practice.</p>`}<p class="bvsub bvmedkey">${BB_MEDALS.slice().reverse().map(m=>`<i>${bbMedIco(m[1],16)} ${m[0]}</i>`).join("")}</p>
    ${Object.entries(BB_CATS).map(([c,[nm,em,col]])=>`<div class="bvcat" style="--bc:${col}"><div class="bvcath">${em} ${nm}</div><div class="bvgames">${Object.entries(BBG).filter(([,g])=>g.cat===c).map(([id,g])=>{const m=bs[id]?bbMedal(bs[id]):null;return `<button class="bvgame" data-act="bbPrac" data-id="${id}"><b>${g.name}</b><small>${bs[id]?`${m?bbMedIco(m[1],14)+" ":""}BEST ${bs[id]}`:"NEW"}</small></button>`;}).join("")}</div></div>`).join("")}`),{cls:"menu"});}
-let BBCT="body";
-function bbCustom(tab){if(tab)BBCT=tab;const av=bbAvGet(),chips=casChips(),names={body:"BUDDY",col:"COLOR",eyes:"EYES",hat:"HATS",acc:"EXTRAS"};
-  showPanel(bbWrap(`<div class="bvtop"><button class="bvback" data-act="brainLab">◀</button><h2>CUSTOMIZE</h2><span class="bvchips">${bbIco("i_chip",16)} ${chips.toLocaleString()}</span></div>
+let BBCT="body",BBCBACK="brainLab";
+// Customize is shared by Cupidium Academy and Ultimate Chicken Horse; the back button returns to whichever opened it.
+// Switching tabs or picking an item redraws the same screen, so skip the page fade (it flashed white).
+function bbCustom(tab,same){if(tab)BBCT=tab;const av=bbAvGet(),chips=casChips(),names={body:"BUDDY",col:"COLOR",eyes:"EYES",hat:"HATS",acc:"EXTRAS"},sy=$("panel").scrollTop;
+  showPanel(bbWrap(`<div class="bvtop"><button class="bvback" data-act="${BBCBACK}">◀</button><h2>CUSTOMIZE</h2><span class="bvchips">${bbIco("i_chip",16)} ${chips.toLocaleString()}</span></div>
    <div class="bvpreview">${bbAvatar(av,144)}</div>
    <div class="glass atabs">${Object.keys(names).map(k=>`<button class="${BBCT===k?"on":""}" data-act="bbCT" data-t="${k}">${names[k]}</button>`).join("")}</div>
    <div class="bvitems">${BB_AVI[BBCT].map(it=>{const un=bbUnlocked(BBCT,it),on=av[BBCT]===it[0],prev={...av,[BBCT]:it[0]};
-     return `<button class="bvitem${on?" on":""}${un?"":" lock"}" data-act="bbPickAv" data-c="${BBCT}" data-id="${it[0]}">${bbAvatar(prev,60)}<b>${it[1]}</b><small>${on?"EQUIPPED":un?"TAP TO WEAR":it[2]>0?`${bbIco("i_chip",12)} ${it[2].toLocaleString()}`:"LOCKED: "+esc(it[3]||"")}</small></button>`;}).join("")}</div>`),{cls:"menu"});}
+     return `<button class="bvitem${on?" on":""}${un?"":" lock"}" data-act="bbPickAv" data-c="${BBCT}" data-id="${it[0]}">${bbAvatar(prev,60)}<b>${it[1]}</b><small>${on?"EQUIPPED":un?"TAP TO WEAR":it[2]>0?`${bbIco("i_chip",12)} ${it[2].toLocaleString()}`:"LOCKED: "+esc(it[3]||"")}</small></button>`;}).join("")}</div>`),{cls:"menu"});
+  if(same){document.querySelectorAll("#panel>*,#panel>.inner>*").forEach(e=>e.style.animation="none");$("panel").scrollTop=sy;}}
 function bbPickAv(b){const c=b.dataset.c,id=b.dataset.id,it=BB_AVI[c].find(x=>x[0]===id);if(!it)return;
   if(!bbUnlocked(c,it)){if(!(it[2]>0))return toast("Locked: "+esc(it[3]||""));
     if(casChips()<it[2])return toast(`You need ${it[2].toLocaleString()} chips`);casSet(casChips()-it[2]);const own=bbOwn();own[c+":"+id]=1;store.set("otc.bb.own",own);toast(`Bought ${it[1]}!`);sfx.ok(3);}
-  const av=bbAvGet();av[c]=id;store.set("otc.bb.av",av);bbCustom();}
+  const av=bbAvGet();av[c]=id;store.set("otc.bb.av",av);bbCustom(null,true);}
 function bbStart(mode,list){bbRng=Math.random;BB={mode,list,ix:0,res:[],lvPick:null};bbIntro();}
 function bbIntro(){const id=BB.list[BB.ix],g=BBG[id],[cn,em,col]=BB_CATS[g.cat];
   showPanel(bbWrap(`<div class="bvtop"><button class="bvback" data-act="brainLab">✕</button><h2>${BB.mode==="test"?`Test · ${BB.ix+1} of ${BB.list.length}`:"Practice"}</h2><span></span></div>
@@ -9610,7 +9635,7 @@ function bbResults(nb){const tot=BB.res.reduce((a,r)=>a+r.g,0),test=BB.mode==="t
    ${test?`<div class="center">${bbPenta(BB.res)}</div><div class="bvbars">${BB.res.map(r=>{const[cn,em,col]=BB_CATS[BBG[r.id].cat];return `<div class="bvbr" style="--bc:${col}"><span>${em} ${cn}<small>${BBG[r.id].name}</small></span><div><i style="width:${Math.min(100,r.g/10)}%"></i></div><b>${r.g}</b></div>`;}).join("")}</div>`:""}
    <div class="bvfoot"><button class="bvbtn go" data-act="${test?"bbTest":"bbPrac"}" data-id="${r0.id}">${test?"Take it again":"Play again"}</button><button class="bvbtn" data-act="leaderboards" data-back="brainLab" data-k="${test?"brainB":"bv_"+r0.id}">${bbIco("i_trophy",16)} LEADERBOARD</button></div>`),{cls:"menu"});
   if(test)burst(Math.min(160,Math.round(tot/12)));}
-Object.assign(ACT,{bbPractice:()=>bbPractice(),bbCustom:()=>bbCustom(),bbCT:b=>bbCustom(b.dataset.t),bbPickAv:b=>bbPickAv(b),bbFriends:()=>{store.set("otc.partyMode","brain");partyMenu();},brainLab:()=>brainLab(),bbTest:()=>bbStart("test",Object.keys(BB_CATS).map(c=>bP(Object.keys(BBG).filter(id=>BBG[id].cat===c)))),
+Object.assign(ACT,{bbPractice:()=>bbPractice(),bbCustom:b=>{BBCBACK=(b&&b.dataset&&b.dataset.back)||"brainLab";bbCustom();},bbCT:b=>bbCustom(b.dataset.t,true),bbPickAv:b=>bbPickAv(b),bbFriends:()=>{store.set("otc.partyMode","brain");partyMenu();},brainLab:()=>brainLab(),bbTest:()=>bbStart("test",Object.keys(BB_CATS).map(c=>bP(Object.keys(BBG).filter(id=>BBG[id].cat===c)))),
   bbPrac:b=>bbStart("prac",[b.dataset.id]),bbGo:()=>bbGo(),bbLv:b=>{BB.lv0=1+2*(+b.dataset.c);bbIntro();},bbPracCls:b=>{const i=Math.max(0,Math.min(5,+b.dataset.c||0)),pc=store.get("otc.bb.pcls",{});pc[b.dataset.id]=i;store.set("otc.bb.pcls",pc);BB.lvPick=i;bbIntro();},bbSprout:()=>{store.set("otc.bb.sprout",!store.get("otc.bb.sprout",false));bbIntro();},
   bbGhosts:()=>bbGhosts(),bbClash:b=>bbClash(b.dataset.k),bbClashGo:()=>bbClashGo(),bbClashNext:()=>bbClashIntro(),bbNextGame:()=>{BB.ix++;bbIntro();}});
 Object.assign(LB_NAMES,{brainB:"Academy Test (Brain Brawn)"},Object.fromEntries(Object.entries(BBG).map(([id,g])=>["bv_"+id,g.name])));
@@ -9840,33 +9865,38 @@ function bbChoices(st){const all=[...st.querySelectorAll(".bvopts>[data-v],.bvff
 // Each round: everyone picks an item from the party box, places it on the course (you see each other's cursors live),
 // then everyone races to the flag at the same time as their Cupidium Academy buddy. Maps are bigger than the screen:
 // the camera follows you while racing, and while placing you pan around (drag, arrow keys/WASD, screen edges or the minimap).
-// Reach the flag for points, but if EVERYONE makes it (too easy) or NOBODY does (too hard), nobody scores. First to 50 wins.
-const TR_TS=16,TR_VW=40,TR_VH=22,TR_WIN=50,TR_RUN=75,TR_PICK=12,TR_PLACE=35;
+// Reach the flag for points, but if EVERYONE makes it (too easy) or NOBODY does (too hard), nobody scores. First to the points-to-win setting (default 100) wins.
+const TR_TS=16,TR_VW=40,TR_VH=22,TR_RUN=75,TR_PICK=12,TR_PLACE=35,TR_WINS=[50,75,100,150,200];
+const trWinPts=()=>{const v=+store.get("otc.tr.win",100);return TR_WINS.includes(v)?v:100;};
 let TR_W=40,TR_H=22;
 const TR_ITEMS={
  block:{n:"Crate",w:1,h:1},plank:{n:"Plank",w:3,h:1,rot:1},stairs:{n:"Stairs",w:3,h:3,rot:1},truss:{n:"Truss",w:1,h:3},
  slime:{n:"Slime Block",w:1,h:1},ice:{n:"Ice",w:2,h:1},spring:{n:"Spring",w:1,h:1},conveyor:{n:"Conveyor",w:3,h:1,rot:1},
  fan:{n:"Fan",w:1,h:1},rfan:{n:"Reverse Fan",w:1,h:1},mplat:{n:"Moving Platform",w:3,h:1},fplat:{n:"Flying Platform",w:3,h:1},
- trapdoor:{n:"Trapdoor",w:2,h:1},mbox:{n:"Movable Box",w:1,h:1},portal:{n:"Portal",w:1,h:1,two:1},peel:{n:"Banana Peel",w:1,h:1},
- spikes:{n:"Spikes",w:1,h:1,kill:1},saw:{n:"Saw",w:1,h:1,kill:1},spinner:{n:"Saw Spinner",w:1,h:1,kill:1},cane:{n:"Spinning Candy Cane",w:1,h:1,kill:1},
+ trapdoor:{n:"Trapdoor",w:2,h:1},mbox:{n:"Movable Box",w:1,h:1},portal:{n:"Portal",w:1,h:1},peel:{n:"Banana Peel",w:1,h:1},
+ spikes:{n:"Spikes",w:1,h:1,kill:1},saw:{n:"Saw",w:1,h:1,kill:1},spinner:{n:"Saw Spinner",w:1,h:1,kill:1},cane:{n:"Spinning Candy Cane",w:1,h:1},
  axe:{n:"Axe",w:1,h:1,kill:1},swing:{n:"Swingstone",w:1,h:1,kill:1},angry:{n:"Angry Cube",w:2,h:2,kill:1},
  cannon:{n:"Cannon",w:1,h:1,rot:1,kill:1},turret:{n:"Turret",w:1,h:1,kill:1},xbow:{n:"Crossbow",w:1,h:1,rot:1,kill:1},freeze:{n:"Freeze Ray",w:1,h:1,rot:1},
  flame:{n:"Flamethrower",w:1,h:1,rot:1,kill:1},hole:{n:"Black Hole",w:1,h:1,kill:1},wire:{n:"Barbed Wire",w:2,h:1,kill:1},honey:{n:"Honey",w:2,h:1},
  boost:{n:"Boost Pad",w:1,h:1,rot:1},coin:{n:"Coin",w:1,h:1},
- bomb:{n:"Bomb",w:1,h:1,blast:1},dynamite:{n:"Dynamite",w:1,h:1,blast:2},nuke:{n:"Nuke",w:1,h:1,blast:4}};
+ bomb:{n:"Bomb",w:1,h:1,blast:1},dynamite:{n:"Dynamite",w:1,h:1,blast:2},nuke:{n:"Nuke",w:1,h:1,blast:4},cnuke:{n:"Cupidium Nuke",w:1,h:1,blast:5,corrode:1}};
+const TR_BLASTS=["bomb","dynamite","nuke"];
+// these have to sit on something solid: spikes on the side their base faces, honey and ice on top of a block
+const TR_NEEDS_BASE={spikes:1,honey:1,ice:1};
 // rot: 4 = turns 4 ways (right, down, left, up), 2 = flips left/right
 const TR_ROT={plank:4,stairs:4,cannon:4,xbow:4,flame:4,freeze:4,fan:4,rfan:4,spikes:4,turret:0,conveyor:4,boost:4,truss:4,mplat:4,trapdoor:4,saw:0};
 const trDir=r=>[[1,0],[0,1],[-1,0],[0,-1]][((r||0)%4+4)%4];
-const TR_BOX_W={block:4,plank:4,stairs:3,truss:2,slime:3,ice:2,spring:3,conveyor:2,fan:2,rfan:2,mplat:3,fplat:3,trapdoor:2,mbox:2,portal:1,peel:2,
+const TR_BOX_W={block:4,plank:4,stairs:3,truss:2,slime:3,ice:2,spring:3,conveyor:2,fan:2,rfan:2,mplat:3,fplat:3,trapdoor:2,mbox:2,portal:2,peel:2,
  spikes:3,saw:3,spinner:2,cane:2,axe:2,swing:2,angry:2,cannon:2,turret:2,xbow:1,freeze:2,flame:1,hole:1,wire:1,honey:1,boost:1,coin:2,bomb:2,dynamite:1,nuke:1};
-const TR_SOLID={block:2,plank:2,stairs:2,xbow:2,cannon:2,flame:2,turret:2,freeze:2,ice:3,spring:4,honey:7,fan:8,rfan:8,slime:11};
-const TR_HINT={block:"something to stand on",plank:"a long platform",stairs:"three steps up",truss:"hold jump to climb it",slime:"super bouncy",ice:"slippery!",
+const TR_SOLID={block:2,plank:2,stairs:2,xbow:2,cannon:2,flame:2,turret:2,freeze:2,ice:3,spring:4,honey:7,fan:8,rfan:8,slime:11,truss:20};
+const TR_HINT={block:"something to stand on",plank:"a long platform",stairs:"three steps up",truss:"solid; hold jump against it to climb",slime:"super bouncy",ice:"slippery! goes on top of a block",
  spring:"bounces you up high",conveyor:"carries you along",fan:"blows you upward",rfan:"blows you downward",mplat:"slides back and forth",fplat:"floats up and down",
- trapdoor:"opens every few seconds",mbox:"push it around",portal:"place both ends (up to 7 tiles apart, not near the flag), walk in one, come out the other",peel:"slip and slide",
- spikes:"touch it and you're out",saw:"don't touch",spinner:"a saw on a spinning arm",cane:"a spinning bar, jump over it",axe:"swings back and forth",
- swing:"a heavy stone on a chain",angry:"slams down when it's angry",cannon:"fires cannonballs",turret:"aims at you and shoots",xbow:"fires arrows",
- freeze:"freezes you for a moment",flame:"spits fire on and off",hole:"pulls you in",wire:"sharp, don't touch",honey:"sticky, slow and short jumps",
- boost:"launches you forward",coin:"grab it and finish for +3",bomb:"blows up a small area",dynamite:"blows up a bigger area",nuke:"blows up a huge area"};
+ trapdoor:"opens every few seconds",mbox:"push it around",portal:"one end of a portal. Your next portal (from a later box) links to it",peel:"slip and slide",
+ spikes:"touch it and you're out. Must sit against a block",saw:"don't touch",spinner:"a saw on a spinning arm",cane:"a spinning bar that carries you around",axe:"swings back and forth",
+ swing:"a heavy stone on a chain",angry:"wakes up and slams down when you go under it",cannon:"fires cannonballs",turret:"aims at you and shoots",xbow:"fires arrows",
+ freeze:"freezes you in place for a moment",flame:"spits fire on and off",hole:"pulls you in",wire:"sharp, don't touch",honey:"sticky, slow and short jumps. Goes on top of a block",
+ boost:"launches you forward",coin:"first to grab it and finish gets +3 (only one per round)",bomb:"blows up placed items in a small area",dynamite:"blows up placed items in a bigger area",nuke:"blows up placed items in a huge area",
+ cnuke:"RARE! Blows up items AND scorches the map itself"};
 // ---------- maps (generated by tools/trmaps.py) ----------
 const TR_MAPDATA=OIC_DATA.TR_MAPDATA;
 const TR_THEMES={
@@ -9884,20 +9914,29 @@ function trSetMap(id){if(TRM&&TRM.id===id)return;const d=TR_MAPDATA[id]||TR_MAPD
   for(let y=0;y<TR_H;y++)for(let x=0;x<TR_W;x++){const c=R[y][x],k=y*TR_W+x;if(TR_TILE[c]){TR_BASE[k]=TR_TILE[c];TR_BASEC[k]=c;}
     else if(c==="x"){if(y+1<TR_H&&TR_TILE[R[y+1][x]])hz.push([x,y]);}else if(c==="c"||c==="P"){if(y+1<TR_H&&TR_TILE[R[y+1][x]])deco.push([x,y,c]);}else if(c==="S")TR_START={x,y};else if(c==="G")TR_GOAL={x0:x-1,x1:x+2,y0:y-2,y1:y};}
   TRM=Object.assign({id},d,{th:TR_THEMES[d.theme]||TR_THEMES.peaks,hz,deco});}
-const trNoBuild=(x,y)=>(Math.abs(x-TR_START.x)<=2&&y>=TR_START.y-3&&y<=TR_START.y)||(x>=TR_GOAL.x0-1&&x<=TR_GOAL.x1+1&&y>=TR_GOAL.y0-2&&y<=TR_GOAL.y1);
-const trSafeGround=(x,y)=>(Math.abs(x-TR_START.x)<=3&&y<=TR_START.y+2)||(x>=TR_GOAL.x0-1&&x<=TR_GOAL.x1+1&&y<=TR_GOAL.y1+2);
+// the spawn safe area: nothing can be built here (a bit bigger than it used to be: 7 wide, 5 tall)
+const TR_SAFE={dx:3,up:4,dn:0};
+const trNoBuild=(x,y)=>(Math.abs(x-TR_START.x)<=TR_SAFE.dx&&y>=TR_START.y-TR_SAFE.up&&y<=TR_START.y+TR_SAFE.dn)||(x>=TR_GOAL.x0-1&&x<=TR_GOAL.x1+1&&y>=TR_GOAL.y0-2&&y<=TR_GOAL.y1);
+const trSafeGround=(x,y)=>(Math.abs(x-TR_START.x)<=TR_SAFE.dx+1&&y>=TR_START.y-TR_SAFE.up-1&&y<=TR_START.y+2)||(x>=TR_GOAL.x0-1&&x<=TR_GOAL.x1+1&&y>=TR_GOAL.y0-3&&y<=TR_GOAL.y1+2);
 let TRG=null;// the whole game state on this device
 const trNow=()=>performance.now();
 // ---------- course ----------
 function trBaseGrid(holes){const g=TR_BASE.slice();for(const k of holes||[])g[k]=0;return g;}
 // cells an item covers; shapes turn with it (a quarter turn clockwise per rotation step)
-function trCells(it){const d=TR_ITEMS[it.ty];if(!d)return[];if(d.two)return it.x2!=null?[[it.x,it.y],[it.x2,it.y2]]:[[it.x,it.y]];
+function trCells(it){const d=TR_ITEMS[it.ty];if(!d)return[];
   let c=it.ty==="stairs"?[[2,0],[1,1],[2,1],[0,2],[1,2],[2,2]]:[];if(!c.length)for(let i=0;i<d.w;i++)for(let j=0;j<d.h;j++)c.push([i,j]);
   const r=TR_ROT[it.ty]===4?((it.rot||0)%4+4)%4:0;for(let k=0;k<r;k++){const my=Math.max(...c.map(q=>q[1]));c=c.map(([a,b])=>[my-b,a]);}
   if(TR_ROT[it.ty]===2&&it.rot&&it.ty==="stairs"){const mx=Math.max(...c.map(q=>q[0]));c=c.map(([a,b])=>[mx-a,b]);}
   return c.map(([a,b])=>[it.x+a,it.y+b]);}
+// portal ends pair up per owner, in the order they were placed: your 1st and 2nd portal link, then your 3rd and 4th, and so on
+function trPortalPairs(items){const by={},pairs=[],lone=[];for(const it of items){if(it.ty!=="portal")continue;const o=it.o||"_";(by[o]=by[o]||[]).push(it);}
+  for(const o in by){const L=by[o];for(let i=0;i+1<L.length;i+=2)pairs.push([L[i],L[i+1]]);if(L.length%2)lone.push(L[L.length-1]);}return{pairs,lone};}
+const trLonePortal=(st,o)=>trPortalPairs(st.items).lone.find(p=>(p.o||"_")===(o||"_"))||null;
 function trBuild(st){if(st.map)trSetMap(st.map);const g=trBaseGrid(st.holes),kind=g.slice();
-  const C={kind,base:g,kills:[],arrows:[],winds:[],fires:[],swings:[],spinners:[],canes:[],pulls:[],coins:[],turrets:[],rays:[],peels:[],truss:[],portals:[],dyn:[],t:0};
+  const C={kind,base:g,kills:[],arrows:[],winds:[],fires:[],swings:[],spinners:[],canes:[],pulls:[],coins:[],turrets:[],rays:[],peels:[],truss:[],portals:[],dyn:[],t:0,cor:new Map()};
+  // scorched (corroded) map tiles from a Cupidium Nuke: [tile index, how much is chipped (1-3), which side faces the blast]
+  for(const [k,c,s] of st.cor||[])if(g[k])C.cor.set(k,[c,s]);
+  for(const [a,b] of trPortalPairs(st.items).pairs)C.portals.push({a:{x:a.x*TR_TS,y:a.y*TR_TS},b:{x:b.x*TR_TS,y:b.y*TR_TS}});
   const bows=[],guns=[],flames=[],fans=[],frz=[];
   for(const it of st.items){const S=TR_SOLID[it.ty];
     if(S)for(const [x,y] of trCells(it)){if(x<0||y<0||x>=TR_W||y>=TR_H)continue;kind[y*TR_W+x]=S;}
@@ -9916,13 +9955,11 @@ function trBuild(st){if(st.map)trSetMap(st.map);const g=trBaseGrid(st.holes),kin
     if(it.ty==="spinner")C.spinners.push({x:cx,y:cy,r:28,sp:2.3,off:(it.x+it.y)%6,o:it.o});
     if(it.ty==="cane")C.canes.push({x:cx,y:cy,len:46,sp:1.7,off:(it.x*3+it.y)%6,o:it.o});
     if(it.ty==="peel")C.peels.push({x:px+2,y:py+10,w:12,h:6});
-    if(it.ty==="truss"){const cs=trCells(it),xs=cs.map(c=>c[0]),ys=cs.map(c=>c[1]),x0=Math.min(...xs)*TR_TS,y0=Math.min(...ys)*TR_TS;C.truss.push({x:x0+2,y:y0,w:(Math.max(...xs)+1)*TR_TS-x0-4,h:(Math.max(...ys)+1)*TR_TS-y0});}
-    if(it.ty==="portal"&&it.x2!=null)C.portals.push({a:{x:px,y:py},b:{x:it.x2*TR_TS,y:it.y2*TR_TS}});
     if(it.ty==="turret")C.turrets.push({x:cx,y:cy+2,o:it.o,off:((it.x*13+it.y*7)%10)/10*2});
     if(it.ty==="mplat"){const v=(it.rot||0)%2===1;C.dyn.push({ty:v?"fplat":"mplat",x:px,y:v?py+16:py,w:v?16:48,h:8,range:48,off:(it.x+it.y)%6,o:it.o,vert:v});}
     if(it.ty==="fplat")C.dyn.push({ty:"fplat",x:px,y:py,w:48,h:8,range:56,off:(it.x*2+it.y)%6,o:it.o});
     if(it.ty==="trapdoor"){const v=(it.rot||0)%2===1;C.dyn.push({ty:"trapdoor",x:px,y:py,w:v?6:32,h:v?32:6,off:(it.x+it.y*3)%3,o:it.o});}
-    if(it.ty==="angry")C.dyn.push({ty:"angry",x:px,y:py,w:32,h:32,off:((it.x*3+it.y)%10)/10*3.2,o:it.o});
+    if(it.ty==="angry")C.dyn.push({ty:"angry",x:px,y:py,w:32,h:32,trig:null,o:it.o});
     if(it.ty==="mbox")C.dyn.push({ty:"mbox",x:px,y:py,w:16,h:16,bx:px,by:py,vy:0,o:it.o});
     if(it.ty==="xbow")bows.push(it);if(it.ty==="cannon")guns.push(it);if(it.ty==="flame")flames.push(it);if(it.ty==="fan"||it.ty==="rfan")fans.push(it);if(it.ty==="freeze")frz.push(it);}
   for(const [x,y] of TRM.hz)if(kind[y*TR_W+x]===0)C.kills.push({t:"rect",x:x*TR_TS+1,y:y*TR_TS+7,w:14,h:9,o:null,map:1});
@@ -9946,62 +9983,91 @@ const trCaneEnd=(s,t)=>{const a=t*s.sp+s.off;return{x:s.x+Math.cos(a)*s.len,y:s.
 function trDynRect(d,t){if(d.ty==="mplat")return{x:d.x+Math.sin(t*.8+d.off)*d.range,y:d.y,w:d.w,h:d.h,on:1};
   if(d.ty==="fplat")return{x:d.x,y:d.y-(1-Math.cos(t*.9+d.off))/2*d.range,w:d.w,h:d.h,on:1};
   if(d.ty==="trapdoor")return{x:d.x,y:d.y,w:d.w,h:d.h,on:((t+d.off)%3)<2};
-  if(d.ty==="angry"){const p=(t+d.off)%3.2,dr=d.drop||0;let y=d.y,fall=0;if(p>=1.5&&p<1.85){y=d.y+dr*Math.pow((p-1.5)/.35,2);fall=1;}else if(p>=1.85&&p<2.4)y=d.y+dr;else if(p>=2.4)y=d.y+dr*(1-(p-2.4)/.8);
-    return{x:d.x,y,w:d.w,h:d.h,on:1,fall,angry:p>=1.1&&p<2.4};}
+  // the angry cube sleeps until someone goes under or right next to it (see trAngryWake), then wakes, slams down, waits and floats back up
+  if(d.ty==="angry"){if(d.trig==null||t<d.trig)return{x:d.x,y:d.y,w:d.w,h:d.h,on:1,fall:0,angry:0};const p=t-d.trig,dr=d.drop||0;let y=d.y,fall=0,sx=0;
+    if(p<.3)sx=Math.round(Math.sin(p*90));else if(p<.62){y=d.y+dr*Math.pow((p-.3)/.32,2);fall=1;}else if(p<1.2)y=d.y+dr;else if(p<2)y=d.y+dr*(1-(p-1.2)/.8);
+    return{x:d.x+sx,y,w:d.w,h:d.h,on:1,fall,angry:p<1.2};}
   if(d.ty==="mbox")return{x:d.bx,y:d.by,w:d.w,h:d.h,on:1};return{x:d.x,y:d.y,w:d.w,h:d.h,on:0};}
 const TR_AP=1.6,TR_AV=210;
 function trArrowsAt(A,t){const out=[];for(const a of A){if(a.len<=0)continue;const per=a.per||TR_AP,v=a.v||TR_AV,life=a.len/v;const k1=Math.floor((t-a.off)/per);
   for(let k=Math.max(0,Math.floor((t-a.off-life)/per));k<=k1;k++){const age=t-(a.off+k*per);if(age>=0&&age<=life)out.push({x:a.x0+a.dx*v*age,y:a.y0+a.dy*v*age,dx:a.dx,dy:a.dy,o:a.o,ball:a.ball});}}return out;}
 // ---------- physics ----------
 const TRP={g:1400,maxFall:560,acc:2200,fr:2000,ice:260,max:150,jump:430,wallFall:110,wjx:190,wjy:390,spring:640,w:10,h:13};
-function trSolid(C,tx,ty){if(tx<0||tx>=TR_W)return 1;if(ty<0||ty>=TR_H)return 0;return C.kind[ty*TR_W+tx];}
+// above the map counts as whatever the top row is, so you can't climb over the roof of a cave and walk across the top of the map
+function trSolid(C,tx,ty){if(tx<0||tx>=TR_W)return 1;if(ty>=TR_H)return 0;if(ty<0)return C.base[tx]?1:0;return C.kind[ty*TR_W+tx];}
 const trOv=(a,b)=>a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
+// a scorched tile has 4, 8 or 12 pixels chipped off the side that faced the blast (0 top, 1 right, 2 bottom, 3 left)
+function trCorRect(tx,ty,c,s){let l=tx*TR_TS,t=ty*TR_TS,r=l+TR_TS,b=t+TR_TS;const d=4*c;if(s===0)t+=d;else if(s===1)r-=d;else if(s===2)b-=d;else l+=d;return{l,t,r,b};}
 function trTileHit(C,x,y,w,h){const x0=Math.floor(x/TR_TS),x1=Math.floor((x+w-.01)/TR_TS),y0=Math.floor(y/TR_TS),y1=Math.floor((y+h-.01)/TR_TS);
-  for(let ty=y0;ty<=y1;ty++)for(let tx=x0;tx<=x1;tx++){const k=trSolid(C,tx,ty);if(k)return{k,l:tx*TR_TS,t:ty*TR_TS,r:(tx+1)*TR_TS,b:(ty+1)*TR_TS};}return null;}
+  for(let ty=y0;ty<=y1;ty++)for(let tx=x0;tx<=x1;tx++){const k=trSolid(C,tx,ty);if(!k)continue;const cr=C.cor&&ty>=0&&C.cor.get(ty*TR_W+tx);
+    if(cr){const q=trCorRect(tx,ty,cr[0],cr[1]);if(x<q.r&&x+w>q.l&&y<q.b&&y+h>q.t)return{k,l:q.l,t:q.t,r:q.r,b:q.b};continue;}
+    return{k,l:tx*TR_TS,t:ty*TR_TS,r:(tx+1)*TR_TS,b:(ty+1)*TR_TS};}return null;}
 function trHit(C,x,y,w,h){const t=trTileHit(C,x,y,w,h);if(t)return t;const R=C.dr||[];
   for(let i=0;i<R.length;i++){const r=R[i];if(r&&r.on&&x<r.x+r.w&&x+w>r.x&&y<r.y+r.h&&y+h>r.y)return{k:2,l:r.x,t:r.y,r:r.x+r.w,b:r.y+r.h,d:C.dyn[i]};}return null;}
 // movable boxes fall and get pushed (each device runs its own copy)
 function trBoxes(C,dt){for(const d of C.dyn){if(d.ty!=="mbox")continue;d.vy=Math.min(500,d.vy+1400*dt);const ny=d.by+d.vy*dt,h=trTileHit(C,d.bx,ny,d.w,d.h);
   if(h){if(d.vy>0)d.by=h.t-d.h;d.vy=0;}else d.by=ny;if(d.by>TR_H*TR_TS)d.by=TR_H*TR_TS+40;}}
+// the angry cube wakes when you go under it (anywhere down its drop) or right up next to it; each device wakes its own copy
+function trAngryWake(P,C,t){if(!P||P.st!=="run")return;const cx=P.x+P.w/2;
+  for(const d of C.dyn){if(d.ty!=="angry")continue;if(d.trig!=null){if(t-d.trig>=2){d.trig=null;d.cool=t+.6;}continue;}if(d.cool&&t<d.cool)continue;
+    const under=cx>d.x-6&&cx<d.x+d.w+6&&P.y+P.h>d.y+d.h-2&&P.y<d.y+d.h+(d.drop||0)+8,near=cx>d.x-22&&cx<d.x+d.w+22&&P.y+P.h>d.y-6&&P.y<d.y+d.h+6;
+    if(under||near)d.trig=t;}}
+// spinning candy canes: stand on the bar and it carries you round the way it's turning (like a conveyor belt). It never hurts.
+function trCaneRide(P,C,t,dt){if(P.vy<0)return false;const fx=P.x+P.w/2,fy=P.y+P.h;
+  for(const s of C.canes){const a=t*s.sp+s.off,ca=Math.cos(a),sa=Math.sin(a);if(Math.abs(ca)<.4)continue;// too steep to stand on: you slide off
+    const u=(fx-s.x)/(ca*s.len);if(u<0||u>1.04)continue;const by=s.y+sa*s.len*u,top=by-3/Math.abs(ca);if(fy<top-4||fy>top+7)continue;
+    const vx=-s.sp*(by-s.y),vy=s.sp*(fx-s.x);P.x+=vx*dt;P.y=top+vy*dt-P.h;P.vy=0;return true;}return false;}
+// you can never end up inside a wall: if anything would put you there, you stay at the last clear spot instead
+const trInWall=(C,x,y,P)=>!!trTileHit(C,x+.5,y+.5,P.w-1,P.h-1);
+const trStuck=(P,C)=>{if(trInWall(C,P.x,P.y,P)){if(P.sx!=null&&!trInWall(C,P.sx,P.sy,P)){P.x=P.sx;P.y=P.sy;}P.vx=0;P.vy=Math.max(0,P.vy);}else{P.sx=P.x;P.sy=P.y;}};
 function trStep(P,C,inp,dt,t){if(P.st!=="run")return;const S=TRP,grav=S.g*(TRM.grav||1);
-  trBoxes(C,dt);const prev=C.dyn.map(d=>trDynRect(d,t-dt));C.dr=C.dyn.map(d=>trDynRect(d,t));C.t=t;
+  if(!trInWall(C,P.x,P.y,P)){P.sx=P.x;P.sy=P.y;}
+  trBoxes(C,dt);trAngryWake(P,C,t);const prev=C.dyn.map(d=>trDynRect(d,t-dt));C.dr=C.dyn.map(d=>trDynRect(d,t));C.t=t;
   // ride moving platforms; get pushed out if something moves into you
   for(let i=0;i<C.dr.length;i++){const a=prev[i],b=C.dr[i];if(!a.on||!b.on)continue;
-    if(P.x+P.w>a.x&&P.x<a.x+a.w&&Math.abs(P.y+P.h-a.y)<3&&P.vy>=0){P.x+=b.x-a.x;P.y=b.y-P.h;}
-    else if(trOv(P,b)){if(C.dyn[i].ty==="angry"&&b.fall&&P.y+P.h/2>b.y+b.h/2-4){P.crush=C.dyn[i].o||"_";}else if(P.y+P.h/2<b.y+b.h/2)P.y=b.y-P.h;else P.y=b.y+b.h;}}
-  if(P.frz>0)P.frz-=dt;if(P.slip>0)P.slip-=dt;if(P.pcd>0)P.pcd-=dt;const frozen=P.frz>0;
-  const below=trHit(C,P.x,P.y+P.h+.5,P.w,1),onG=!!below&&P.vy>=0,ice=below&&below.k===3,honey=onG&&below.k===7,belt=onG?(below.k===5?80:below.k===6?-80:0):0;
+    if(P.x+P.w>a.x&&P.x<a.x+a.w&&Math.abs(P.y+P.h-a.y)<3&&P.vy>=0){const nx=P.x+b.x-a.x,ny=b.y-P.h;if(!trInWall(C,nx,ny,P)){P.x=nx;P.y=ny;}else if(!trInWall(C,P.x,ny,P))P.y=ny;}
+    else if(trOv(P,b)){if(C.dyn[i].ty==="angry"&&b.fall&&P.y+P.h/2>b.y+b.h/2-4){P.crush=C.dyn[i].o||"_";}else{const ny=P.y+P.h/2<b.y+b.h/2?b.y-P.h:b.y+b.h;if(!trInWall(C,P.x,ny,P))P.y=ny;}}}
+  if(P.frz>0)P.frz-=dt;if(P.slip>0)P.slip-=dt;if(P.pcd>0)P.pcd-=dt;
+  // frozen solid: no gravity, no moving, nothing pushes you until you thaw
+  if(P.frz>0){P.vx=0;P.vy=0;P.buf=0;inp.jp=false;trStuck(P,C);P.t+=dt;return;}
+  const cane=trCaneRide(P,C,t,dt);
+  const below=trHit(C,P.x,P.y+P.h+.5,P.w,1),onG=(!!below&&P.vy>=0)||cane,bk=below&&!cane?below.k:0,ice=bk===3,honey=onG&&bk===7,belt=onG?(bk===5?80:bk===6?-80:0):0;
+  const sl=trHit(C,P.x-1,P.y+2,1,P.h-4),sr=trHit(C,P.x+P.w,P.y+2,1,P.h-4);
   // boost pads launch you the way their arrow points, whichever side you touch them from
-  {const hs=[below,trHit(C,P.x-1,P.y+2,1,P.h-4),trHit(C,P.x+P.w,P.y+2,1,P.h-4),trHit(C,P.x,P.y-1,P.w,1)];for(const h of hs){if(!h)continue;
+  {const hs=[cane?null:below,sl,sr,trHit(C,P.x,P.y-1,P.w,1)];for(const h of hs){if(!h)continue;
     if(h.k===9||h.k===10){P.vx=h.k===9?320:-320;P.boost=.45;break;}if(h.k===18){P.vy=-620;P.coy=0;P.bounce=1;break;}if(h.k===19){P.vy=420;break;}}}
   if(P.boost>0)P.boost-=dt;
   if(onG)P.coy=.09;else P.coy-=dt;if(inp.jp){P.buf=.11;inp.jp=false;}else P.buf-=dt;
-  let dir=frozen||P.slip>0?0:(inp.r?1:0)-(inp.l?1:0);if(dir)P.f=dir;
+  let dir=P.slip>0?0:(inp.r?1:0)-(inp.l?1:0);if(dir)P.f=dir;
   const a=onG?(ice?S.ice:S.acc):S.acc*.75;if(dir)P.vx+=dir*a*dt;else if(P.slip>0)P.vx=P.sv;else{const f=(onG?(ice?S.ice*.4:S.fr):S.fr*.25)*dt;P.vx=Math.abs(P.vx)<=f?0:P.vx-Math.sign(P.vx)*f;}
   const vmax=P.slip>0?320:P.boost>0?330:honey?55:S.max;P.vx=Math.max(-vmax,Math.min(vmax,P.vx));
-  const onT=C.truss.some(r=>trOv(P,r));
-  const wl=!onG&&!onT&&!!trHit(C,P.x-1,P.y+2,1,P.h-4),wr=!onG&&!onT&&!!trHit(C,P.x+P.w,P.y+2,1,P.h-4);
-  if(P.buf>0&&!frozen){if(P.coy>0){P.vy=honey?-250:-S.jump;P.buf=0;P.coy=0;}else if(wl||wr){P.vy=-S.wjy;P.vx=wl?S.wjx:-S.wjx;P.buf=0;}}
+  // trusses are solid: you can't walk through them, but up against one you hold jump (or up) to climb and down to slide
+  const onT=!onG&&((sl&&sl.k===20)||(sr&&sr.k===20)),climb=onT&&(inp.j||inp.u);
+  const wl=!onG&&!!sl&&sl.k!==20,wr=!onG&&!!sr&&sr.k!==20;
+  if(P.buf>0){if(P.coy>0){P.vy=honey?-250:-S.jump;P.buf=0;P.coy=0;}else if(!onT&&(wl||wr)){P.vy=-S.wjy;P.vx=wl?S.wjx:-S.wjx;P.buf=0;}}
   // standing next to an up/down conveyor carries you along it like a lift
-  const lift=[trHit(C,P.x-1,P.y+2,1,P.h-4),trHit(C,P.x+P.w,P.y+2,1,P.h-4)].find(h=>h&&(h.k===16||h.k===17));
+  const lift=[sl,sr].find(h=>h&&(h.k===16||h.k===17));
   if(lift&&!onT){P.vy=lift.k===16?-150:150;P.coy=.06;}
-  else if(onT&&!frozen){P.vy=inp.j||inp.u?-120:inp.d?140:Math.min(P.vy,0)*.5;P.coy=.05;}
-  if(lift&&!onT){}
-  else if(onT&&!frozen){}
-  else{if(!inp.j&&P.vy<-120&&!P.bounce)P.vy+=grav*dt*1.6;// short hop when jump is released early
+  else if(onT){P.vy=climb?Math.min(P.vy+grav*dt,-120):inp.d?140:Math.min(P.vy+grav*dt,0);P.coy=.05;P.climb=climb?1:0;}
+  else{if(P.climb&&P.vy<0){P.vy=Math.min(P.vy,-240);P.climb=0;}// pop over the top of a truss
+    P.climb=0;if(!inp.j&&P.vy<-120&&!P.bounce)P.vy+=grav*dt*1.6;// short hop when jump is released early
     P.vy=Math.min(P.vy+grav*dt,(wl&&dir<0)||(wr&&dir>0)?S.wallFall:S.maxFall);}
   if(P.vy>=0)P.bounce=0;
   // fans push you; black holes pull you in
-  for(const w of C.winds)if(P.x+P.w>w.x&&P.x<w.x+w.w&&P.y+P.h>w.y&&P.y<w.y+w.h){if(w.dy<0){P.vy=Math.max(-300,P.vy-3000*dt);P.coy=0;}else if(w.dy>0)P.vy=Math.min(460,P.vy+2600*dt);else P.vx=Math.max(-260,Math.min(260,P.vx+w.dx*2400*dt));}
+  for(const w of C.winds)if(P.x+P.w>w.x&&P.x<w.x+w.w&&P.y+P.h>w.y&&P.y<w.y+w.h){if(w.dy<0){P.vy=Math.max(-290,P.vy-2880*dt);P.coy=0;}else if(w.dy>0)P.vy=Math.min(450,P.vy+2500*dt);else P.vx=Math.max(-250,Math.min(250,P.vx+w.dx*2300*dt));}
   for(const h of C.pulls){const dx=h.x-(P.x+P.w/2),dy=h.y-(P.y+P.h/2),d=Math.hypot(dx,dy);if(d<72&&d>1){const f=1100*(1-d/72);P.vx+=dx/d*f*dt;P.vy+=dy/d*f*dt;}}
   // move x (push boxes, bounce off slime)
-  P.x+=(P.vx+belt)*dt;let h=trHit(C,P.x,P.y,P.w,P.h);
+  const x0=P.x,mvx=(P.vx+belt)*dt;P.x+=mvx;let h=trHit(C,P.x,P.y,P.w,P.h);
   if(h&&h.d&&h.d.ty==="mbox"){const d=h.d,push=P.vx+belt>0?(P.x+P.w)-d.bx:(P.x)-(d.bx+d.w);if(!trTileHit(C,d.bx+push,d.by,d.w,d.h)){d.bx+=push;C.dr=C.dyn.map(e=>trDynRect(e,t));P.vx*=.6;h=trHit(C,P.x,P.y,P.w,P.h);}}
   if(h){const mv=P.vx+belt;if(mv>0)P.x=h.l-P.w;else if(mv<0)P.x=h.r;if(h.k===11&&Math.abs(P.vx)>40){P.vx=-Math.sign(P.vx)*260;P.vy=Math.min(P.vy,-260);P.bounce=1;}else P.vx=0;
-    if(trHit(C,P.x,P.y,P.w,P.h))P.x-=Math.sign(mv||P.f||1)*.5;}
+    if(trHit(C,P.x,P.y,P.w,P.h))P.x-=Math.sign(mv||P.f||1)*.5;
+    // never get shoved further than you moved (that's how you used to end up inside the map)
+    if(Math.abs(P.x-x0)>Math.abs(mvx)+6)P.x=x0;}
   // move y (springs and slime bounce you)
-  const vy0=P.vy;P.y+=P.vy*dt;h=trHit(C,P.x,P.y,P.w,P.h);
-  if(h){if(P.vy>0){P.y=h.t-P.h;P.vy=h.k===4?-S.spring:h.k===11?-Math.max(420,vy0*.92):0;if(h.k===4||h.k===11){P.bounce=1;sfx.whoosh&&sfx.whoosh(2);}}else if(P.vy<0){P.y=h.b;P.vy=0;}}
+  const vy0=P.vy,y0=P.y;P.y+=P.vy*dt;h=trHit(C,P.x,P.y,P.w,P.h);
+  if(h){if(P.vy>0){P.y=h.t-P.h;P.vy=h.k===4?-S.spring:h.k===11?-Math.max(420,vy0*.92):0;if(h.k===4||h.k===11){P.bounce=1;sfx.whoosh&&sfx.whoosh(2);}}else if(P.vy<0){P.y=h.b;P.vy=0;}
+    if(Math.abs(P.y-y0)>Math.abs(vy0*dt)+6){P.y=y0;P.vy=0;}}
+  trStuck(P,C);
   // banana peels and portals
   if(onG&&!(P.slip>0))for(const p of C.peels)if(trOv(P,p)){P.slip=.8;P.sv=(P.f||1)*300;sfx.whoosh&&sfx.whoosh(1);break;}
   if(!(P.pcd>0))for(const pp of C.portals){const A={x:pp.a.x+2,y:pp.a.y,w:12,h:16},B={x:pp.b.x+2,y:pp.b.y,w:12,h:16};
@@ -10014,16 +10080,20 @@ function trCheck(P,C,t){if(P.st!=="run")return;const cx=P.x+P.w/2,cy=P.y+P.h/2;
   for(const f of C.fires)if(trFireOn(f,t)&&P.x<f.x+f.w&&P.x+P.w>f.x&&P.y<f.y+f.h&&P.y+P.h>f.y)return trDie(P,f.o);
   for(const s of C.swings){const b=trSwingPos(s,t);if((cx-b.x)**2+(cy-b.y)**2<(s.ty==="axe"?11:12)**2)return trDie(P,s.o);}
   for(const s of C.spinners){const b=trSpinPos(s,t);if((cx-b.x)**2+(cy-b.y)**2<12**2)return trDie(P,s.o);}
-  for(const s of C.canes){const e=trCaneEnd(s,t),vx=e.x-s.x,vy=e.y-s.y,L=vx*vx+vy*vy,u=Math.max(0,Math.min(1,((cx-s.x)*vx+(cy-s.y)*vy)/L)),qx=s.x+vx*u-cx,qy=s.y+vy*u-cy;if(qx*qx+qy*qy<8*8)return trDie(P,s.o);}
-  for(const r of C.rays)if(trRayOn(r,t)&&P.x<r.x+r.w&&P.x+P.w>r.x&&P.y<r.y+r.h&&P.y+P.h>r.y&&!(P.frz>0)){P.frz=1.3;P.vx=0;sfx.bad&&sfx.bad();}
+  for(const r of C.rays)if(trRayOn(r,t)&&P.x<r.x+r.w&&P.x+P.w>r.x&&P.y<r.y+r.h&&P.y+P.h>r.y&&!(P.frz>0)){P.frz=1.3;P.vx=0;P.vy=0;sfx.bad&&sfx.bad();}
   for(const a of trArrowsAt(C.arrows,t)){const r=a.ball?11:9;if(Math.abs(a.x-cx)<r&&Math.abs(a.y-cy)<r)return trDie(P,a.o);}
   for(const b of (TRG&&TRG.bullets)||[])if((cx-b.x)**2+(cy-b.y)**2<9*9)return trDie(P,b.o);
-  if(!P.coins)P.coins={};for(const c of C.coins)if(!P.coins[c.k]&&Math.abs(cx-c.x)<10&&Math.abs(cy-c.y)<11){P.coins[c.k]=1;P.coin=1;sfx.ok&&sfx.ok(2);}
+  // coins: only one racer can grab each coin per round (the host settles ties); ghost runs never take it
+  if(!P.coins)P.coins={};if(!P.ghost)for(const c of C.coins)if(!P.coins[c.k]&&!trCoinGone(c.k)&&Math.abs(cx-c.x)<10&&Math.abs(cy-c.y)<11){P.coins[c.k]=1;P.coin=c.k;sfx.ok&&sfx.ok(2);trCoinGrab(c.k);}
   const g=TR_GOAL;if(P.x+P.w>g.x0*TR_TS&&P.x<(g.x1+1)*TR_TS&&P.y+P.h>g.y0*TR_TS&&P.y<(g.y1+1)*TR_TS){P.st="win";P.ms=Math.round(P.t*1000);sfx.ok(5);burst&&burst(60);trSendRes();}}
+// a coin is gone once someone else has it
+const trCoinGone=k=>!!(TRG&&TRG.st&&((TRG.st.coinBy&&TRG.st.coinBy[k]&&TRG.st.coinBy[k]!==TRG.me)||(TRG.coinTaken&&TRG.coinTaken[k])));
+function trCoinGrab(k){if(!TRG||!TRG.st)return;trSend({t:"tcoin",r:TRG.st.r,k});trPub({t:"tk",r:TRG.st.r,k});}
 function trDie(P,owner){P.st="dead";P.kill=owner||null;P.ms=Math.round(P.t*1000);sfx.bad();trSendRes();}
 // turrets aim at you (each device shoots at its own racer)
 function trTurrets(G,t,dt){const C=G.C,P=G.meP;if(!P)return;G.bullets=G.bullets||[];
-  for(const tr of C.turrets){tr.next=tr.next==null?1+tr.off:tr.next;if(t>=tr.next&&P.st==="run"){tr.next+=2.2;const dx=P.x+P.w/2-tr.x,dy=P.y+P.h/2-tr.y,d=Math.hypot(dx,dy)||1;if(d<320)G.bullets.push({x:tr.x+dx/d*10,y:tr.y+dy/d*10,vx:dx/d*170,vy:dy/d*170,o:tr.o,life:3});}}
+  for(const tr of C.turrets){tr.next=tr.next==null?1+tr.off:tr.next;const dx=P.x+P.w/2-tr.x,dy=P.y+P.h/2-tr.y,d=Math.hypot(dx,dy)||1;tr.see=P.st==="run"&&d<320;tr.warn=tr.see?Math.max(0,Math.min(1,1-(tr.next-t)/.7)):0;
+    if(t>=tr.next&&P.st==="run"){tr.next+=2.2;if(d<320)G.bullets.push({x:tr.x+dx/d*10,y:tr.y+dy/d*10,vx:dx/d*170,vy:dy/d*170,o:tr.o,life:3});}}
   G.bullets=G.bullets.filter(b=>{b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;return b.life>0&&!trSolid(C,Math.floor(b.x/TR_TS),Math.floor(b.y/TR_TS));});}
 // ---------- drawing (all pixel art, no emoji) ----------
 const _trSpr={};
@@ -10034,20 +10104,27 @@ const trS=k=>trSprite(k,TR_ART[k]);
 function trRotDraw(x,s,px,py,r){r=((r||0)%4+4)%4;if(!r)return x.drawImage(s,px,py);x.save();x.translate(px+8,py+8);x.rotate(r*Math.PI/2);x.drawImage(s,-8,-8);x.restore();}
 function trFlip(x,s,px,py,w,h,flipX,flipY){x.save();x.translate(px+(flipX?w:0),py+(flipY?h:0));x.scale(flipX?-1:1,flipY?-1:1);x.drawImage(s,0,0,w,h);x.restore();}
 // map tiles, themed
+// a scorched tile: charred dark, glowing embers, and a jagged bitten edge where it was chipped away
+function trDrawChar(x,q,cr,tx,ty){const w=q.r-q.l,h=q.b-q.t,s=cr[1];x.fillStyle=`rgba(26,12,8,${.35+cr[0]*.15})`;x.fillRect(q.l,q.t,w,h);
+  const tt=trNow()/400;x.fillStyle="#ff7a2a";for(let i=0;i<cr[0];i++){const v=pxHash(tx*3+i,ty*5,11),u=pxHash(tx,ty*7+i,13);if(Math.sin(tt+v*9)>.2)x.fillRect(q.l+Math.floor(v*(w-1)),q.t+Math.floor(u*(h-1)),1,1);}
+  x.fillStyle="#140804";for(let i=0;i<16;i+=2){const d=1+Math.floor(pxHash(tx*16+i,ty,17)*3);
+    if(s===0&&i<w)x.fillRect(q.l+i,q.t,2,d);else if(s===2&&i<w)x.fillRect(q.l+i,q.b-d,2,d);else if(s===1&&i<h)x.fillRect(q.r-d,q.t+i,d,2);else if(s===3&&i<h)x.fillRect(q.l,q.t+i,d,2);}}
 function trDrawGround(x,C,cam){const th=TRM.th,t0x=Math.max(0,Math.floor(cam.x/TR_TS)),t1x=Math.min(TR_W-1,Math.floor((cam.x+trVW())/TR_TS)),t0y=Math.max(0,Math.floor(cam.y/TR_TS)),t1y=Math.min(TR_H-1,Math.floor((cam.y+trVH())/TR_TS));
-  for(let ty=t0y;ty<=t1y;ty++)for(let tx=t0x;tx<=t1x;tx++){const k=ty*TR_W+tx;if(!C.base[k])continue;const c=TR_BASEC[k],px=tx*TR_TS,py=ty*TR_TS,open=!trSolid(C,tx,ty-1),h=(tx*7+ty*13)%11;
-    if(c==="w"){x.fillStyle=th.wood||"#7a4a24";x.fillRect(px,py,16,16);x.fillStyle=th.wood2||"#4a2a14";x.fillRect(px+((tx%2)?3:10),py,1,16);if((tx+ty)%3===0)x.fillRect(px,py+((ty*5)%14),16,1);if(open){x.fillStyle=th.top||"#a06a3a";x.fillRect(px,py,16,2);}continue;}
-    if(c==="l"){x.fillStyle=th.leaf||"#3fae4a";x.fillRect(px,py,16,16);x.fillStyle=th.leaf2||"#1f7a3a";x.fillRect(px+(h%8),py+((h*3)%10),4,3);x.fillRect(px+((h*5)%12),py+10,3,3);if(open){x.fillStyle="rgba(255,255,255,.25)";x.fillRect(px+2,py,10,2);}continue;}
+  const one=(tx,ty)=>{const k=ty*TR_W+tx;if(!C.base[k])return;const c=TR_BASEC[k],px=tx*TR_TS,py=ty*TR_TS,open=!trSolid(C,tx,ty-1),h=(tx*7+ty*13)%11;
+    if(c==="w"){x.fillStyle=th.wood||"#7a4a24";x.fillRect(px,py,16,16);x.fillStyle=th.wood2||"#4a2a14";x.fillRect(px+((tx%2)?3:10),py,1,16);if((tx+ty)%3===0)x.fillRect(px,py+((ty*5)%14),16,1);if(open){x.fillStyle=th.top||"#a06a3a";x.fillRect(px,py,16,2);}return;}
+    if(c==="l"){x.fillStyle=th.leaf||"#3fae4a";x.fillRect(px,py,16,16);x.fillStyle=th.leaf2||"#1f7a3a";x.fillRect(px+(h%8),py+((h*3)%10),4,3);x.fillRect(px+((h*5)%12),py+10,3,3);if(open){x.fillStyle="rgba(255,255,255,.25)";x.fillRect(px+2,py,10,2);}return;}
     const tc=TR_TCOL[c];if(tc){const v=pxHash(tx,ty,7);x.fillStyle=c==="s"?(v<.22?tc[1]:tc[0]):(v<.35?tc[1]:tc[0]);x.fillRect(px,py,16,16);
       if("rbe".includes(c)){x.fillStyle=tc[1];if((tx+ty)%3===0)x.fillRect(px+2,py+2,3,12);x.fillStyle=tc[2];if(!trSolid(C,tx+1,ty))x.fillRect(px+13,py,3,16);if(!trSolid(C,tx,ty+1))x.fillRect(px,py+13,16,3);}
       else{x.fillStyle=tc[2];if(!trSolid(C,tx,ty+1))x.fillRect(px,py+12,16,4);if(c==="i"&&v>.7){x.fillStyle="#ffffff";x.fillRect(px+3,py+3,5,1);}}
-      if(open&&c!=="s"&&!"rbe".includes(c)){x.fillStyle="rgba(255,255,255,.35)";x.fillRect(px,py,16,2);}continue;}
-    if(TRM.theme==="crystal"||TRM.theme==="peaks"){const v=pxHash(tx,ty,3);x.fillStyle=v<.3?th.rock2:v>.8?th.top:th.rock;x.fillRect(px,py,16,16);continue;}
+      if(open&&c!=="s"&&!"rbe".includes(c)){x.fillStyle="rgba(255,255,255,.35)";x.fillRect(px,py,16,2);}return;}
+    if(TRM.theme==="crystal"||TRM.theme==="peaks"){const v=pxHash(tx,ty,3);x.fillStyle=v<.3?th.rock2:v>.8?th.top:th.rock;x.fillRect(px,py,16,16);return;}
     x.fillStyle=th.rock;x.fillRect(px,py,16,16);x.fillStyle=th.rock2;x.fillRect(px+((tx*5+ty*3)%12),py+((tx*3+ty*7)%12),4,3);
     if(!trSolid(C,tx-1,ty)||!C.base[k-1]){x.fillStyle=th.rock2;x.fillRect(px,py,2,16);}
     if(!trSolid(C,tx,ty+1)){x.fillStyle=th.rock2;x.fillRect(px,py+13,16,3);}
     if(open){x.fillStyle=th.top;x.fillRect(px,py,16,5);x.fillStyle=th.top2;x.fillRect(px,py+5,16,2);if(TRM.theme==="peaks"&&h<4){x.fillStyle="#ffffff";x.fillRect(px+h*3,py+5,3,3);}
-      if(TRM.theme==="tropical"&&h<2){x.fillStyle="#ff6fae";x.fillRect(px+((tx*5)%12),py-2,2,2);}if(TRM.theme==="crystal"&&h<2){x.fillStyle=th.haz[(tx+ty)%4];x.fillRect(px+((tx*5)%12),py-3,2,3);}}}
+      if(TRM.theme==="tropical"&&h<2){x.fillStyle="#ff6fae";x.fillRect(px+((tx*5)%12),py-2,2,2);}if(TRM.theme==="crystal"&&h<2){x.fillStyle=th.haz[(tx+ty)%4];x.fillRect(px+((tx*5)%12),py-3,2,3);}}};
+  for(let ty=t0y;ty<=t1y;ty++)for(let tx=t0x;tx<=t1x;tx++){const k=ty*TR_W+tx,cr=C.cor&&C.cor.get(k);
+    if(cr&&C.base[k]){const q=trCorRect(tx,ty,cr[0],cr[1]);x.save();x.beginPath();x.rect(q.l,q.t,q.r-q.l,q.b-q.t);x.clip();one(tx,ty);x.restore();trDrawChar(x,q,cr,tx,ty);}else one(tx,ty);}
   // map hazards (spikes, thorns, crystal shards) and decorations
   for(const [hx,hy] of TRM.hz){if(!C.kind||C.kind[hy*TR_W+hx])continue;const px=hx*TR_TS,py=hy*TR_TS;if(px<cam.x-16||px>cam.x+trVW())continue;
     const SPK={crystal:["#ff3d7f","#ffd1e3"],peaks:["#e8f6ff","#7fb8e8"],tropical:["#f4f4f4","#9aa6b8"],woods:["#c0392b","#ff9a8a"]}[TRM.theme]||["#ff4d6d","#ffd1d9"];
@@ -10086,22 +10163,27 @@ function trDrawItem(x,it,alpha,C,t){const d=TR_ITEMS[it.ty];if(!d)return;x.globa
     if(ty==="conveyor"){const tt=(trNow()/120)%8|0,dd=(it.rot||0)%4===2?-1:1;x.fillStyle="#ffe14d";for(const [cx] of trCells(it))for(let k=0;k<2;k++){const ax=cx*TR_TS+((k*8+(dd>0?tt:8-tt))%16);x.fillRect(ax,py+1,1,1);x.fillRect(ax-dd,py,1,1);x.fillRect(ax-dd,py+2,1,1);}}}
   else if(ty==="stairs"){for(const [cx,cy] of trCells(it))x.drawImage(trS("step"),cx*TR_TS,cy*TR_TS);}
   else if(ty==="truss"){for(const [cx,cy] of trCells(it))trRotDraw(x,trS("truss"),cx*TR_TS,cy*TR_TS,(it.rot||0)%2);}
-  else if(ty==="portal"){const cs=trCells(it);cs.forEach(([cx,cy],i)=>{const s=trS("portal");x.save();x.translate(cx*TR_TS+8,cy*TR_TS+8);x.rotate(trNow()/300*(i?-1:1));x.drawImage(s,-8,-8);x.restore();
-      x.fillStyle=i?"rgba(103,232,249,.35)":"rgba(255,138,31,.35)";x.beginPath();x.arc(cx*TR_TS+8,cy*TR_TS+8,7,0,7);x.fill();});}
+  else if(ty==="portal"){const L=C&&C.portals.find(p=>(p.a.x===px&&p.a.y===py)||(p.b.x===px&&p.b.y===py)),i=L&&L.b.x===px&&L.b.y===py?1:0,s=trS("portal");
+      if(!L)x.globalAlpha*=.55;x.save();x.translate(px+8,py+8);x.rotate(trNow()/300*(i?-1:1)*(L?1:.3));x.drawImage(s,-8,-8);x.restore();
+      x.fillStyle=!L?"rgba(160,160,180,.35)":i?"rgba(103,232,249,.35)":"rgba(255,138,31,.35)";x.beginPath();x.arc(px+8,py+8,7,0,7);x.fill();
+      if(!L&&C){x.strokeStyle="rgba(255,255,255,.7)";x.setLineDash([2,2]);x.strokeRect(px+.5,py+.5,15,15);x.setLineDash([]);}}
   else if(ty==="mplat"||ty==="fplat"||ty==="trapdoor"||ty==="angry"||ty==="mbox"){
     const dd=C&&C.dyn.find(e=>e.x===px&&e.y===py&&e.ty===ty),r=dd&&t!=null?trDynRect(dd,t):{x:px,y:py,on:1};
-    if(ty==="angry"){const s=trS("angry");x.drawImage(s,r.x,r.y,32,32);if(r.angry){x.fillStyle="rgba(255,77,109,.35)";x.fillRect(r.x,r.y,32,32);}}
+    if(ty==="angry"){const s=trS("angry");x.drawImage(s,r.x,r.y,32,32);if(r.angry){x.fillStyle="rgba(255,77,109,.35)";x.fillRect(r.x,r.y,32,32);}
+      else{x.fillStyle="#a9a3cf";x.fillRect(r.x+6,r.y+6,10,10);x.fillRect(r.x+18,r.y+6,10,10);x.fillStyle="#1a0f2e";x.fillRect(r.x+6,r.y+11,10,2);x.fillRect(r.x+18,r.y+11,10,2);
+        const zb=Math.round(Math.sin(trNow()/400)*2);x.font="bold 8px monospace";x.fillStyle="#ffffff";x.fillText("z",r.x+27,r.y-1+zb);x.font="bold 6px monospace";x.fillText("z",r.x+32,r.y-6+zb);}}
     else if(ty==="mbox")x.drawImage(trS("mbox"),r.x,r.y);
     else if(ty==="trapdoor"){const v=(it.rot||0)%2===1;if(r.on){if(v){x.fillStyle="#8a5a32";x.fillRect(r.x,r.y,6,32);x.fillStyle="#5e3b1f";x.fillRect(r.x+4,r.y,2,32);}else{x.drawImage(trS("trapdoor"),r.x,r.y);x.drawImage(trS("trapdoor"),r.x+16,r.y);}}
       else{x.fillStyle="#7a5a32";if(v){x.fillRect(r.x,r.y,14,3);x.fillRect(r.x,r.y+29,14,3);}else{x.fillRect(r.x,r.y,3,14);x.fillRect(r.x+29,r.y,3,14);}}}
     else if(dd&&dd.vert)x.drawImage(trS("fplat"),r.x,r.y,16,16);else for(let k=0;k<3;k++)x.drawImage(trS(ty),r.x+k*16,r.y);}
   else if(ty==="swing"||ty==="axe"||ty==="spinner"||ty==="cane")x.drawImage(trS("pivot"),px,py);
-  else if(ty==="coin"){if(!(TRG&&TRG.meP&&TRG.meP.coins&&TRG.meP.coins[it.x+","+it.y]&&TRG.st&&TRG.st.ph==="run")){const b=Math.round(Math.sin(trNow()/260)*1.5);x.drawImage(trS("coin"),px,py+b);}}
+  else if(ty==="coin"){if(!(TRG&&TRG.st&&TRG.st.ph==="run"&&((TRG.meP&&TRG.meP.coins&&TRG.meP.coins[it.x+","+it.y])||trCoinGone(it.x+","+it.y)))){const b=Math.round(Math.sin(trNow()/260)*1.5);x.drawImage(trS("coin"),px,py+b);}}
   else if(ty==="hole"){x.save();x.translate(px+8,py+8);x.rotate(trNow()/400);x.drawImage(trS("hole"),-8,-8);x.restore();}
   else if(ty==="rfan")trRotDraw(x,trS("fan"),px,py,2+(it.rot||0));
   else if(ty==="fan"||ty==="spikes")trRotDraw(x,trS(ty),px,py,it.rot);
   else if((ty==="cannon"||ty==="xbow"||ty==="flame"||ty==="freeze")&&it.rot){const r=((it.rot)%4+4)%4;if(r===2)trFlip(x,trS(ty),px,py,16,16,true,false);else trRotDraw(x,trS(ty),px,py,r);}
-  else if(ty==="turret"){x.drawImage(trS("turret"),px,py);const P=TRG&&TRG.meP;const a=P?Math.atan2(P.y+6-(py+8),P.x+5-(px+8)):-Math.PI/2;x.save();x.translate(px+8,py+10);x.rotate(a+Math.PI/2);x.drawImage(trS("tbarrel"),-8,-14);x.restore();}
+  else if(ty==="turret"){const pu=.5+.5*Math.sin(trNow()/170);x.fillStyle=`rgba(255,40,70,${.22+.25*pu})`;x.beginPath();x.arc(px+8,py+9,11+pu*2,0,7);x.fill();
+    x.strokeStyle="#ff2d55";x.lineWidth=1;x.beginPath();x.arc(px+8,py+9,10,0,7);x.stroke();x.drawImage(trS("turret"),px,py);x.fillStyle=pu>.5?"#ff2d55":"#ffd1d9";x.fillRect(px+7,py+12,2,2);const P=TRG&&TRG.meP;const a=P?Math.atan2(P.y+6-(py+8),P.x+5-(px+8)):-Math.PI/2;x.save();x.translate(px+8,py+10);x.rotate(a+Math.PI/2);x.drawImage(trS("tbarrel"),-8,-14);x.restore();}
   else if(d.rot&&it.rot&&TR_ART[ty])trFlip(x,trS(ty),px,py,16,16,true,false);
   else if(TR_ART[ty])x.drawImage(trS(ty),px,py);
   x.globalAlpha=1;}
@@ -10111,6 +10193,16 @@ function trDrawPath(x,it,a){if(it.ty!=="mplat"&&it.ty!=="fplat")return;const px=
   x.save();x.globalAlpha=a;x.strokeStyle="#ffe14d";x.setLineDash([3,3]);x.lineWidth=1;x.beginPath();x.moveTo(A.x+w/2,A.y+h/2);x.lineTo(B.x+w/2,B.y+h/2);x.stroke();
   x.setLineDash([2,2]);x.strokeRect(A.x+.5,A.y+.5,w-1,h-1);x.strokeRect(B.x+.5,B.y+.5,w-1,h-1);x.setLineDash([]);
   x.fillStyle="#ffe14d";for(const P of [A,B]){x.beginPath();x.arc(P.x+w/2,P.y+h/2,1.6,0,7);x.fill();}x.restore();}
+// where a fan's wind (or a flamethrower, freeze ray, crossbow or cannon shot) will reach from this spot, shown while you place it
+function trReach(C,it){const ty=it.ty;let dd,max,th;if(ty==="fan"||ty==="rfan"){dd=trDir((ty==="fan"?3:1)+(it.rot||0));max=7;th=16;}else if(ty==="flame"){dd=trDir(it.rot);max=3;th=10;}
+  else if(ty==="freeze"){dd=trDir(it.rot);max=12;th=6;}else if(ty==="xbow"||ty==="cannon"){dd=trDir(it.rot);max=60;th=4;}else return null;
+  let x=it.x+dd[0],y=it.y+dd[1],n=0;while(x>=0&&x<TR_W&&y>=0&&y<TR_H&&!C.kind[y*TR_W+x]&&n<max){x+=dd[0];y+=dd[1];n++;}
+  const cx=it.x*TR_TS+8,cy=it.y*TR_TS+8,L=n*TR_TS;return dd[0]?{x:dd[0]>0?(it.x+1)*TR_TS:(it.x-n)*TR_TS,y:cy-th/2,w:L,h:th,dx:dd[0],dy:0,n}:{x:cx-th/2,y:dd[1]>0?(it.y+1)*TR_TS:(it.y-n)*TR_TS,w:th,h:L,dx:0,dy:dd[1],n};}
+function trDrawReach(x,C,it,tt){const r=trReach(C,it);if(!r||!r.n)return;const wind=it.ty==="fan"||it.ty==="rfan",col=wind?"214,250,255":it.ty==="freeze"?"103,232,249":"255,138,31";
+  x.fillStyle=`rgba(${col},${wind?.22:.18})`;x.fillRect(r.x,r.y,r.w,r.h);x.strokeStyle=`rgba(${col},.85)`;x.setLineDash([3,2]);x.strokeRect(r.x+.5,r.y+.5,r.w-1,r.h-1);x.setLineDash([]);
+  // moving chevrons show which way it blows or shoots
+  const L=r.dx?r.w:r.h;x.fillStyle=`rgba(${col},.95)`;for(let k=0;k<Math.max(1,Math.floor(L/24));k++){const m=((tt*40+k*24)%L);const px=r.dx?(r.dx>0?r.x+m:r.x+r.w-m):r.x+r.w/2,py=r.dy?(r.dy>0?r.y+m:r.y+r.h-m):r.y+r.h/2;
+    x.beginPath();if(r.dx){x.moveTo(px,py-3);x.lineTo(px+3*r.dx,py);x.lineTo(px,py+3);}else{x.moveTo(px-3,py);x.lineTo(px,py+3*r.dy);x.lineTo(px+3,py);}x.fill();}}
 // moving hazards (drawn on top of items)
 function trDrawHazards(x,C,t,tt){
   for(const w of C.winds){x.fillStyle="rgba(214,250,255,.35)";const L=Math.max(1,w.dy?w.h:w.w);for(let k=0;k<4;k++){const m=((tt*90+k*L/4)%L)|0;
@@ -10125,7 +10217,10 @@ function trDrawHazards(x,C,t,tt){
   for(const s of C.canes){const e=trCaneEnd(s,t);x.save();x.translate(s.x,s.y);x.rotate(e.a);for(let i=0;i<s.len;i+=4){x.fillStyle=(i/4)%2?"#ffffff":"#ff4d6d";x.fillRect(i,-3,4,6);}x.fillStyle="#ff4d6d";x.beginPath();x.arc(s.len,-5,5,-Math.PI/2,Math.PI/2);x.lineWidth=3;x.strokeStyle="#ff4d6d";x.stroke();x.lineWidth=1;x.restore();}
   for(const a of trArrowsAt(C.arrows,t)){if(a.ball){x.fillStyle="#2c2645";x.beginPath();x.arc(a.x,a.y+1,6,0,7);x.fill();x.fillStyle="#56507a";x.beginPath();x.arc(a.x-1,a.y,4,0,7);x.fill();continue;}
     const s=trS("arrow");x.save();x.translate(a.x,a.y);x.rotate(Math.atan2(a.dy,a.dx));x.drawImage(s,-8,-7);x.restore();}
-  for(const b of (TRG&&TRG.bullets)||[]){x.fillStyle="#ffe14d";x.fillRect(b.x-2,b.y-2,4,4);x.fillStyle="#ff8a1f";x.fillRect(b.x-1,b.y-1,2,2);}}
+  const me=TRG&&(TRG.meP&&TRG.meP.st==="run"?TRG.meP:null);
+  if(me)for(const tr of C.turrets){if(!tr.see)continue;const w=tr.warn||0;x.strokeStyle=`rgba(255,45,85,${.18+.6*w})`;x.lineWidth=w>.6?1.5:1;x.setLineDash([3,3]);x.beginPath();x.moveTo(tr.x,tr.y);x.lineTo(me.x+me.w/2,me.y+me.h/2);x.stroke();x.setLineDash([]);x.lineWidth=1;}
+  for(const b of (TRG&&TRG.bullets)||[]){const sp=Math.hypot(b.vx,b.vy)||1;x.strokeStyle="rgba(255,138,31,.55)";x.lineWidth=3;x.beginPath();x.moveTo(b.x,b.y);x.lineTo(b.x-b.vx/sp*10,b.y-b.vy/sp*10);x.stroke();x.lineWidth=1;
+    x.fillStyle="rgba(255,45,85,.35)";x.beginPath();x.arc(b.x,b.y,7,0,7);x.fill();x.fillStyle="#1a0f2e";x.fillRect(b.x-4,b.y-4,8,8);x.fillStyle="#ff2d55";x.fillRect(b.x-3,b.y-3,6,6);x.fillStyle="#ffe14d";x.fillRect(b.x-1,b.y-2,3,3);}}
 function trDrawPlayer(x,p,av,isMe){if(!p)return;const k="av|"+JSON.stringify(av||{});let s=_trSpr[k];if(!s){const [g,pal]=bbAvGrid(av||{});s=trSprite(k,g,pal,BB_HAND);}
   const px=Math.round(p.x+p.w/2-8),py=Math.round(p.y+p.h-15);x.globalAlpha=p.st==="dead"?.35:1;
   if(p.f<0)trFlip(x,s,px,py,16,16,true,false);else x.drawImage(s,px,py);x.globalAlpha=1;
@@ -10143,18 +10238,21 @@ function trRender(){const G=TRG;if(!G)return;const cv=$("trCv");if(!cv)return;co
   const tt=trNow()/1000,C=G.C,cam=G.cam,t=G.st&&G.st.ph==="run"&&G.runT0?(trNow()-G.runT0)/1000:tt;trDrawSky(x,cv,tt,cam);
   const z=trZ();x.save();x.scale(z,z);x.translate(-Math.round(cam.x*z)/z,-Math.round(cam.y*z)/z);
   trDrawGround(x,C,cam);
-  x.fillStyle="rgba(155,93,229,.30)";x.fillRect((TR_START.x-2)*TR_TS,(TR_START.y-3)*TR_TS,5*TR_TS,4*TR_TS);
+  x.fillStyle="rgba(155,93,229,.30)";x.fillRect((TR_START.x-TR_SAFE.dx)*TR_TS,(TR_START.y-TR_SAFE.up)*TR_TS,(2*TR_SAFE.dx+1)*TR_TS,(TR_SAFE.up+1+TR_SAFE.dn)*TR_TS);
   x.fillStyle="rgba(255,225,77,.18)";x.fillRect(TR_GOAL.x0*TR_TS,TR_GOAL.y0*TR_TS,(TR_GOAL.x1-TR_GOAL.x0+1)*TR_TS,(TR_GOAL.y1-TR_GOAL.y0+1)*TR_TS);
   x.drawImage(trSprite("flag",BBART.flag),(TR_GOAL.x0+TR_GOAL.x1+1)/2*TR_TS-16,(TR_GOAL.y1+1)*TR_TS-32,32,32);
   for(const it of G.st.items)trDrawItem(x,it,1,C,t);
   trDrawHazards(x,C,t,tt);
   // placing: everyone's cursor and the item they're holding
   if(G.st.ph==="place"){const now=trNow();for(const n in G.cur){const c=G.cur[n];if(now-c.at>3000||c.done)continue;if(c.ty)trDrawItem(x,{ty:c.ty,x:c.x,y:c.y,rot:c.rot},.55);x.strokeStyle="#ffe14d";x.strokeRect(c.x*TR_TS+.5,c.y*TR_TS+.5,TR_TS-1,TR_TS-1);x.font="7px monospace";x.fillStyle="#ffe14d";x.fillText(n,c.x*TR_TS,c.y*TR_TS-2);}
-    if(G.my.p1){trDrawItem(x,{ty:"portal",x:G.my.p1.x,y:G.my.p1.y},.85);}
     for(const it of G.st.items)trDrawPath(x,it,.35);
     if(G.my.ty&&!G.my.placed&&G.my.hx!=null){const it=trMyItem(G);const ok=trCanPlace(G.st,it);trDrawPath(x,it,1);trDrawItem(x,it,.75);
       x.strokeStyle=ok?"#3ddc84":"#ff4d6d";x.lineWidth=1;for(const [cx,cy] of trCells(it))x.strokeRect(cx*TR_TS+.5,cy*TR_TS+.5,TR_TS-1,TR_TS-1);
-      const bl=TR_ITEMS[G.my.ty].blast;if(bl){x.strokeStyle="rgba(255,77,109,.8)";x.strokeRect((G.my.hx-bl)*TR_TS+.5,(G.my.hy-bl)*TR_TS+.5,(2*bl+1)*TR_TS-1,(2*bl+1)*TR_TS-1);}}}
+      const D=TR_ITEMS[G.my.ty],bl=D.blast;if(bl){x.strokeStyle="rgba(255,77,109,.8)";if(D.corrode){x.fillStyle="rgba(255,111,216,.15)";x.beginPath();x.arc(G.my.hx*TR_TS+8,G.my.hy*TR_TS+8,(bl+.5)*TR_TS,0,7);x.fill();x.stroke();}
+        else x.strokeRect((G.my.hx-bl)*TR_TS+.5,(G.my.hy-bl)*TR_TS+.5,(2*bl+1)*TR_TS-1,(2*bl+1)*TR_TS-1);}
+      trDrawReach(x,C,it,tt);
+      if(it.ty==="portal"){const lone=trLonePortal(G.st,G.me);if(lone){x.strokeStyle="rgba(103,232,249,.7)";x.setLineDash([4,3]);x.strokeRect((lone.x-TR_PORTAL_MAX)*TR_TS+.5,(lone.y-TR_PORTAL_MAX)*TR_TS+.5,(2*TR_PORTAL_MAX+1)*TR_TS-1,(2*TR_PORTAL_MAX+1)*TR_TS-1);x.setLineDash([]);
+        x.beginPath();x.moveTo(lone.x*TR_TS+8,lone.y*TR_TS+8);x.lineTo(it.x*TR_TS+8,it.y*TR_TS+8);x.stroke();}}}}
   // racers: others are drawn ~100ms in the past, smoothly between their updates
   if(G.st.ph==="run"||G.st.ph==="score"){const now=trNow()-110;for(const n in G.peers){const pp=G.peers[n];if(pp.r!==G.st.r)continue;const a=pp.a,b=pp.b;let p=b;
       if(a&&b&&b.at>a.at){const f=Math.max(0,Math.min(1.2,(now-a.at)/(b.at-a.at)));p={...b,x:a.x+(b.x-a.x)*f,y:a.y+(b.y-a.y)*f};}trDrawPlayer(x,{...p,w:TRP.w,h:TRP.h,name:n},pp.av,false);}
@@ -10167,51 +10265,77 @@ function trRender(){const G=TRG;if(!G)return;const cv=$("trCv");if(!cv)return;co
 // ---------- rules shared by host and solo ----------
 function trCanPlace(st,it){const d=TR_ITEMS[it.ty];if(!d)return false;if(d.blast)return it.x>=0&&it.y>=0&&it.x<TR_W&&it.y<TR_H;const base=trBaseGrid(st.holes),used=new Set();
   for(const o of st.items)for(const [x,y] of trCells(o))used.add(y*TR_W+x);
-  const cs=trCells(it);if(d.two&&trPortalBad(it))return false;if(d.two&&(it.x2==null||(it.x===it.x2&&it.y===it.y2)))return d.two&&it.x2==null?trCanCell(base,used,it.x,it.y):false;
-  if(it.ty==="angry"||it.ty==="mplat"||it.ty==="fplat"){/* moving things need clear space around them */}
-  for(const [x,y] of cs)if(!trCanCell(base,used,x,y))return false;return true;}
-// portals: the two ends must be close (a shortcut, not a teleport across the map) and can't sit near the flag
-const TR_PORTAL_MAX=7,TR_PORTAL_GOAL=14;
-const trPortalBad=it=>{const far=(x,y)=>Math.abs(x-(TR_GOAL.x0+1))<TR_PORTAL_GOAL&&Math.abs(y-TR_GOAL.y1)<TR_PORTAL_GOAL;if(far(it.x,it.y))return "too close to the flag";
-  if(it.x2!=null){if(far(it.x2,it.y2))return "too close to the flag";if(Math.max(Math.abs(it.x2-it.x),Math.abs(it.y2-it.y))>TR_PORTAL_MAX)return `the ends must be within ${TR_PORTAL_MAX} tiles`;}return null;};
+  if(it.ty==="portal"&&trPortalBad(st,it))return false;
+  for(const [x,y] of trCells(it))if(!trCanCell(base,used,x,y))return false;return trBaseOk(st,it);}
+// the map plus every solid placed item
+function trSolidGrid(st){const g=trBaseGrid(st.holes);for(const o of st.items)if(TR_SOLID[o.ty])for(const [x,y] of trCells(o))if(x>=0&&y>=0&&x<TR_W&&y<TR_H)g[y*TR_W+x]=1;return g;}
+// spikes need a block on the side their base faces (down, left, up, right as they turn); honey and ice need a block under them
+const TR_BASE_DIR=[[0,1],[-1,0],[0,-1],[1,0]];
+function trBaseOk(st,it){if(!TR_NEEDS_BASE[it.ty])return true;const g=trSolidGrid(st),sol=(x,y)=>x>=0&&y>=0&&x<TR_W&&y<TR_H&&!!g[y*TR_W+x];
+  if(it.ty==="spikes"){const [dx,dy]=TR_BASE_DIR[((it.rot||0)%4+4)%4];return sol(it.x+dx,it.y+dy);}
+  return trCells(it).some(([x,y])=>sol(x,y+1));}
+// portals: each one links to your next portal, so the second end must be close to your waiting one (a shortcut, not a teleport across the map), and none can sit near the flag
+const TR_PORTAL_MAX=10,TR_PORTAL_GOAL=14;
+const trPortalBad=(st,it)=>{const far=(x,y)=>Math.abs(x-(TR_GOAL.x0+1))<TR_PORTAL_GOAL&&Math.abs(y-TR_GOAL.y1)<TR_PORTAL_GOAL;if(far(it.x,it.y))return "too close to the flag";
+  const lone=st&&trLonePortal(st,it.o);if(lone&&Math.max(Math.abs(lone.x-it.x),Math.abs(lone.y-it.y))>TR_PORTAL_MAX)return `it must be within ${TR_PORTAL_MAX} tiles of your other portal`;return null;};
+const trWhyNot=(st,it)=>(it.ty==="portal"&&trPortalBad(st,it))||(TR_NEEDS_BASE[it.ty]&&!trBaseOk(st,it)?(it.ty==="spikes"?"spikes need a block behind their base (R turns them)":"it has to sit on top of a block"):"");
 const trCanCell=(base,used,x,y)=>!(x<0||y<0||x>=TR_W||y>=TR_H||trNoBuild(x,y)||used.has(y*TR_W+x)||base[y*TR_W+x]);
-function trApplyPlace(st,it){const bl=TR_ITEMS[it.ty].blast;if(bl){const hit=(x,y)=>Math.abs(x-it.x)<=bl&&Math.abs(y-it.y)<=bl;st.items=st.items.filter(o=>!trCells(o).some(([x,y])=>hit(x,y)));
-    const base=trBaseGrid(st.holes);for(let y=it.y-bl;y<=it.y+bl;y++)for(let x=it.x-bl;x<=it.x+bl;x++)if(x>=0&&y>=0&&x<TR_W&&y<TR_H&&base[y*TR_W+x]&&!trNoBuild(x,y)&&!trSafeGround(x,y))st.holes.push(y*TR_W+x);return;}
+// bombs, dynamite and nukes only blow up placed items, never the map. The rare Cupidium Nuke also scorches the map in a round blast:
+// it never removes whole blocks, it chips them (more near the middle) and leaves them charred
+const trBlastHit=(it,x,y)=>{const D=TR_ITEMS[it.ty],bl=D.blast;return D.corrode?(x-it.x)**2+(y-it.y)**2<=(bl+.5)**2:Math.abs(x-it.x)<=bl&&Math.abs(y-it.y)<=bl;};
+function trApplyPlace(st,it){const D=TR_ITEMS[it.ty],bl=D.blast;if(bl){st.items=st.items.filter(o=>!trCells(o).some(([x,y])=>trBlastHit(it,x,y)));
+    if(D.corrode){const base=trBaseGrid(st.holes),cor=new Map((st.cor||[]).map(c=>[c[0],c]));
+      for(let y=it.y-bl;y<=it.y+bl;y++)for(let x=it.x-bl;x<=it.x+bl;x++){if(x<0||y<0||x>=TR_W||y>=TR_H||!trBlastHit(it,x,y))continue;const k=y*TR_W+x;if(!base[k]||trNoBuild(x,y)||trSafeGround(x,y))continue;
+        const dx=it.x-x,dy=it.y-y,dist=Math.hypot(dx,dy),c=dist<=bl*.45?3:dist<=bl*.75?2:1,side=Math.abs(dy)>=Math.abs(dx)?(dy<=0?0:2):(dx>0?1:3);
+        const old=cor.get(k);if(!old||old[1]<c)cor.set(k,[k,c,side]);}
+      st.cor=[...cor.values()];}
+    return;}
   st.items.push(it);}
-function trBox(n){const pool=[];for(const k in TR_BOX_W)for(let i=0;i<TR_BOX_W[k];i++)pool.push(k);const out=[];for(let i=0;i<n;i++){let k;do{k=pool[Math.floor(Math.random()*pool.length)];if(k==="portal"&&Math.random()<.6)k=null;}while(!k||out.includes(k)&&Math.random()<.8);out.push(k);}return out;}
+function trBox(n,st){const pool=[];for(const k in TR_BOX_W)for(let i=0;i<TR_BOX_W[k];i++)pool.push(k);const out=[];for(let i=0;i<n;i++){let k;do{k=pool[Math.floor(Math.random()*pool.length)];}while(out.includes(k)&&Math.random()<.8);out.push(k);}
+  // really rare: the Cupidium Nuke (about 1 box in 40)
+  if(Math.random()<.025)out[Math.floor(Math.random()*n)]="cnuke";
+  // at least one bomb, dynamite or nuke every 2 rounds
+  if(st){if(out.some(k=>TR_BLASTS.includes(k)||k==="cnuke"))st.blastR=st.r;else if(st.r-(st.blastR||0)>=2){const r=Math.random(),b=r<.45?"bomb":r<.8?"dynamite":"nuke";out[Math.floor(Math.random()*n)]=b;st.blastR=st.r;}}
+  return out;}
 // ---------- host (also runs the game in solo practice) ----------
 const trPlayers=()=>TRG.solo?[{id:"me",name:TRG.me}]:N.players.map(p=>({id:p.id,name:p.name}));
 function trHostStart(solo){const pick=store.get("otc.tr.map","random"),ids=Object.keys(TR_MAPDATA),map=TR_MAPDATA[pick]?pick:ids[Math.floor(Math.random()*ids.length)];trSetMap(map);
-  const st={r:0,ph:"wait",map,items:[],holes:[],box:[],picks:{},placed:{},res:{},scores:{},ends:0};TRG.H={st,timer:null};trPlayers().forEach(p=>st.scores[p.name]=0);trHostRound();}
+  const st={r:0,ph:"wait",map,items:[],holes:[],cor:[],box:[],picks:{},placed:{},res:{},scores:{},log:{},coinBy:{},win:trWinPts(),ends:0};TRG.H={st,timer:null};trPlayers().forEach(p=>st.scores[p.name]=0);trHostRound();}
 function trHostSend(){const H=TRG.H,st=H.st,m={t:"tr",...st,ends:Math.max(0,st.ends-Date.now())};if(!TRG.solo){N.lastKey=m;broadcast(m);}trApply(m);}
 function trHostPhase(ph,ms,next){const H=TRG.H;clearTimeout(H.timer);H.st.ph=ph;H.st.ends=Date.now()+ms;trHostSend();if(next)H.timer=setTimeout(next,ms);}
-function trHostRound(){const st=TRG.H.st,ps=trPlayers();st.r++;st.box=trBox(ps.length+3);st.picks={};st.placed={};st.res={};trHostPhase("pick",TR_PICK*1000,trHostPickEnd);}
+function trHostRound(){const st=TRG.H.st,ps=trPlayers();st.r++;st.box=trBox(ps.length+3,st);st.picks={};st.placed={};st.res={};st.coinBy={};trHostPhase("pick",TR_PICK*1000,trHostPickEnd);}
 function trHostPick(name,i){const st=TRG.H.st;if(st.ph!=="pick"||st.picks[name]!=null||!(i>=0&&i<st.box.length)||Object.values(st.picks).includes(i))return;st.picks[name]=i;
   if(trPlayers().every(p=>st.picks[p.name]!=null))trHostPickEnd();else trHostSend();}
 function trHostPickEnd(){const st=TRG.H.st;if(st.ph!=="pick")return;const free=st.box.map((_,i)=>i).filter(i=>!Object.values(st.picks).includes(i));
   for(const p of trPlayers())if(st.picks[p.name]==null)st.picks[p.name]=free.shift();trHostPhase("place",TR_PLACE*1000,trHostPlaceEnd);}
 function trHostPlace(name,m){const st=TRG.H.st;if(st.ph!=="place"||st.placed[name]||st.picks[name]==null)return;const ty=st.box[st.picks[name]];
-  const it={ty,x:Math.round(+m.x),y:Math.round(+m.y),rot:((Math.round(+m.rot)||0)%4+4)%4,o:name};if(TR_ITEMS[ty]&&TR_ITEMS[ty].two){if(m.x2==null)return;it.x2=Math.round(+m.x2);it.y2=Math.round(+m.y2);}
+  const it={ty,x:Math.round(+m.x),y:Math.round(+m.y),rot:((Math.round(+m.rot)||0)%4+4)%4,o:name};
   if(!trCanPlace(st,it))return;trApplyPlace(st,it);st.placed[name]=1;
   if(trPlayers().every(p=>st.placed[p.name]))trHostPlaceEnd();else trHostSend();}
 function trHostPlaceEnd(){const st=TRG.H.st;if(st.ph!=="place")return;trHostPhase("run",(TR_RUN+4)*1000,trHostScore);}
 function trHostRes(name,m){const st=TRG.H.st;if(st.ph!=="run"||st.res[name])return;st.res[name]={st:m.st==="win"?"win":"dead",ms:Math.max(0,Math.min(99000,+m.ms||99000)),kill:typeof m.kill==="string"?m.kill.slice(0,16):null,coin:!!m.coin};
   if(trPlayers().every(p=>st.res[p.name]))trHostScore();else trHostSend();}
+// the first racer to grab a coin keeps it for the round
+function trHostCoin(name,m){const st=TRG.H.st;if(st.ph!=="run"||+m.r!==st.r||typeof m.k!=="string")return;st.coinBy=st.coinBy||{};if(st.coinBy[m.k])return;st.coinBy[m.k]=name;trHostSend();}
 function trHostScore(){const H=TRG.H,st=H.st;if(st.ph!=="run")return;const ps=trPlayers();ps.forEach(p=>{if(!st.res[p.name])st.res[p.name]={st:"dead",ms:99000,kill:null};});
   const win=ps.filter(p=>st.res[p.name].st==="win").sort((a,b)=>st.res[a.name].ms-st.res[b.name].ms),pts={};ps.forEach(p=>pts[p.name]=[]);
-  let note="";if(TRG.solo){note=win.length?"Made it!":"Didn't make it";}
+  const hasCoin=n=>Object.values(st.coinBy||{}).includes(n);
+  // solo practice scores too (finish + coin), so a solo game ends when you reach the points to win
+  let note="";if(TRG.solo){if(win.length){const n=ps[0].name;pts[n].push(["Finish",10]);if(hasCoin(n))pts[n].push(["Coin",3]);note="Made it!";}else note="Didn't make it";}
   else if(!win.length)note="TOO HARD! Nobody made it, so nobody scores.";else if(win.length===ps.length)note="TOO EASY! Everyone made it, so nobody scores.";
-  else{win.forEach((p,i)=>{pts[p.name].push(["Finish",10]);if(i===0)pts[p.name].push(["First",5]);if(win.length===1)pts[p.name].push(["Solo",5]);if(st.res[p.name].coin)pts[p.name].push(["Coin",3]);});
+  else{win.forEach((p,i)=>{pts[p.name].push(["Finish",10]);if(i===0)pts[p.name].push(["First",5]);if(win.length===1)pts[p.name].push(["Solo",5]);if(hasCoin(p.name))pts[p.name].push(["Coin",3]);});
     ps.forEach(p=>{const k=st.res[p.name].kill;if(k&&k!==p.name&&pts[k])pts[k].push(["Trap",3]);});}
-  st.pts=pts;st.note=note;for(const n in pts)st.scores[n]=(st.scores[n]||0)+pts[n].reduce((a,b)=>a+b[1],0);
+  st.pts=pts;st.note=note;st.log=st.log||{};for(const n in pts){st.scores[n]=(st.scores[n]||0)+pts[n].reduce((a,b)=>a+b[1],0);for(const [c,v] of pts[n])(st.log[n]=st.log[n]||[]).push([c,v,st.r]);}
   if(!TRG.solo)N.players.forEach(p=>p.score=st.scores[p.name]||0);
-  const top=Math.max(...Object.values(st.scores));trHostPhase("score",6000,()=>{if(!TRG.solo&&top>=TR_WIN){trStop();hostEnd();}else trHostRound();});if(!TRG.solo)pushBoard();}
+  const top=Math.max(...Object.values(st.scores)),over=top>=(st.win||100);
+  trHostPhase("score",over?7000:6000,()=>{if(!over)return trHostRound();if(TRG.solo){H.st.ph="over";H.st.ends=0;trHostSend();}else{trStop();hostEnd();}});if(!TRG.solo)pushBoard();}
 // ---------- every device ----------
-function trSend(m){if(TRG.solo||(N&&N.host)){const H=TRG.H;if(!H)return;if(m.t==="tpk")trHostPick(TRG.me,m.i);if(m.t==="tpl")trHostPlace(TRG.me,m);if(m.t==="tres")trHostRes(TRG.me,m);return;}
+function trSend(m){if(TRG.solo||(N&&N.host)){const H=TRG.H;if(!H)return;if(m.t==="tpk")trHostPick(TRG.me,m.i);if(m.t==="tpl")trHostPlace(TRG.me,m);if(m.t==="tres")trHostRes(TRG.me,m);if(m.t==="tcoin")trHostCoin(TRG.me,m);return;}
   try{N.conn.send(m);}catch(e){}}
 function trPeer(m){if(!TRG||TRG.solo||!m||!m.d||!m.d.n||m.d.n===TRG.me)return;const d=m.d;
   if(d.t==="tp"){const pp=TRG.peers[d.n]=TRG.peers[d.n]||{};const s={x:+d.x,y:+d.y,f:+d.f||1,st:d.st,at:trNow()};pp.a=pp.b&&pp.r===d.r?pp.b:s;pp.b=s;pp.r=d.r;if(d.av)pp.av=d.av;}
-  if(d.t==="tc"){TRG.cur[d.n]={x:+d.x,y:+d.y,ty:d.ty,rot:d.rot,at:trNow(),done:!!d.done};}}
+  if(d.t==="tc"){TRG.cur[d.n]={x:+d.x,y:+d.y,ty:d.ty,rot:d.rot,at:trNow(),done:!!d.done};}
+  if(d.t==="tk"&&TRG.st&&+d.r===TRG.st.r&&typeof d.k==="string"){TRG.coinTaken=TRG.coinTaken||{};TRG.coinTaken[d.k]=1;}}
 const trPub=d=>{if(TRG&&!TRG.solo&&N&&N.relay)N.relay.pub("*",{...d,n:TRG.me});};
 function trSendRes(){const P=TRG.meP;if(!P)return;trSend({t:"tres",r:TRG.st.r,st:P.st,ms:P.ms,kill:P.kill,coin:P.coin?1:0});trPub({t:"tp",r:TRG.st.r,x:P.x,y:P.y,f:P.f,st:P.st});
   setTimeout(()=>{if(TRG&&TRG.st&&TRG.st.ph==="run"&&!(TRG.solo||(N&&N.host)))trSend({t:"tres",r:TRG.st.r,st:P.st,ms:P.ms,kill:P.kill,coin:P.coin?1:0});},1500);}
@@ -10224,11 +10348,11 @@ function trZoomTo(z,sx,sy){const G=TRG;if(!G)return;const cv=$("trCv");sx=sx==nu
   G.zoom=Math.max(trZmin(),Math.min(2.5,z));G.cam.x=wx-sx/G.zoom;G.cam.y=wy-sy/G.zoom;G.whole=G.zoom<=trZmin()+1e-3;trCamClamp(G);trTools();}
 function trApply(m){const G=TRG;if(!G)return;const prev=G.st;G.st=m;G.endAt=Date.now()+(m.ends||0);const oldC=G.C;G.C=trBuild(m);
   // keep pushed boxes where they are while a run is going
-  if(prev&&prev.r===m.r&&prev.ph===m.ph&&m.ph==="run"&&oldC){G.C.dyn.forEach((d,i)=>{const o=oldC.dyn[i];if(o&&o.ty===d.ty&&d.ty==="mbox"){d.bx=o.bx;d.by=o.by;d.vy=o.vy;}});G.C.turrets.forEach((t,i)=>{if(oldC.turrets[i])t.next=oldC.turrets[i].next;});}
+  if(prev&&prev.r===m.r&&prev.ph===m.ph&&m.ph==="run"&&oldC){G.C.dyn.forEach((d,i)=>{const o=oldC.dyn[i];if(o&&o.ty===d.ty&&d.ty==="mbox"){d.bx=o.bx;d.by=o.by;d.vy=o.vy;}if(o&&o.ty===d.ty&&d.ty==="angry"){d.trig=o.trig;d.cool=o.cool;}});G.C.turrets.forEach((t,i)=>{if(oldC.turrets[i])t.next=oldC.turrets[i].next;});}
   if(!$("trCv"))trShell();
-  if(!prev||prev.r!==m.r||prev.ph!==m.ph){G.my={ty:null,placed:false,rot:0,hx:null,hy:null,p1:null};G.cur={};G.ghost=null;G.spec=undefined;if(G.whole&&m.ph==="run"){G.whole=false;G.zoom=G.zoom0||1;}
+  if(!prev||prev.r!==m.r||prev.ph!==m.ph){G.my={ty:null,placed:false,rot:0,hx:null,hy:null};G.cur={};G.ghost=null;G.spec=undefined;G.coinTaken={};if(G.whole&&m.ph==="run"){G.whole=false;G.zoom=G.zoom0||1;}
     if(m.ph==="pick"||m.ph==="place"&&(!prev||prev.ph!=="pick"))trCamOn(G,TR_START.x*TR_TS,TR_START.y*TR_TS);
-    if(m.ph==="run"){G.meP={coins:{},x:TR_START.x*TR_TS+((Object.keys(m.scores).indexOf(G.me)%4)*4)-4,y:TR_START.y*TR_TS+16-TRP.h-1,vx:0,vy:0,w:TRP.w,h:TRP.h,f:1,st:"wait",t:0,coy:0,buf:0};G.cd=3;G.runT0=null;G.peers={};G.bullets=[];trCamOn(G,G.meP.x,G.meP.y);}
+    if(m.ph==="run"){G.meP={coins:{},x:TR_START.x*TR_TS+((Object.keys(m.scores).indexOf(G.me)%4)*4)-4,y:TR_START.y*TR_TS+16-TRP.h-1,vx:0,vy:0,w:TRP.w,h:TRP.h,f:1,st:"wait",t:0,coy:0,buf:0};G.goAt=Date.now()+Math.min(3000,Math.max(0,(m.ends||0)-(TR_RUN+1)*1000));G.cd=(G.goAt-Date.now())/1000;G.runT0=null;G.peers={};G.bullets=[];G.inp={};trCamOn(G,G.meP.x,G.meP.y);}
     if(m.ph==="score"&&G.meP&&G.meP.st==="run"){G.meP.st="dead";}}
   if(m.ph==="place"&&m.picks[G.me]!=null){G.my.ty=m.box[m.picks[G.me]];G.my.placed=!!m.placed[G.me];}
   trPanel();}
@@ -10259,34 +10383,37 @@ function trPointer(e){const G=TRG;if(!G)return;if(G.st.ph!=="place"){if(G.drag&&
   if(G.drag&&(e.buttons||e.pointerType!=="mouse")){const dx=p.x-G.drag.x,dy=p.y-G.drag.y;if(G.drag.moved||Math.abs(dx)+Math.abs(dy)>10){G.drag.moved=true;G.cam.x=G.drag.cx-dx/trZ();G.cam.y=G.drag.cy-dy/trZ();trCamClamp(G);return;}}
   trEdge(e);
   G.lastPt=p;if(!G.my.ty||G.my.placed)return;G.my.hx=Math.floor((p.x/trZ()+G.cam.x)/TR_TS);G.my.hy=Math.floor((p.y/trZ()+G.cam.y)/TR_TS);}
-function trMyItem(G){const it={ty:G.my.ty,x:G.my.hx,y:G.my.hy,rot:G.my.rot};if(G.my.p1){it.x=G.my.p1.x;it.y=G.my.p1.y;it.x2=G.my.hx;it.y2=G.my.hy;}return it;}
+function trMyItem(G){return{ty:G.my.ty,x:G.my.hx,y:G.my.hy,rot:G.my.rot,o:G.me};}
 function trPlaceNow(){const G=TRG;if(!G||G.st.ph!=="place"||!G.my.ty||G.my.placed||G.my.hx==null)return;
-  if(TR_ITEMS[G.my.ty].two&&!G.my.p1){const one={ty:G.my.ty,x:G.my.hx,y:G.my.hy};if(!trCanPlace(G.st,one)){toast("Can't place it there"+(trPortalBad(one)?": "+trPortalBad(one):""));return;}G.my.p1={x:G.my.hx,y:G.my.hy};toast("Now place the other end");trPanel();return;}
-  const it=trMyItem(G);if(!trCanPlace(G.st,it)){toast("Can't place it there"+(it.ty==="portal"&&trPortalBad(it)?": "+trPortalBad(it):""));return;}G.my.placed=true;trSend({t:"tpl",r:G.st.r,...it});trPub({t:"tc",r:G.st.r,x:it.x,y:it.y,ty:it.ty,rot:it.rot,done:1});trPanel();}
+  const it=trMyItem(G);if(!trCanPlace(G.st,it)){const w=trWhyNot(G.st,it);toast("Can't place it there"+(w?": "+w:""));return;}G.my.placed=true;trSend({t:"tpl",r:G.st.r,...it});trPub({t:"tc",r:G.st.r,x:it.x,y:it.y,ty:it.ty,rot:it.rot,done:1});trPanel();}
 function trPanel(){const G=TRG,st=G.st,o=$("trOver"),bar=$("trBar"),info=$("trInfo");if(!o)return;const names=Object.keys(st.scores);
-  info.textContent=`${TRM.n.toUpperCase()} · ROUND ${st.r}`+(G.solo?"":` · FIRST TO ${TR_WIN}`);
+  const WIN=st.win||100;info.textContent=`${TRM.n.toUpperCase()} · ROUND ${st.r} · FIRST TO ${WIN}`;
   bar.innerHTML=names.map(n=>`<span class="${n===G.me?"me":""}">${esc(n)} <b>${st.scores[n]}</b>${st.ph==="pick"&&st.picks[n]!=null?" ✓":st.ph==="place"&&st.placed[n]?" ✓":st.ph==="run"&&st.res[n]?(st.res[n].st==="win"?" ⚑":" ✗"):""}</span>`).join("");
   if(st.ph==="pick"){o.hidden=false;const mine=st.picks[G.me];o.innerHTML=`<div class="trbox"><h3>PARTY BOX · pick an item</h3><div class="tritems">${st.box.map((ty,i)=>{const who=Object.keys(st.picks).find(n=>st.picks[n]===i);
       return `<button class="tritem${who?" taken":""}${mine===i?" mine":""}" data-act="trPick" data-i="${i}" ${who?"disabled":""}>${trIcon(ty)}<b>${TR_ITEMS[ty].n}</b><small>${who?esc(who):TR_HINT[ty]||""}</small></button>`;}).join("")}</div><p class="hint" id="trT"></p></div>`;}
   else if(st.ph==="place"){o.hidden=true;o.innerHTML="";}
-  else if(st.ph==="score"){o.hidden=false;const goal=G.solo?Math.max(20,...names.map(n=>st.scores[n]||0)):Math.max(TR_WIN,...names.map(n=>st.scores[n]||0)),pc=v=>(v/goal*100).toFixed(2)+"%";
-    const TC={Finish:"#3ddc84",First:"#ffe14d",Solo:"#b47cff",Coin:"#ffb020",Trap:"#ff4d6d"};
-    o.innerHTML=`<div class="trbox trscore"><h3>${esc(st.note||"Round over")} · ROUND ${st.r}</h3>
-      <div class="trsc">${names.slice().sort((a,b)=>(st.scores[b]||0)-(st.scores[a]||0)).map(n=>{const r=st.res[n]||{},p=(st.pts&&st.pts[n])||[],gain=p.reduce((a,x)=>a+x[1],0),before=Math.max(0,(st.scores[n]||0)-gain);
-        return `<div class="trsrow${n===G.me?" me":""}"><div class="trsn"><b>${esc(n)}</b><small>${r.st==="win"?"⚑ "+(r.ms/1000).toFixed(1)+"s":"✗ didn't make it"}</small></div>
-          <div class="trsbar"><i class="old" style="width:${pc(before)}"></i>${p.map((x,i)=>`<i class="new" data-w="${pc(x[1])}" style="width:0;background:${TC[x[0]]||"#fff"}" title="${esc(x[0])} +${x[1]}"><span>${esc(x[0])} +${x[1]}</span></i>`).join("")}${G.solo?"":`<em class="goal" style="left:${pc(TR_WIN)}">⚑</em>`}</div>
+  else if(st.ph==="score"||st.ph==="over"){o.hidden=false;const goal=Math.max(WIN,...names.map(n=>st.scores[n]||0)),pc=v=>(v/goal*100).toFixed(2)+"%";
+    const TC={Finish:"#3ddc84",First:"#ffe14d",Solo:"#b47cff",Coin:"#ffb020",Trap:"#ff4d6d"},step=WIN<=100?10:25,over=st.ph==="over";
+    const ticks=[];for(let v=step;v<goal;v+=step)if(v!==WIN)ticks.push(`<b class="tick" style="left:${pc(v)}"></b>`);
+    o.innerHTML=`<div class="trbox trscore"><h3>${over?(G.solo?"YOU WIN!":"GAME OVER"):esc(st.note||"Round over")} · ROUND ${st.r}</h3>
+      <div class="trsc">${names.slice().sort((a,b)=>(st.scores[b]||0)-(st.scores[a]||0)).map(n=>{const r=st.res[n]||{},L=(st.log&&st.log[n])||[],past=L.filter(x=>x[2]<st.r||over),now=over?[]:L.filter(x=>x[2]===st.r);
+        const tot={};L.forEach(([c,v])=>tot[c]=(tot[c]||0)+v);const brk=Object.keys(TC).filter(c=>tot[c]).map(c=>`<i style="color:${TC[c]}">${c} ${tot[c]}</i>`).join(" · ");
+        const seg=(x,i,arr,cls)=>`<i class="${cls}${!arr[i+1]||arr[i+1][2]!==x[2]?" rend":""}" ${cls==="new"?`data-w="${pc(x[1])}" style="width:0;`:`style="width:${pc(x[1])};`}background-color:${TC[x[0]]||"#fff"}" title="Round ${x[2]}: ${esc(x[0])} +${x[1]}">${cls==="new"?`<span>${esc(x[0])} +${x[1]}</span>`:""}</i>`;
+        return `<div class="trsrow${n===G.me?" me":""}"><div class="trsn"><b>${esc(n)}</b><small>${over?"":r.st==="win"?"⚑ "+(r.ms/1000).toFixed(1)+"s":"✗ didn't make it"}</small><small class="trbrk">${brk||"no points yet"}</small></div>
+          <div class="trsbar">${ticks.join("")}${past.map((x,i,a)=>seg(x,i,a,"past")).join("")}${now.map((x,i,a)=>seg(x,i,a,"new")).join("")}<em class="goal" style="left:${pc(WIN)}">⚑</em></div>
           <strong>${st.scores[n]||0}</strong></div>`;}).join("")}</div>
       <div class="trkey">${Object.entries(TC).map(([k,c])=>`<span><i style="background:${c}"></i>${k}</span>`).join("")}</div>
-      <p class="hint">${G.solo?"":"First to "+TR_WIN+" wins. "}Next round in a moment…</p></div>`;
+      ${over?`<p class="hint">You reached ${WIN} points in ${st.r} rounds!</p><div class="row" style="justify-content:center;gap:8px"><button class="pbtn c m-mint" data-act="trSolo">PLAY AGAIN</button><button class="pbtn" data-act="trQuit">MENU</button></div>`
+        :`<p class="hint">First to ${WIN} wins. Next round in a moment…</p>`}</div>`;
     // grow each new piece of the bar one after another
     o.querySelectorAll(".trsbar").forEach(bar=>{bar.querySelectorAll("i.new").forEach((e,i)=>setTimeout(()=>{e.style.width=e.dataset.w;},250+i*450));});}
   else{o.hidden=true;o.innerHTML="";}
   const pad=$("trPad");if(pad)pad.style.visibility=st.ph==="run"?"visible":"hidden";
-  if(st.ph==="place")bar.insertAdjacentHTML("afterbegin",`<div class="trplace">${G.my.ty?(G.my.placed?"Placed! Waiting for the others…":`Place your ${trIcon(G.my.ty,18)} <b>${TR_ITEMS[G.my.ty].n}</b> · ${G.my.p1?"now place the other end":TR_HINT[G.my.ty]||""}${TR_ROT[G.my.ty]?` <button class="pbtn sm" data-act="trRot">ROTATE (R)</button>`:""} <button class="pbtn sm c m-mint" data-act="trPlace">PLACE HERE</button>`):"Waiting…"}<small class="trpan">Drag, use the arrow keys / WASD, or tap the map in the corner to look around.</small></div>`);}
+  if(st.ph==="place")bar.insertAdjacentHTML("afterbegin",`<div class="trplace">${G.my.ty?(G.my.placed?"Placed! Waiting for the others…":`Place your ${trIcon(G.my.ty,18)} <b>${TR_ITEMS[G.my.ty].n}</b> · ${G.my.ty==="portal"?(trLonePortal(st,G.me)?"links to your waiting portal (stay inside the dashed box)":"your next portal from a later box links to this one"):TR_HINT[G.my.ty]||""}${TR_ROT[G.my.ty]?` <button class="pbtn sm" data-act="trRot">ROTATE (R)</button>`:""} <button class="pbtn sm c m-mint" data-act="trPlace">PLACE HERE</button>`):"Waiting…"}<small class="trpan">Drag, use the arrow keys / WASD, or tap the map in the corner to look around.</small></div>`);}
 const trIcon=(ty,sz)=>{const art=ty==="rfan"?"fan":TR_ART[ty]?ty:"block";let c=trS(art);if(ty==="rfan"){const f=document.createElement("canvas");f.width=f.height=16;const g=f.getContext("2d");g.translate(0,16);g.scale(1,-1);g.drawImage(c,0,0);c=f;}
   return `<img class="trico" src="${c.toDataURL()}" width="${sz||32}" height="${sz||32}" alt="">`;};
 // ---------- camera, spectating and ghost runs ----------
-function trNewRacer(st){return{coins:{},x:TR_START.x*TR_TS+2,y:TR_START.y*TR_TS+16-TRP.h-1,vx:0,vy:0,w:TRP.w,h:TRP.h,f:1,st:st||"run",t:0,coy:0,buf:0};}
+function trNewRacer(st){return{ghost:1,coins:{},x:TR_START.x*TR_TS+2,y:TR_START.y*TR_TS+16-TRP.h-1,vx:0,vy:0,w:TRP.w,h:TRP.h,f:1,st:st||"run",t:0,coy:0,buf:0};}
 // the camera is free (drag to look around) when you aren't racing and aren't following anyone
 const trFree=G=>!!(G&&G.st&&!G.ghost&&(G.st.ph==="score"||G.st.ph==="run"&&G.meP&&G.meP.st!=="run"&&G.meP.st!=="wait"&&!G.spec));
 function trSpecList(G){return Object.keys(G.peers||{}).filter(n=>{const p=G.peers[n];return p&&p.r===G.st.r&&p.b;});}
@@ -10301,7 +10428,7 @@ function trGhostStep(G,now,dt){const P=G.ghost;const t=G.st.ph==="run"&&G.runT0?
   const sd=trSendRes,sdie=trDie;trSendRes=()=>{};trDie=Q=>{Q.st="dead";};try{trCheck(P,G.C,t);}finally{trSendRes=sd;trDie=sdie;}
   if(P.st==="win"){toast(`👻 Ghost run: made it in ${P.t.toFixed(1)}s`);G.ghost=trNewRacer();}else if(P.st==="dead"||P.t>TR_RUN)G.ghost=trNewRacer();
   trFollow(G,dt);}
-const trGhostOk=G=>!!(G&&G.st&&!G.ghost&&(G.st.ph==="run"&&G.meP&&G.meP.st!=="run"&&G.meP.st!=="wait"||G.st.ph==="place"&&G.my&&G.my.placed));
+const trGhostOk=G=>!!(G&&G.st&&!G.ghost&&G.st.ph==="run"&&G.meP&&G.meP.st==="dead");
 // buttons over the course: zoom, whole map, spectate, ghost
 function trTools(){const G=TRG,el=$("trTools");if(!G||!el||!G.st)return;const L=G.st.ph==="run"&&G.meP&&G.meP.st!=="run"&&G.meP.st!=="wait"&&!G.ghost?trSpecList(G):[];
   const h=`<button class="pbtn sm" data-act="trZoom" data-z="-1" title="Zoom out (-)">－</button><button class="pbtn sm" data-act="trZoom" data-z="1" title="Zoom in (=)">＋</button>
@@ -10316,7 +10443,8 @@ setTimeout(()=>Object.assign(ACT,{
   trGhost:()=>{const G=TRG;if(!G)return;if(G.ghost){G.ghost=null;trTools();return;}if(!trGhostOk(G))return;G.ghost=trNewRacer();G.whole=false;G.zoom=G.zoom0||G.zoom||1;toast("👻 Ghost run: just for fun, it doesn't count");trTools();}}),0);
 // ---------- main loop ----------
 function trLoop(){const G=TRG;if(!G||G.dead)return;const now=trNow(),dt=Math.min(.05,(now-(G.lt||now))/1000);G.lt=now;G.acc=(G.acc||0)+dt;
-  if(G.st&&G.st.ph==="run"&&G.meP){if(G.cd>0){G.cd-=dt;G.acc=0;if(G.cd<=0){G.meP.st="run";G.runT0=now;G.lt=now;sfx.go();}}
+  // the countdown: you can't move (or buffer a jump) until GO
+  if(G.st&&G.st.ph==="run"&&G.meP){if(G.meP.st==="wait"){G.cd=Math.max(0,((G.goAt||0)-Date.now())/1000);G.acc=0;G.inp.jp=false;G.meP.buf=0;if(G.cd<=0){G.meP.st="run";G.runT0=now;G.lt=now;G.meP.vx=G.meP.vy=0;sfx.go();}}
     else{while(G.acc>=1/60){const t=(trNow()-G.runT0)/1000;trStep(G.meP,G.C,G.inp,1/60,t);G.acc-=1/60;}const t=(now-G.runT0)/1000;trTurrets(G,t,dt);trCheck(G.meP,G.C,t);if(G.meP.st==="run"&&G.meP.t>TR_RUN)trDie(G.meP,null);}
     const P=G.meP;trFollow(G,dt);
     if(now-(G.lastPub||0)>66){G.lastPub=now;trPub({t:"tp",r:G.st.r,x:Math.round(P.x*10)/10,y:Math.round(P.y*10)/10,f:P.f,st:P.st,av:(G.avSent?undefined:(G.avSent=1,bbAvGet()))});}}
@@ -10341,26 +10469,52 @@ function trStop(){if(TRG){TRG.dead=true;if(TRG.H)clearTimeout(TRG.H.timer);}TRG=
 function trapHub(){trStop();showPanel(`<div class="row" style="justify-content:space-between"><h2 style="font-size:16px">ULTIMATE CHICKEN HORSE</h2><button class="pbtn sm" data-act="landing">◀ BACK</button></div>
   <div class="devbanner">CURRENTLY IN DEVELOPMENT · still playable, things may change or break</div>
   <div class="glass card"><p>Pick an item from the party box, place it on the course, then race your friends to the flag. Help yourself, trap everyone else.</p>
-  <p class="hint">Reach the flag for 10 points, +5 if you're first, +5 if you're the only one. Your traps earn 3 for each friend they get. If everyone makes it or nobody does, nobody scores. First to ${TR_WIN} wins.</p>
+  <p class="hint">Reach the flag for 10 points, +5 if you're first, +5 if you're the only one, +3 for the round's coin. Your traps earn 3 for each friend they get. If everyone makes it or nobody does, nobody scores. In solo practice you score 10 a finish (+3 coin). First to the points to win wins.</p>
   <p class="hint">Controls: ← → or A D to run, ↑ / W / SPACE to jump (hold to jump higher), jump off walls to wall-jump, hold jump on a truss to climb. On phones, use the on-screen buttons. When placing: drag or use the arrow keys to look around the map, tap a spot, ROTATE with R, PLACE with a click or ENTER.</p></div>
-  <div class="glass card"><h3 style="font-size:13px">MAP</h3><div class="seg trmaps">${[["random","Random"],...Object.entries(TR_MAPDATA).map(([k,v])=>[k,v.n])].map(([k,n])=>`<button class="pbtn ${store.get("otc.tr.map","random")===k?"on":""}" data-act="trMap" data-k="${k}">${n}</button>`).join("")}</div>
+  <div class="glass card"><h3 style="font-size:13px">MAP</h3>${trMapSeg("trMap")}
   <p class="hint">Big maps that scroll: the camera follows you while you race. In a party room the host picks the map on the party page.</p></div>
-  <div class="row"><button class="pbtn c m-nova big" data-act="trFriends">PARTY</button><button class="pbtn c m-mint" data-act="trSolo">SOLO</button></div>`,{cls:"menu"});}
-Object.assign(ACT,{trapHub:()=>trapHub(),trSolo:()=>{trBegin(true);trHostStart(true);},trFriends:()=>{store.set("otc.partyMode","trap");partyMenu();},
-  trPick:b=>{if(!TRG)return;trSend({t:"tpk",r:TRG.st.r,i:+b.dataset.i});},trRot:()=>{if(TRG&&TRG.my.ty&&TR_ROT[TRG.my.ty]){TRG.my.rot=TR_ROT[TRG.my.ty]===2?(TRG.my.rot?0:1):((TRG.my.rot||0)+1)%4;trPanel();}},trPlace:()=>trPlaceNow(),trMap:b=>{store.set("otc.tr.map",b.dataset.k);trapHub();},trMapLobby:b=>{store.set("otc.tr.map",b.dataset.k);document.querySelectorAll('[data-act="trMapLobby"]').forEach(x=>x.classList.toggle("on",x===b));},
+  <div class="glass card"><h3 style="font-size:13px">POINTS TO WIN</h3>${trWinSeg()}<p class="hint">Used for solo practice and for party rooms you host.</p></div>
+  <div class="row"><button class="pbtn c m-nova big" data-act="trFriends">PARTY</button><button class="pbtn c m-mint" data-act="trSolo">SOLO</button><button class="pbtn" data-act="bbCustom" data-back="trapHub">🎨 CUSTOMIZE</button></div>`,{cls:"menu"});}
+// map buttons plus a preview button; points-to-win buttons (both are shared by the hub and the party page)
+function trMapSeg(act){const cur=store.get("otc.tr.map","random");return `<div class="seg trmaps">${[["random","Random"],...Object.entries(TR_MAPDATA).map(([k,v])=>[k,v.n])].map(([k,n])=>`<button class="pbtn ${cur===k?"on":""}" data-act="${act}" data-k="${k}">${n}</button>`).join("")}</div>
+  <div class="row" style="margin-top:6px"><button class="pbtn sm" data-act="trPreview">👁 PREVIEW MAPS</button></div>`;}
+function trWinSeg(){const cur=trWinPts();return `<div class="seg trwins">${TR_WINS.map(v=>`<button class="pbtn ${cur===v?"on":""}" data-act="trWin" data-v="${v}">${v}</button>`).join("")}</div>`;}
+// a picture of the whole map: ground, hazards, water, the start (purple) and the flag (yellow)
+function trMapPic(id,s){const d=TR_MAPDATA[id],R=d.rows,H=R.length,W=R[0].length,th=TR_THEMES[d.theme]||TR_THEMES.peaks,c=document.createElement("canvas");s=s||4;c.width=W*s;c.height=H*s;const x=c.getContext("2d");
+  const g=x.createLinearGradient(0,0,0,c.height);g.addColorStop(0,th.sky[0]);g.addColorStop(1,th.sky[1]);x.fillStyle=g;x.fillRect(0,0,c.width,c.height);
+  let S=null,Gl=null;for(let y=0;y<H;y++)for(let X=0;X<W;X++){const ch=R[y][X];let col=null;
+    if(ch==="#"){const open=y>0&&!TR_TILE[R[y-1][X]];col=open&&d.theme!=="crystal"?th.top:th.rock;}else if(ch==="w")col=th.wood||"#7a4a24";else if(ch==="l")col=th.leaf||"#3fae4a";else if(TR_TCOL[ch])col=TR_TCOL[ch][0];
+    if(col){x.fillStyle=col;x.fillRect(X*s,y*s,s,s);}
+    if(ch==="x"&&y+1<H&&TR_TILE[R[y+1][X]]){x.fillStyle="#ff4d6d";x.fillRect(X*s,y*s+s/2,s,s/2);}if(ch==="S")S=[X,y];if(ch==="G")Gl=[X,y];}
+  if(d.liquid){x.globalAlpha=.85;x.fillStyle=d.liquid.c;x.fillRect(0,d.liquid.y*s+s/4,c.width,c.height);x.globalAlpha=1;}
+  if(S){x.fillStyle="rgba(155,93,229,.45)";x.fillRect((S[0]-3)*s,(S[1]-4)*s,7*s,5*s);x.fillStyle="#b47cff";x.fillRect(S[0]*s-s/2,S[1]*s-s,s*2,s*2);}
+  if(Gl){x.fillStyle="#1a0f2e";x.fillRect(Gl[0]*s+s/2,(Gl[1]-3)*s,s/2+1,s*4);x.fillStyle="#ffe14d";x.fillRect(Gl[0]*s+s,(Gl[1]-3)*s,s*2.5,s*1.6);}
+  return c;}
+let TRPV=null;
+function trPreview(id,act){const ids=Object.keys(TR_MAPDATA);if(!TR_MAPDATA[id])id=TR_MAPDATA[store.get("otc.tr.map","")]?store.get("otc.tr.map",""):ids[0];TRPV={id,act:act||TRPV&&TRPV.act||"trMap"};const d=TR_MAPDATA[id],m=$("modal");m.hidden=false;
+  m.innerHTML=`<div class="glass trpv"><div class="row" style="justify-content:space-between"><h3 style="font-size:14px;margin:0">MAP PREVIEW</h3><button class="pbtn sm" data-act="trPvClose">✕</button></div>
+    <div class="seg">${ids.map(k=>`<button class="pbtn sm ${k===id?"on":""}" data-act="trPv" data-k="${k}">${TR_MAPDATA[k].n}</button>`).join("")}</div>
+    <div class="trpvpic" id="trPvPic"></div><p class="hint">${esc(d.n)} · ${d.rows[0].length} × ${d.rows.length} tiles · purple = start, yellow = flag</p>
+    <div class="row" style="justify-content:center"><button class="pbtn c m-mint" data-act="trPvUse" data-k="${id}">USE THIS MAP</button></div></div>`;
+  const c=trMapPic(id,4);c.className="trpvc";$("trPvPic").appendChild(c);}
+Object.assign(ACT,{trapHub:()=>trapHub(),trSolo:()=>{trStop();trBegin(true);trHostStart(true);},trFriends:()=>{store.set("otc.partyMode","trap");partyMenu();},
+  trPick:b=>{if(!TRG)return;trSend({t:"tpk",r:TRG.st.r,i:+b.dataset.i});},trRot:()=>{if(TRG&&TRG.my.ty&&TR_ROT[TRG.my.ty]){TRG.my.rot=TR_ROT[TRG.my.ty]===2?(TRG.my.rot?0:1):((TRG.my.rot||0)+1)%4;trPanel();}},trPlace:()=>trPlaceNow(),trMap:b=>{store.set("otc.tr.map",b.dataset.k);document.querySelectorAll('[data-act="trMap"]').forEach(x=>x.classList.toggle("on",x===b));},trMapLobby:b=>{store.set("otc.tr.map",b.dataset.k);document.querySelectorAll('[data-act="trMapLobby"]').forEach(x=>x.classList.toggle("on",x===b));},
+  trWin:b=>{store.set("otc.tr.win",+b.dataset.v);document.querySelectorAll('[data-act="trWin"]').forEach(x=>x.classList.toggle("on",x===b));},
+  trPreview:()=>trPreview(null,document.querySelector('[data-act="trMapLobby"]')?"trMapLobby":"trMap"),trPv:b=>trPreview(b.dataset.k),trPvClose:()=>closeModal(),
+  trPvUse:b=>{store.set("otc.tr.map",b.dataset.k);const act=(TRPV&&TRPV.act)||"trMap";document.querySelectorAll(`[data-act="${act}"]`).forEach(x=>x.classList.toggle("on",x.dataset.k===b.dataset.k));closeModal();toast("Map: "+esc(TR_MAPDATA[b.dataset.k].n));},
   trQuit:()=>{if(TRG&&TRG.solo){trStop();trapHub();}else abortAsk();}});
 
 // ---------- party room wiring ----------
 {const _lb=lobby;lobby=function(){if(N&&N.host&&!N.mode&&store.get("otc.partyMode","")==="trap"){N.mode="trap";store.set("otc.partyMode","");}_lb();try{if(!N||!(N.host?N.mode==="trap":N.trMode))return;
-  const cards=document.querySelectorAll("#panel .glass.card");if(N.host){const opt=[...cards].find(c=>c.querySelector('[data-act="nrounds"]'));if(opt)opt.innerHTML=`<h3 style="font-size:13px">ULTIMATE CHICKEN HORSE</h3><p class="hint">Everyone races at the same time as their Cupidium Academy buddy. First to ${TR_WIN} wins. Works best with 2 to 6 players.</p>
-      <span class="lbl">MAP</span><div class="seg trmaps">${[["random","Random"],...Object.entries(TR_MAPDATA).map(([k,v])=>[k,v.n])].map(([k,n])=>`<button class="pbtn ${store.get("otc.tr.map","random")===k?"on":""}" data-act="trMapLobby" data-k="${k}">${n}</button>`).join("")}</div>`;
+  const cards=document.querySelectorAll("#panel .glass.card");if(N.host){const opt=[...cards].find(c=>c.querySelector('[data-act="nrounds"]'));if(opt)opt.innerHTML=`<h3 style="font-size:13px">ULTIMATE CHICKEN HORSE</h3><p class="hint">Everyone races at the same time as their Cupidium Academy buddy. Works best with 2 to 6 players.</p>
+      <span class="lbl">MAP</span>${trMapSeg("trMapLobby")}<span class="lbl">POINTS TO WIN</span>${trWinSeg()}`;
     const pr=[...cards].find(c=>c.querySelector('[data-act="ngeo"]'));if(pr){const g=pr.querySelector('[data-act="ngeo"]').closest(".seg");if(g){g.previousElementSibling&&g.previousElementSibling.remove();g.remove();}}}}catch(e){}};}
 {const _pl=pushLobby;pushLobby=function(){if(N&&N.host)broadcast({t:"trmode",on:N.mode==="trap"});return _pl();};}
 {const _hs=hostStart;hostStart=function(){if(N&&N.mode==="trap"){N.started=true;N.players.forEach(p=>p.score=0);broadcast({t:"start",names:names()});trBegin(false);trHostStart(false);return;}return _hs();};}
 {const _cd=clientData;clientData=function(d){if(d&&d.t==="trmode"){N.trMode=!!d.on;return;}if(d&&d.t==="tr"){if(!TRG||TRG.dead)trBegin(false);N.phaseAt=Date.now();N.phaseLimit=(TR_RUN+30)*1000;trApply(d);return;}
   if(d&&(d.t==="end"||d.t==="lobby"))trStop();return _cd(d);};}
-{const _hc=hostConn;hostConn=function(c){const on=c.on.bind(c);c.on=(e,f)=>on(e,e!=="data"?f:d=>{if(d&&/^t(pk|pl|res)$/.test(d.t)){if(!N||!N.host||!TRG||!TRG.H)return;const p=N.players.find(x=>x.id===c.peer);if(!p)return;
-  if(d.t==="tpk")trHostPick(p.name,+d.i);else if(d.t==="tpl")trHostPlace(p.name,d);else trHostRes(p.name,d);return;}return f(d);});_hc(c);};}
+{const _hc=hostConn;hostConn=function(c){const on=c.on.bind(c);c.on=(e,f)=>on(e,e!=="data"?f:d=>{if(d&&/^t(pk|pl|res|coin)$/.test(d.t)){if(!N||!N.host||!TRG||!TRG.H)return;const p=N.players.find(x=>x.id===c.peer);if(!p)return;
+  if(d.t==="tpk")trHostPick(p.name,+d.i);else if(d.t==="tpl")trHostPlace(p.name,d);else if(d.t==="tcoin")trHostCoin(p.name,d);else trHostRes(p.name,d);return;}return f(d);});_hc(c);};}
 {const _he=hostEnd;hostEnd=function(){trStop();return _he();};}
 {const _ln=leaveNet;leaveNet=function(){trStop();return _ln();};}
 
