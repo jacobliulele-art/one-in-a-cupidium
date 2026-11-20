@@ -8307,7 +8307,7 @@ OIC_DATA.FUN_PICKS = {
   "Name a metal": "+gallium|hafnium|rhenium",
   "Name an element named after a scientist": "samarium|gadolinium|oganesson",
   "Name a disease caused by a virus": "fifth disease|+the common cold|roseola",
-  "Name a famous scientific unit of measurement": "+the smoot|parsec|angstrom",
+  "Name a scientific unit of measurement": "+the smoot|parsec|angstrom",
   "Name a body part that comes in pairs": "+eyebrows|+nostrils|vocal cords",
   "Name a capital city in Oceania": "ngerulmud|yaren|palikir",
   "Name a capital city in South America": "paramaribo|georgetown|sucre",
