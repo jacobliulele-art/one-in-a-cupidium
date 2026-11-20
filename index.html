@@ -1045,6 +1045,27 @@ button.lbn .flb{flex:0 0 auto;margin-right:2px}button.lbn .flt{flex:0 1 auto;ove
 .modegrid .fuelnote{display:none}
 .mbtn small{letter-spacing:.06em;opacity:.85}
 .dsmode{background:rgba(40,16,80,.62);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+
+/* ===== Nov 19 (late night 2): narrower pages, centered party + casino, no "ROOMS" tag ===== */
+#panel>.inner{width:min(700px,100%)}
+#panel>.inner.wide{width:min(1060px,100%)}
+.lcard.ptl em{display:none}
+.lcard.ptl{padding:12px 14px}
+/* party page: everything centered, narrow column */
+#panel>.inner.partyp{width:min(540px,100%)}
+.partyp>.glass.card{text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px}
+.partyp>.glass.card .hint{margin:0}
+.partyp>.glass.card>.row{justify-content:center;margin-top:0!important}
+.partyp #pname{text-align:center;width:min(320px,100%)}
+.partyp #pcode{text-align:center}
+/* casino: chart fills its box; game tiles always 3 per row so rows stay even and centered */
+.casbanner .cgwrap{max-width:none}
+.casbanner .big{margin:2px 0}
+.casgrid,.casgrid.cp3{grid-template-columns:repeat(3,1fr)}
+@media (max-width:560px){.casgrid,.casgrid.cp3{grid-template-columns:1fr 1fr}}
+/* boxes hug their content: no tall empty bands */
+.card{padding:10px 12px}
+.lcard{min-height:112px}
 </style>
 
 <canvas id="scene"></canvas>
@@ -5379,7 +5400,7 @@ function partyMenu(){
       <button class="pbtn c m-nova" data-act="host">CREATE ROOM</button>
       <div class="row" style="margin-top:12px"><input id="pcode" maxlength="4" placeholder="CODE" style="max-width:150px;text-transform:uppercase;letter-spacing:.25em;font-family:var(--head)"><button class="pbtn c m-ice" data-act="join">JOIN</button></div>
       <div id="perr" class="hint err"></div></div>
-    <div class="glass card"><h3 style="font-size:13px">PASS &amp; PLAY</h3><p class="hint">Share one device and take turns. Puffer Party is in here too.</p><button class="pbtn c m-sun" data-act="local">SET UP PLAYERS</button></div>`);
+    <div class="glass card"><h3 style="font-size:13px">PASS &amp; PLAY</h3><p class="hint">Share one device and take turns. Puffer Party is in here too.</p><button class="pbtn c m-sun" data-act="local">SET UP PLAYERS</button></div>`,{cls:"partyp"});
 }
 function getName(){const el=$("pname"),v=el.value.trim().slice(0,16);
   if(!v){el.classList.remove("shake");void el.offsetWidth;el.classList.add("shake");el.focus();return null;}store.set("oddball.name",v);return v;}
