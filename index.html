@@ -7620,21 +7620,22 @@ const modBans=()=>(MOD&&MOD.s.bans)||[];
 const modBanned=(id,n)=>modBans().some(b=>b[0]===id||n&&b[1]&&String(b[1]).toLowerCase()===String(n).toLowerCase());
 const modRemoved=(id,key,t)=>!!(MOD&&(MOD.s.rm&&MOD.s.rm.some(r=>r[0]===id&&(r[1]==="*"||r[1]===key)&&(t||0)<=r[2])||MOD.s.gone&&MOD.s.gone.includes(id)));
 // the highest score each board can really have (a daily is 7 rounds, 250 max each); anything above is thrown out
-function lbCap(key){const k=String(key).split(":")[0];return k==="daily"||k==="dailyGeo"?ROUNDS*250+100:/^cp[A-Z]/.test(k)?1e5:/^cas/.test(k)?1e10:1e8;}
-function lbBad(r,key){return r.s>lbCap(key)||modBanned(r.i,r.n)||modRemoved(r.i,key,r.t);}
+function lbCap(key){const k=String(key).split(":")[0];return k==="xc"?36000-7800:k==="daily"||k==="dailyGeo"?ROUNDS*250+100:/^cp[A-Z]/.test(k)?1e5:/^cas/.test(k)?1e10:1e8;}
+// XC best 5Ks from before the realistic-pace update (Nov 19) are dropped; each player's game re-posts its converted time
+function lbBad(r,key){return r.s>lbCap(key)||key==="xc"&&(r.t||0)<1795147200000||modBanned(r.i,r.n)||modRemoved(r.i,key,r.t);}
 function modApply(){let ch=false;for(const k in LB.b){const n=LB.b[k].length;LB.b[k]=LB.b[k].filter(r=>!lbBad(r,k));if(LB.b[k].length!==n)ch=true;}if(ch){store.set("otc.lb",LB.b);if($("lbBox"))lbRender();}return ch;}
 async function modIn(m){if(!m||m.k!=="dev"||typeof m.p!=="string"||typeof m.sig!=="string")return;if(!await devVerify(m.p,m.sig))return;let q;try{q=JSON.parse(m.p);}catch(e){return;}
-  if(q.t==="mod"){if(MOD&&MOD.s.at>=q.at)return;const was=modBanned(LB.id);MOD={p:m.p,sig:m.sig,s:q};store.set("otc.mod",{p:m.p,sig:m.sig});modApply();
+  if(q.t==="mod"){if(MOD&&MOD.s.at>=q.at)return;const was=modBanned(LB.id);MOD={p:m.p,sig:m.sig,s:q};store.set("otc.mod",{p:m.p,sig:m.sig});modApply();lbRevive();
     if(!was&&modBanned(LB.id))toast("🚫 You've been banned from the leaderboards");if($("devMod"))devModCard();}
   else if(q.t==="grant"&&q.to===LB.id&&q.id&&q.g&&Date.now()-(q.at||0)<4*864e5)grantApply(q);
   else if(q.t==="gift"&&q.to===LB.id&&q.id&&typeof q.amt==="number"&&Date.now()-(q.at||0)<4*864e5&&typeof casChips==="function"){const got=store.get("otc.gifts",[]);if(got.includes(q.id))return;got.push(q.id);store.set("otc.gifts",got.slice(-200));
     casSet(Math.max(0,casChips()+Math.round(q.amt)));toast(q.amt>=0?`🎁 ${esc(String(q.by||"The developer").slice(0,16))} sent you ${Math.round(q.amt).toLocaleString()} casino chips!`:`🪙 The developer removed ${Math.round(-q.amt).toLocaleString()} casino chips`);}}
 // progress the developer gave back: XC fitness for a 5K time, endless bests, chips. Only ever raises what the player has.
 function grantApply(q){const got=store.get("otc.grants",[]);if(got.includes(q.id))return;got.push(q.id);store.set("otc.grants",got.slice(-200));const g=q.g||{},lines=[];
-  if(g.xc&&g.xc.T>0&&typeof XC_SHOES!=="undefined"){const T=Math.max(600,Math.min(3600,+g.xc.T)),sp=5000/T,C=MGAMES.xc.C();
-    const lv=g.xc.lv||Math.max(1,Math.min(20,Math.round(1+(sp-3.22)/(4.72-3.22)*11)));C.lv=Math.max(C.lv,lv);
+  if(g.xc&&g.xc.T>0&&typeof XC_SHOES!=="undefined"){const T=Math.max(XC_MIN+30,Math.min(3600,+g.xc.T)),sp=5000/T,C=MGAMES.xc.C();
+    const lv=g.xc.lv||Math.max(1,Math.min(20,Math.round(1+(sp-3.15)/(5.1-3.15)*11)));C.lv=Math.max(C.lv,lv);
     const shoe=XC_SHOES.filter(x=>x.lv<=C.lv).pop()||XC_SHOES[0];if((XC_SHOES.find(x=>x.id===C.shoe)||XC_SHOES[0]).spd<shoe.spd)C.shoe=shoe.id;
-    const base=sp/(1+(XC_SHOES.find(x=>x.id===C.shoe)||XC_SHOES[0]).spd),fr=Math.min(.995,Math.max(0,(base-3.47)/2.6)),fit=-12*Math.log(1-fr);
+    const base=sp/(1+(XC_SHOES.find(x=>x.id===C.shoe)||XC_SHOES[0]).spd),fr=Math.min(.995,Math.max(0,(base-XC_V0)/XC_V1)),fit=-XC_FK*Math.log(1-fr);
     C.fit=Math.max(C.fit||0,Math.round(fit*10)/10);C.stam=Math.max(C.stam||0,Math.min(10,Math.floor(C.lv/2)));C.acc=Math.max(C.acc||0,Math.min(6,Math.floor(C.lv/3)));
     if(C.pr==null||T<C.pr){C.pr=T;const sc=Math.max(1,36000-Math.round(T*10));if(typeof mBest==="function"&&sc>mBest("xc"))store.set("otc.cg.xc",sc);try{lbSubmit("xc",sc);}catch(e){}}
     store.set("otc.xc",C);lines.push(`XC: level ${C.lv}, about a ${xcTime(T)} 5K`);}
@@ -7649,7 +7650,15 @@ function modPost(msg){socPost(LB_TOPIC,msg);["23h","47h","71h"].forEach((d,i)=>s
 async function modChange(f){const cur=MOD?MOD.s:{bans:[],rm:[]};const nx={t:"mod",at:Date.now(),bans:(cur.bans||[]).slice(),rm:(cur.rm||[]).filter(r=>Date.now()-r[2]<14*864e5),gone:(cur.gone||[]).slice()};f(nx);
   nx.bans=nx.bans.slice(-80);nx.rm=nx.rm.slice(-60);nx.gone=[...new Set(nx.gone)].slice(-220);let msg;try{msg=await devSign(nx);}catch(e){toast("Add your developer key first (🛠 developer page → MODERATION)");return false;}
   await modIn(msg);modPost(msg);return true;}
-setTimeout(()=>{modApply();},0);
+setTimeout(()=>{modApply();lbRevive();},0);
+// a device the developer removed as an "old account" but that is still playing (e.g. sahil): every board kept throwing its
+// scores away and the dev page hid it from PLAYERS and GIVE PROGRESS, while VISITS still listed it. It now starts a fresh
+// player id (progress on this device stays), reclaims its name and re-posts its bests, so it shows up everywhere again.
+function lbRevive(){if(!(MOD&&MOD.s.gone&&MOD.s.gone.includes(LB.id)))return;LB.id=Math.random().toString(36).slice(2,10);store.set("otc.pid",LB.id);
+  store.set("otc.nameClaimed","");store.set("otc.devPinged",0);store.set("otc.lbMine",0);
+  setTimeout(()=>{try{const n=lbMe();if(n&&typeof nameClaim==="function")nameClaim(n);devPing(true);
+    for(const[k,lb]of[["oddball.endlessBest","endless"],["otc.rendlessBest","rendless"],["oddball.blitzBest","blitz"]]){const v=store.get(k,0);if(v>0)lbSubmit(lb,v);}
+    for(const k in MGAMES){const v=mBest(k);if(v>0)lbSubmit(k,v);}}catch(e){}},2500);}
 // called whenever a run/game ends
 // "latest" boards (current casino chips) keep each player's newest score instead of their best
 const LB_LATEST=new Set(["casNow"]);
@@ -7727,7 +7736,8 @@ async function devOpen(){if(!store.get("otc.dev",false)){const code=prompt("Deve
     for(const nm of (v.h||[]).concat(v.n?[v.n]:[]))if(nm&&!p.names.includes(nm))p.names.push(nm);});
   // anyone on a leaderboard counts as seen too (in case their visit message never made it through)
   for(const k in LB.b)for(const r of LB.b[k]){if(!r||!r.i||r.i===LB.id&&false)continue;const p=people[r.i]||(people[r.i]={n:r.n,c:0,last:0,first:r.t||0,names:[],lb:1});if(!p.n)p.n=r.n;if((r.t||0)>p.last){p.last=r.t||p.last;}if(r.n&&!p.names.includes(r.n))p.names.push(r.n);p.lbk=(p.lbk||[]);if(!p.lbk.includes(k))p.lbk.push(k);}
-  {const gone=new Set(store.get("otc.devGone",[]).concat((MOD&&MOD.s.gone)||[]));for(const i of gone)delete people[i];}
+  // removed old accounts stay hidden unless they visited again after being removed (then they're an active player)
+  {const gone=new Set(store.get("otc.devGone",[]).concat((MOD&&MOD.s.gone)||[])),at=store.get("otc.devGoneAt",{});for(const i of gone)if(people[i]&&!(people[i].c&&people[i].last>(at[i]||(MOD&&MOD.s.at)||0)))delete people[i];}
   const box=$("devBox");if(!box)return;
   box.innerHTML=`<div class="glass card" data-sec="players"><h3 style="font-size:13px">PLAYERS (${Object.keys(people).length})</h3>
     <div class="devold"><p class="hint">Old accounts from before the data reset: pick everyone last seen before a date (or tick them one by one), then remove them. Their scores leave every leaderboard and their usernames are freed. Needs your developer key.</p>
@@ -7793,7 +7803,7 @@ Object.assign(ACT,{
   devOldRm:async()=>{const ids=[...document.querySelectorAll(".devOldC:checked")].map(c=>c.dataset.i).filter(i=>i&&i!==LB.id);if(!ids.length)return toast("Tick the old accounts first");
     if(!confirm(`Remove ${ids.length} old account${ids.length>1?"s":""}? Their scores leave every leaderboard and their usernames are freed.`))return;
     if(!await modChange(q=>{q.gone=(q.gone||[]).concat(ids);}))return;
-    store.set("otc.devGone",[...new Set(store.get("otc.devGone",[]).concat(ids))].slice(-2000));
+    store.set("otc.devGone",[...new Set(store.get("otc.devGone",[]).concat(ids))].slice(-2000));{const at=store.get("otc.devGoneAt",{});for(const i of ids)at[i]=Date.now();store.set("otc.devGoneAt",at);}
     store.set("otc.devlog",store.get("otc.devlog",[]).filter(v=>!ids.includes(v.i)));
     try{const sg=await devSign({act:"nameRm",ids,ts:Date.now()});await fetch(namesUrl()+"/release",{method:"POST",body:JSON.stringify({p:sg.p,sig:sg.sig})});}catch(e){}
     toast(`🗑 Removed ${ids.length} old account${ids.length>1?"s":""}`);window.__devNoFetch=true;devOpen();},
@@ -8275,25 +8285,38 @@ function navLeft(){const pn=$("panel");if(!pn)return;
 const XC_SHOES=[{id:"trainers",nm:"TRAINERS",lv:1,spd:0,acc:0,tr:0,c:"#94a3b8"},{id:"flats",nm:"RACING FLATS",lv:3,spd:.01,acc:1,tr:0,c:"#60a5fa"},
   {id:"xc",nm:"XC SPIKES",lv:5,spd:.015,acc:1,tr:2,c:"#f59e0b",spike:1},{id:"carbon",nm:"CARBON SPIKES",lv:8,spd:.03,acc:2,tr:2,c:"#e5e7eb",spike:1},
   {id:"cup",nm:"CUPIDIUM SPIKES",lv:12,spd:.05,acc:3,tr:3,c:"#ff5fd2",spike:1}];
-const XC_COURSES=[{id:"park",nm:"PARK LOOP",lv:1,hill:.25,mud:0,bot:3.22,sky:"#9bd8ff",gr:"#4ade80"},{id:"river",nm:"RIVER TRAIL",lv:2,hill:.45,mud:.15,bot:3.5,sky:"#a5d8ff",gr:"#34d399"},
-  {id:"hill",nm:"HILLTOP",lv:4,hill:1,mud:.05,bot:3.78,sky:"#bfdbfe",gr:"#65a30d"},{id:"mud",nm:"MUD BOWL",lv:6,hill:.5,mud:.5,bot:4.02,sky:"#cbd5e1",gr:"#4d7c0f"},
-  {id:"state",nm:"STATE CHAMPS",lv:9,hill:.65,mud:.2,bot:4.36,sky:"#fde2e4",gr:"#22c55e"},{id:"nat",nm:"NATIONALS",lv:13,hill:.75,mud:.3,bot:4.72,sky:"#fbcfe8",gr:"#16a34a"}];
+const XC_COURSES=[{id:"park",nm:"PARK LOOP",lv:1,hill:.25,mud:0,bot:3.15,sky:"#9bd8ff",gr:"#4ade80"},{id:"river",nm:"RIVER TRAIL",lv:2,hill:.45,mud:.15,bot:3.45,sky:"#a5d8ff",gr:"#34d399"},
+  {id:"hill",nm:"HILLTOP",lv:4,hill:1,mud:.05,bot:3.85,sky:"#bfdbfe",gr:"#65a30d"},{id:"mud",nm:"MUD BOWL",lv:6,hill:.5,mud:.5,bot:4.25,sky:"#cbd5e1",gr:"#4d7c0f"},
+  {id:"state",nm:"STATE CHAMPS",lv:9,hill:.65,mud:.2,bot:4.75,sky:"#fde2e4",gr:"#22c55e"},{id:"nat",nm:"NATIONALS",lv:13,hill:.75,mud:.3,bot:5.1,sky:"#fbcfe8",gr:"#16a34a"}];
 const XC_BOTS=["MAYA","LEO","PRIYA","OWEN","SOFIA","KAI","ZARA","ELI","NOOR","FINN","IVY","DREW","LUNA","JAX"];
 const XC_TS=20;// race seconds per real second
+// realistic pace (Nov 19): a brand-new runner cruises about 25:15 on a flat 5K, and fitness tops out around 16:00 cruising;
+// with the best spikes, pushing, a kick and bicarb the fastest possible race is about 14:00 (no more 11-minute 5Ks)
+const XC_V0=3.3,XC_V1=1.9,XC_FK=20,XC_PUSH=1.08,XC_KICK=1.13,XC_BIC=.05,XC_MIN=810;
+// sunglasses: SURGE = free speed (no stamina) while a rival is right in front of or behind you, stronger on bicarb
+const XC_SURGE_D=10,XC_SURGE=.035,XC_SURGE_BIC=.07,XC_SURGE_MAX=60,XC_SURGE_CD=60;
+// spiking (only with every spike shoe unlocked): slows the runner next to you, 15% chance an official disqualifies you
+const XC_SPIKE_D=5,XC_SPIKE_DQ=.15,XC_SPIKE_CD=60,XC_SPIKE_HURT=40;
+const xcOldT=t=>{if(t==null||!(t>0))return t;const s=Math.max(.5,XC_V0+(5000/t-3.47)*(XC_V1/2.6));return Math.max(XC_MIN+30,5000/s);};// old-scale time -> new scale
 const xcTime=s=>{if(s==null||!isFinite(s))return"--:--";s=Math.max(0,s);const mm=Math.floor(s/60),ss=Math.floor(s%60);return`${mm}:${String(ss).padStart(2,"0")}`;};
 MGAMES.xc={persist:false,name:"CUPIDIUM XC",w:240,h:150,blurb:"Cross country career: train, buy spikes and race 5Ks against tougher and tougher fields.",
-  controls:"Menus: tap or press 1-6 (Q / Esc to go back). RACE: hold SPACE or hold the screen to push (faster, burns stamina), let go to cruise and recover. Push in the last 600 m for your kick. B or the BICARB button = speed boost. Hills slow you down and mud is slippery: spikes give you traction. LONG RUN: hold/release to stay in the green zone (stamina). STRIDES: tap when the marker is in the green (acceleration). WORKOUT: hold the pace band through each rep (fitness, lowers your 5K time). Earn XP to unlock courses and shoes.",
+  controls:"Menus: tap or press 1-6 (Q / Esc to go back). RACE: hold SPACE or hold the screen to push (faster, burns stamina), let go to cruise and recover. Push in the last 600 m for your kick. B or the BICARB button = speed boost. SUNGLASSES (shop) give you SURGE: free speed that costs no stamina whenever a rival is right in front of or behind you, even stronger on bicarb. Once every spike shoe is unlocked, wear spikes and press K or the SPIKE button to spike the runner next to you (15% chance you're disqualified). Hills slow you down and mud is slippery: spikes give you traction. LONG RUN: hold/release to stay in the green zone (stamina). STRIDES: tap when the marker is in the green (acceleration). WORKOUT: hold the pace band through each rep (fitness, lowers your 5K time). Earn XP to unlock courses and shoes.",
   // the leaderboard stores a best 5K as a number where bigger is better
   fmt(s){return xcTime((36000-s)/10);},
-  C(){const d={lv:1,xp:0,coins:0,fit:0,stam:0,stamP:0,acc:0,accP:0,pins:0,plate:0,bicarb:1,shoe:"trainers",pr:null,wins:{},best:{},races:0};const c=Object.assign(d,store.get("otc.xc",{}));return c;},
+  C(){const d={lv:1,xp:0,coins:0,fit:0,stam:0,stamP:0,acc:0,accP:0,pins:0,plate:0,bicarb:1,shades:0,shoe:"trainers",pr:null,wins:{},best:{},races:0};const raw=store.get("otc.xc",null),c=Object.assign(d,raw||{});
+    // times from before the realistic-pace update are moved onto the new scale once (an old 11:30 is now about 13:50)
+    if(raw&&(c.v||0)<2){c.v=2;if(c.pr!=null){c.pr=xcOldT(c.pr);const sc=Math.max(1,36000-Math.round(c.pr*10));store.set("otc.cg.xc",sc);setTimeout(()=>{try{lbSubmit("xc",sc);}catch(e){}},2500);}
+      for(const k in c.best)if(c.best[k]&&c.best[k].t)c.best[k].t=xcOldT(c.best[k].t);store.set("otc.xc",c);}else if(!raw)c.v=2;
+    return c;},
   save(m){store.set("otc.xc",m.C);},
   shoe(C){return XC_SHOES.find(s=>s.id===C.shoe)||XC_SHOES[0];},
-  base(C){return 3.47+2.6*(1-Math.exp(-C.fit/12));},
+  base(C){return XC_V0+XC_V1*(1-Math.exp(-C.fit/XC_FK));},
   accel(C){const s=this.shoe(C);return C.acc+s.acc+(s.spike?C.plate:0);},
   trac(C){const s=this.shoe(C);return s.tr+(s.spike?C.pins:0);},
   pool(C){return 100+C.stam*15;},
   pred(C){return 5000/(this.base(C)*(1+this.shoe(C).spd));},
   need(lv){return 80+lv*60;},
+  spikes(C){return C.lv>=Math.max(...XC_SHOES.filter(s=>s.spike).map(s=>s.lv));},// every spike shoe unlocked
   init(m){m.C=this.C();m.scr="hub";m.msg=null;m.hold=0;this.hud(m);},
   hud(m){const C=m.C;mgHud(`LV ${C.lv} · ${C.coins} 🪙 · PR ${xcTime(C.pr)}`);},
   say(m,t,c){m.msg={t,c:c||"#fde047",at:m.t};},
@@ -8315,13 +8338,15 @@ MGAMES.xc={persist:false,name:"CUPIDIUM XC",w:240,h:150,blurb:"Cross country car
   shopItems(m){const C=m.C,sp=this.shoe(C).spike;return[
     {nm:"BICARB",d:`speed boost for races · have ${C.bicarb}/3`,cost:40,no:C.bicarb>=3?"YOU CAN CARRY 3":null,buy:()=>C.bicarb++},
     {nm:`SPIKE PINS ${C.pins}/5`,d:"+1 traction on hills and mud",cost:90+C.pins*70,no:C.pins>=5?"MAXED":!sp?"WEAR SPIKES FIRST (LV 5)":null,buy:()=>C.pins++},
-    {nm:`SPIKE PLATE ${C.plate}/5`,d:"+1 acceleration",cost:90+C.plate*70,no:C.plate>=5?"MAXED":!sp?"WEAR SPIKES FIRST (LV 5)":null,buy:()=>C.plate++}];},
+    {nm:`SPIKE PLATE ${C.plate}/5`,d:"+1 acceleration",cost:90+C.plate*70,no:C.plate>=5?"MAXED":!sp?"WEAR SPIKES FIRST (LV 5)":null,buy:()=>C.plate++},
+    {nm:"SUNGLASSES 😎",d:"SURGE: free speed when a rival is right in front or behind · stronger on bicarb",cost:150,no:C.shades?"YOU'RE WEARING THEM 😎 · SURGE IS ON":null,buy:()=>C.shades=1}];},
   back(m){if(m.scr==="race"||m.scr==="long"||m.scr==="strides"||m.scr==="work"){if(m.res)return;return;}this.go(m,"hub");},
   key(m,k,down,first,raw){if(!down){if(k==="sp"||k==="u")m.hold=0;return;}
     if(k==="sp"||k==="u"){if(first&&this.tap(m,null,null))return;m.hold=1;return;}
     if(!first)return;
     if(raw==="escape"||raw==="q"||raw==="backspace")return this.back(m);
     if(raw==="b"&&m.scr==="race")return this.bicarb(m);
+    if(raw==="k"&&m.scr==="race")return this.spikeTry(m);
     if(k==="ent")return this.tap(m,null,null);
     const n="123456".indexOf(raw);if(n>=0&&!m.R&&!m.T&&!m.res)this.pick(m,n);},
   ptr(m,x,y,t){if(t==="pointerup"){m.hold=0;return;}if(t!=="pointerdown")return;
@@ -8334,6 +8359,7 @@ MGAMES.xc={persist:false,name:"CUPIDIUM XC",w:240,h:150,blurb:"Cross country car
   tap(m,x,y){if(m.res){if(m.t-m.res.at<700)return true;m.res=null;m.R=null;m.T=null;this.go(m,"hub");return true;}
     if(m.scr==="strides"&&m.T&&m.T.go)return this.strideHit(m),true;
     if(m.scr==="race"&&m.R&&x!=null&&x>m.W-58&&y>m.H-20){this.bicarb(m);return true;}
+    if(m.scr==="race"&&m.R&&x!=null&&this.spikes(m.C)&&x>m.W-116&&x<m.W-60&&y>m.H-20){this.spikeTry(m);return true;}
     return false;},
   // ---------------- race ----------------
   course(ci,wins){const c=XC_COURSES[ci],R=rng("xc"+c.id),seg=[];let s=0,y=0;
@@ -8343,25 +8369,42 @@ MGAMES.xc={persist:false,name:"CUPIDIUM XC",w:240,h:150,blurb:"Cross country car
   tm(g,mud,T){let f=g>0?1-g*4*(1-T*.03):1+(-g)*2.5*(.6+T*.05);if(mud)f*=1-.2*Math.max(0,1-T*.08);return f;},
   startRace(m,ci){const C=m.C,c=XC_COURSES[ci],w=C.wins[c.id]||0,R=rng("xcb"+c.id+w+Date.now()%997);
     const names=XC_BOTS.slice().sort(()=>R()-.5),prof=["rabbit","steady","kicker","surger","steady","kicker","rabbit"];
-    const bots=prof.map((p,i)=>({n:names[i],x:0,v:0,ph:R()*6,c:["#60a5fa","#f97316","#a3e635","#facc15","#22d3ee","#c084fc","#f87171"][i],prof:p,base:c.bot+w*.07+(-.15+R()*.4),T:ci*1.2,fin:null}));
-    m.R={ci,c,w,seg:this.course(ci),bots,me:{x:0,v:0,ph:0,sta:this.pool(C),bonk:0,fin:null,bic:0,used:0},clock:0,start:m.t+2400,camE:0};m.scr="race";m.hold=0;tone(440,.1,"square",.04);},
+    const bots=prof.map((p,i)=>({n:names[i],x:0,v:0,ph:R()*6,c:["#60a5fa","#f97316","#a3e635","#facc15","#22d3ee","#c084fc","#f87171"][i],prof:p,base:c.bot+Math.min(.3,w*.05)+(-.15+R()*.4),T:ci*1.2,fin:null,hurt:0,spiked:0}));
+    m.R={ci,c,w,seg:this.course(ci),bots,me:{x:0,v:0,ph:0,sta:this.pool(C),bonk:0,fin:null,bic:0,used:0,sT:0,sCd:0,surge:0,kCd:0,dq:0},clock:0,start:m.t+2400,camE:0};m.scr="race";m.hold=0;tone(440,.1,"square",.04);},
   bicarb(m){const R=m.R;if(!R||m.t<R.start||R.me.fin!=null)return;const C=m.C;if(R.me.bic>0)return;if(C.bicarb<=0)return this.say(m,"NO BICARB · BUY SOME IN THE SHOP","#fca5a5");
     if(R.me.used>=2)return this.say(m,"MAX 2 BICARB PER RACE","#fca5a5");C.bicarb--;R.me.used++;R.me.bic=120;this.save(m);this.say(m,"BICARB! SPEED BOOST","#67e8f9");sfx.ok(4);mBurst(m,60,100,14,["#67e8f9","#fff"],.8);},
+  // spike the runner right next to you: they stumble for a bit, but an official may disqualify you
+  spikeTry(m){const R=m.R,C=m.C;if(!R||m.t<R.start||R.me.fin!=null||m.res)return;const me=R.me;
+    if(!this.spikes(C))return this.say(m,"UNLOCK EVERY SPIKE SHOE TO SPIKE PEOPLE","#fca5a5");
+    if(!this.shoe(C).spike)return this.say(m,"WEAR SPIKES TO SPIKE SOMEONE","#fca5a5");
+    if(me.kCd>0)return this.say(m,"CATCH YOUR BREATH FIRST","#fca5a5");
+    let b=null;for(const o of R.bots)if(o.fin==null&&!o.spiked&&Math.abs(o.x-me.x)<=XC_SPIKE_D&&(!b||Math.abs(o.x-me.x)<Math.abs(b.x-me.x)))b=o;
+    if(!b)return this.say(m,R.bots.some(o=>o.fin==null&&Math.abs(o.x-me.x)<=XC_SPIKE_D)?"YOU ALREADY SPIKED THEM":"GET RIGHT NEXT TO SOMEONE TO SPIKE THEM","#fca5a5");
+    me.kCd=XC_SPIKE_CD;if(Math.random()<XC_SPIKE_DQ)return this.dq(m,b);
+    b.hurt=XC_SPIKE_HURT;b.spiked=1;this.say(m,`SPIKED ${b.n}!`,"#fb923c");sfx.ok(3);mBurst(m,60+(b.x-me.x)/.9,104,10,["#ef4444","#fde047"],.7);},
+  dq(m,b){const R=m.R,C=m.C,me=R.me;me.dq=1;me.fin=R.clock;C.races++;this.save(m);this.hud(m);sfx.bad();
+    m.res={title:"DISQUALIFIED",lines:["🚩 AN OFFICIAL SAW YOU SPIKE "+b.n,"NO TIME · NO PR · NO COINS · NO XP",`(spiking gets you DQ'd ${Math.round(XC_SPIKE_DQ*100)}% of the time)`],at:m.t};},
   botStep(m,b,rs){const R=m.R;if(b.fin!=null)return;const g=this.seg(m,b.x);let f=1;
     if(b.prof==="rabbit")f=b.x<1500?1.07:.975;else if(b.prof==="kicker")f=b.x<4200?.985:1.12;else if(b.prof==="surger")f=(b.x%700)<150?1.06:.99;
+    if(b.hurt>0){f*=.82;b.hurt-=rs;}
     const vt=b.base*f*this.tm(g.g,g.mud,b.T)*(1+.015*Math.sin(R.clock*.05+b.ph));b.v+=(vt-b.v)*Math.min(1,.6*rs);b.x+=b.v*rs;b.ph+=b.v*rs*.35;
     if(b.x>=5000)b.fin=R.clock-(b.x-5000)/Math.max(.1,b.v);},
   raceStep(m,rs){const R=m.R,C=m.C,me=R.me;R.clock+=rs;
     if(me.fin==null){const g=this.seg(m,me.x),sh=this.shoe(C),kick=me.x>4400,push=m.hold&&!me.bonk;
-      let f=me.bonk?.86:push?(kick?1.17:1.10):1;if(me.bic>0){f+=.08;me.bic-=rs;}
-      const vt=this.base(C)*(1+sh.spd)*f*this.tm(g.g,g.mud,this.trac(C));me.v+=(vt-me.v)*Math.min(1,(.25+.06*this.accel(C))*rs);me.x+=me.v*rs;me.ph+=me.v*rs*.35;
+      let f=me.bonk?.86:push?(kick?XC_KICK:XC_PUSH):1;const bic=me.bic>0;if(bic){f+=XC_BIC;me.bic-=rs;}
+      // SURGE (sunglasses): a rival right in front of or behind you = free speed, no stamina; lasts a while, then needs a rest
+      me.surge=0;if(me.kCd>0)me.kCd-=rs;
+      if(me.sCd>0)me.sCd-=rs;else if(C.shades&&!me.bonk){const near=R.bots.some(b=>b.fin==null&&Math.abs(b.x-me.x)<=XC_SURGE_D);
+        if(near&&me.sT<XC_SURGE_MAX){if(!me.sT)this.say(m,bic?"😎 BICARB SURGE!":"😎 SURGE!",bic?"#67e8f9":"#fde047");me.surge=1;me.sT+=rs;f*=1+(bic?XC_SURGE_BIC:XC_SURGE);}
+        else if(me.sT>0){me.sT=0;me.sCd=XC_SURGE_CD;}}
+      const vt=this.base(C)*(1+sh.spd)*f*this.tm(g.g,g.mud,this.trac(C));me.v+=(vt-me.v)*Math.min(1,(.25+.06*this.accel(C))*(me.surge?1.6:1)*rs);me.x+=me.v*rs;me.ph+=me.v*rs*.35;
       let d=push?(kick?.9:.45)*(1+Math.max(0,g.g)*8):-.08+Math.max(0,g.g)*3.3;if(me.bic>0&&d>0)d*=.3;me.sta=Math.max(0,Math.min(this.pool(C),me.sta-d*rs));
       if(me.sta<=0&&!me.bonk){me.bonk=1;this.say(m,"BONKED! EASE OFF TO RECOVER","#fca5a5");sfx.bad();}if(me.bonk&&me.sta>=25)me.bonk=0;
       if(me.x>=5000){me.fin=R.clock-(me.x-5000)/Math.max(.1,me.v);this.finish(m);}}
     for(const b of R.bots)this.botStep(m,b,rs);},
   place(m){const R=m.R,me=R.me;return 1+R.bots.filter(b=>b.x>me.x).length;},
   finish(m){const R=m.R,C=m.C,me=R.me;for(let k=0;k<4000&&R.bots.some(b=>b.fin==null);k++){R.clock+=.5;for(const b of R.bots)this.botStep(m,b,.5);}
-    const pl=1+R.bots.filter(b=>b.fin<me.fin).length,c=R.c,N=R.bots.length+1;
+    const pl=1+R.bots.filter(b=>b.fin<me.fin).length,c=R.c,N=R.bots.length+1;me.fin=Math.max(XC_MIN,me.fin);
     const xp=40+(N+1-pl)*12+R.ci*12,coins=(pl<=3?[60,35,20][pl-1]:10)+R.ci*10;C.coins+=coins;C.races++;
     const lines=[`${["🥇 1ST","🥈 2ND","🥉 3RD"][pl-1]||pl+"TH"} OF ${N} · ${xcTime(me.fin)}`];
     if(pl===1){C.wins[c.id]=(C.wins[c.id]||0)+1;lines.push(`WIN #${C.wins[c.id]} AT ${c.nm} · NEXT FIELD IS FASTER`);}
@@ -8372,16 +8415,18 @@ MGAMES.xc={persist:false,name:"CUPIDIUM XC",w:240,h:150,blurb:"Cross country car
     this.save(m);this.hud(m);m.res={title:pl===1?"YOU WON!":"FINISHED",lines,tab,at:m.t};pl<=3?sfx.ok(5):sfx.ok(2);},
   // ---------------- training ----------------
   startTrain(m,k){m.scr=k;m.hold=0;
-    if(k==="long")m.T={k,t0:m.t+1500,dur:20000,e:.3,ev:0,inz:0,tot:0};
-    else if(k==="work")m.T={k,t0:m.t+1500,dur:4*10000,e:.2,ev:0,inz:0,tot:0};
+    // effort starts right in the zone (it used to start outside it, so 100% was impossible)
+    if(k==="long")m.T={k,t0:m.t+1500,dur:20000,e:.5,ev:0,inz:0,tot:0};
+    else if(k==="work")m.T={k,t0:m.t+1500,dur:3*10000+7000,e:.78,ev:0,inz:0,tot:0};
     else if(k==="strides"){m.T={k,i:0,n:6,pos:0,dir:1,go:0,next:m.t+1200,hits:[],score:0};this.strideSetup(m);}},
   zone(m){const T=m.T,el=m.t-T.t0;if(T.k==="long"){const c=.5+.25*Math.sin(el*.0009)+.1*Math.sin(el*.0023);return{c,h:.13+m.C.stam*.004,rep:1};}
-    const ph=el%10000,rep=ph<7000;return rep?{c:.78+.08*Math.sin(el*.002),h:.09,rep:1,n:Math.floor(el/10000)+1}:{c:.28,h:.14,rep:0,n:Math.floor(el/10000)+1};},
+    const ph=el%10000,rep=ph<7000;return rep?{c:.78+.08*Math.sin(el*.002),h:.09,rep:1,ph,n:Math.floor(el/10000)+1}:{c:.28,h:.14,rep:0,ph,n:Math.floor(el/10000)+1};},
   trainStep(m,dt){const T=m.T;if(m.t<T.t0)return;const el=m.t-T.t0;
     if(el>=T.dur){if(!m.res)this.trainDone(m);return;}
     // effort has a little momentum, like steering a real pace
     T.ev=Math.max(-.0011,Math.min(.0011,T.ev*.97+(m.hold?.000004:-.0000035)*dt));T.e=Math.max(0,Math.min(1,T.e+T.ev*dt));if(T.e<=0||T.e>=1)T.ev*=.5;
-    const z=this.zone(m);if(T.k==="long"||z.rep){T.tot+=dt;if(Math.abs(T.e-z.c)<=z.h)T.inz+=dt;}},
+    // reps 2-4 give you 0.8 s to get back up to pace before they count (the first rep starts at pace)
+    const z=this.zone(m);if(T.k==="long"||z.rep&&(z.n===1||z.ph>=800)){T.tot+=dt;if(Math.abs(T.e-z.c)<=z.h)T.inz+=dt;}},
   trainDone(m){const T=m.T,C=m.C,pct=T.tot?T.inz/T.tot:0,lines=[`${Math.round(pct*100)}% IN THE ZONE`];
     if(T.k==="long"){C.stamP+=pct*.5;let up=0;while(C.stamP>=1&&C.stam<12){C.stamP-=1;C.stam++;up=1;}if(C.stam>=12)C.stamP=0;
       lines.push(up?`STAMINA UP! NOW ${C.stam}/12`:`STAMINA ${C.stam}/12 · ${Math.round(C.stamP*100)}% TO NEXT`);const xp=15+Math.round(pct*20),co=5+Math.round(pct*10);C.coins+=co;this.addXP(m,xp);lines.push(`+${xp} XP · +${co} COINS`);}
@@ -8399,7 +8444,7 @@ MGAMES.xc={persist:false,name:"CUPIDIUM XC",w:240,h:150,blurb:"Cross country car
     if((m.scr==="long"||m.scr==="work")&&m.T)return this.trainStep(m,dt);
     if(m.scr==="strides"&&m.T){const T=m.T;if(!T.go&&T.i<T.n&&m.t>=T.next)T.go=1;if(T.go){T.pos+=T.dir*T.sp*dt;if(T.pos>1){T.pos=1;T.dir=-1;}if(T.pos<0){T.pos=0;T.dir=1;}}}},
   // ---------------- drawing ----------------
-  runner(x,X,Y,ph,c,me,lean){const s=Math.sin(ph),k=Math.cos(ph);mR(x,X-1,Y-11,3,3,"#fcd9b6");mR(x,X-1,Y-12,3,1,me?"#3b0764":"#1f2937");
+  runner(x,X,Y,ph,c,me,lean,shades){const s=Math.sin(ph),k=Math.cos(ph);mR(x,X-1,Y-11,3,3,"#fcd9b6");mR(x,X-1,Y-12,3,1,me?"#3b0764":"#1f2937");if(shades){mR(x,X-2,Y-10,5,1,"#0f172a");mR(x,X+1,Y-10,1,1,"#67e8f9");}
     mR(x,X-1,Y-8,3,4,c);mR(x,X-1,Y-8,3,1,"#ffffff66");
     mR(x,X-1+Math.round(s*2),Y-4,1,4,"#fcd9b6");mR(x,X+1-Math.round(s*2),Y-4,1,4,"#e8c39e");mR(x,X-1+Math.round(s*2),Y-1,2,1,"#111827");mR(x,X+1-Math.round(s*2),Y-1,2,1,"#111827");
     mR(x,X-2+Math.round(k*1.5),Y-7,1,3,"#fcd9b6");mR(x,X+2-Math.round(k*1.5),Y-7,1,3,"#e8c39e");if(me)mT(x,"▼",X,Y-16,"#ff8fe0",5);},
@@ -8422,13 +8467,14 @@ MGAMES.xc={persist:false,name:"CUPIDIUM XC",w:240,h:150,blurb:"Cross country car
       else{mR(x,X,y-12,1,12,"#334155");mR(x,X+1,y-12,6,4,"#facc15");mT(x,k+"K",X+4,y-10,"#111",3.5);}}
     if(me.x>4300){for(let i=0;i<30;i++){const wx=4700+i*12,X=sx(wx);if(X<-4||X>m.W+4)continue;const y=this.gy(m,wx,camE);mR(x,X,y-14-((i*7)%4),3,5,["#f87171","#60a5fa","#fde047","#a78bfa"][i%4]);mD(x,X+1,y-16-((i*7)%4),1.4,"#fcd9b6");}}
     const all=[...R.bots.map(b=>({...b,me:0})),{...me,c:"#ff5fd2",n:"YOU",me:1}].sort((a,b)=>a.me-b.me);
-    for(const r of all){const X=sx(Math.min(5000,r.x));if(X<-6||X>m.W+6)continue;this.runner(x,X,this.gy(m,r.x,camE),r.ph,r.c,r.me);if(!r.me&&Math.abs(X-60)<60)mT(x,r.n,X,this.gy(m,r.x,camE)-15,"#1f2937",3.5);}
+    for(const r of all){const X=sx(Math.min(5000,r.x));if(X<-6||X>m.W+6)continue;this.runner(x,X,this.gy(m,r.x,camE),r.ph,r.c,r.me,0,r.me&&C.shades);if(r.hurt>0&&((t/120)|0)%2)mT(x,"✶",X,this.gy(m,r.x,camE)-2,"#ef4444",5);if(!r.me&&Math.abs(X-60)<60)mT(x,r.n,X,this.gy(m,r.x,camE)-15,"#1f2937",3.5);}
     // top bar: everyone's position
     mR(x,8,6,m.W-16,3,"#1f2937aa");for(const b of R.bots)mR(x,8+(m.W-16)*Math.min(1,b.x/5000)-1,5,2,5,b.c);mR(x,8+(m.W-16)*Math.min(1,me.x/5000)-1.5,4,3,7,"#ff5fd2");
     const pl=this.place(m),sfx2=["ST","ND","RD"][pl-1]||"TH";mT(x,`${(me.x/1000).toFixed(2)} KM  ·  ${xcTime(R.clock)}  ·  ${pl}${sfx2}`,m.W/2,16,"#0f172a",6);
     mT(x,`${R.c.nm}${R.w?` · RACE ${R.w+1}`:""}`,m.W/2,24,"#334155",4.5);
     // stamina, effort and bicarb
-    const P=this.pool(C);mRR(x,6,m.H-16,82,11,3,"#0f172acc");mR(x,8,m.H-14,78*me.sta/P,4,me.bonk?"#ef4444":me.sta/P<.3?"#f97316":"#22c55e");mT(x,me.bonk?"BONKED":m.hold?(me.x>4400?"KICK!":"PUSHING"):"CRUISING",47,m.H-7.5,me.bonk?"#fca5a5":m.hold?"#fde047":"#e2e8f0",4);
+    const P=this.pool(C);mRR(x,6,m.H-16,82,11,3,"#0f172acc");mR(x,8,m.H-14,78*me.sta/P,4,me.bonk?"#ef4444":me.sta/P<.3?"#f97316":"#22c55e");mT(x,me.bonk?"BONKED":(me.surge?"😎 SURGE · ":"")+(m.hold?(me.x>4400?"KICK!":"PUSHING"):"CRUISING"),47,m.H-7.5,me.bonk?"#fca5a5":me.surge?"#67e8f9":m.hold?"#fde047":"#e2e8f0",4);
+    if(this.spikes(C)){const ok=this.shoe(C).spike&&me.kCd<=0;mRR(x,m.W-116,m.H-18,54,14,3,ok?"#7f1d1d":"#1f2937");mT(x,!this.shoe(C).spike?"NEED SPIKES":me.kCd>0?`SPIKE ${Math.ceil(me.kCd/XC_TS)}s`:"SPIKE (K)",m.W-89,m.H-11,ok?"#fecaca":"#64748b",4.5);}
     const can=C.bicarb>0&&me.used<2&&me.bic<=0;mRR(x,m.W-58,m.H-18,54,14,3,me.bic>0?"#0e7490":can?"#164e63":"#1f2937");mT(x,me.bic>0?"BICARB ON!":`BICARB ×${C.bicarb} (B)`,m.W-31,m.H-11,can||me.bic>0?"#a5f3fc":"#64748b",4.5);
     if(me.x>4400&&me.fin==null&&((t/300)|0)%2)mT(x,"LAST 600 M · HOLD TO KICK",m.W/2,40,"#be185d",6);
     if(m.t<R.start){const n=Math.ceil((R.start-m.t)/800);mT(x,n>0?String(n):"GO!",m.W/2,64,"#be185d",18);if(m.t%800<20)tone(n>1?440:880,.08,"square",.04);}
@@ -8439,19 +8485,19 @@ MGAMES.xc={persist:false,name:"CUPIDIUM XC",w:240,h:150,blurb:"Cross country car
       if(T.go||T.i<T.n)mR(x,bx+bw*T.pos-1,by-3,2,12,"#ff5fd2");const ph=T.go?t*.03:t*.01;this.runner(x,40+(T.go?T.pos*120:0),112,ph,"#ff5fd2",1);
       T.hits.forEach((h,i)=>mT(x,h==="PERFECT!"?"★":h==="GOOD"?"●":"✕",88+i*12,108,h==="MISS"?"#ef4444":h==="GOOD"?"#16a34a":"#ca8a04",7));
       if(T.flash&&m.t-T.flash.at<600)mT(x,T.flash.r,m.W/2,76,T.flash.c,10);if(!T.go&&T.i<T.n)mT(x,"GET READY…",m.W/2,62,"#475569",6);return;}
-    const z=m.t>=T.t0?this.zone(m):{c:.5,h:.12,rep:1,n:1};this.runner(x,80,112,t*(.006+T.e*.02),"#ff5fd2",1);
+    const z=m.t>=T.t0?this.zone(m):{c:T.k==="long"?.5:.78,h:T.k==="long"?.13+C.stam*.004:.09,rep:1,n:1,ph:0};this.runner(x,80,112,t*(.006+T.e*.02),"#ff5fd2",1);
     mT(x,T.k==="long"?"LONG RUN":"5K WORKOUT",m.W/2,14,"#0f172a",9);
-    mT(x,T.k==="long"?"hold / release to stay in the green":z.rep?`REP ${Math.min(4,z.n)} / 4 · HOLD THE PACE BAND`:`RECOVERY · EASE OFF`,m.W/2,26,z.rep?"#334155":"#16a34a",4.5);
+    mT(x,T.k==="long"?"hold / release to stay in the green":z.rep?`REP ${Math.min(4,z.n)} / 4 · HOLD THE PACE BAND`:z.ph>=8000?`NEXT REP IN ${Math.ceil((10000-z.ph)/1000)} · GET UP TO PACE`:`RECOVERY · EASE OFF`,m.W/2,26,z.rep?"#334155":"#16a34a",4.5);
     const gx=200,gy=34,gh=96;mRR(x,gx-3,gy-3,20,gh+6,3,"#0f172a");mR(x,gx,gy+gh*(1-z.c-z.h),14,gh*z.h*2,z.rep?"#22c55e":"#86efac");
     const ey=gy+gh*(1-T.e),ok=Math.abs(T.e-z.c)<=z.h;mR(x,gx-4,ey-1,22,3,ok?"#fde047":"#ff5fd2");mT(x,"EFFORT",gx+7,gy+gh+10,"#334155",4);
     const left=Math.max(0,T.dur-Math.max(0,el));mT(x,m.t<T.t0?"GET READY…":`${Math.ceil(left/1000)}s`,30,40,"#0f172a",8);mT(x,`${T.tot?Math.round(T.inz/T.tot*100):0}% in zone`,30,52,ok?"#16a34a":"#64748b",5);},
-  drawMenu(m,x,t){const C=m.C,W=m.W;this.scenery(m,x,t,t*.02,0,null);mR(x,0,118,W,40,"#4ade80");mR(x,0,118,W,3,"#d6b98c");this.runner(x,((t*.03)%(W+20))-10,118,t*.02,"#ff5fd2",0);
+  drawMenu(m,x,t){const C=m.C,W=m.W;this.scenery(m,x,t,t*.02,0,null);mR(x,0,118,W,40,"#4ade80");mR(x,0,118,W,3,"#d6b98c");this.runner(x,((t*.03)%(W+20))-10,118,t*.02,"#ff5fd2",0,0,C.shades);
     x.globalAlpha=.86;mR(x,0,0,W,m.H,"#0f172a");x.globalAlpha=1;
     const back=()=>{mRR(x,3,3,40,12,3,"#1e293b");mT(x,"◀ BACK",23,9,"#e2e8f0",5);};
     if(m.scr==="hub"){mT(x,"CUPIDIUM XC",W/2,12,"#ff8fe0",11);
       const need=this.need(C.lv);mT(x,`LEVEL ${C.lv}`,10,26,"#fde047",6,"left");mR(x,52,23,90,4,"#334155");mR(x,52,23,90*C.xp/need,4,"#fde047");mT(x,`${C.xp}/${need} XP`,146,26,"#94a3b8",4.5,"left");mT(x,`${C.coins} COINS`,W-8,26,"#fcd34d",5,"right");
       mT(x,`PR ${xcTime(C.pr)}  ·  PREDICTED ${xcTime(this.pred(C))}  ·  ${this.shoe(C).nm}`,W/2,37,"#e2e8f0",4.5);
-      mT(x,`STAMINA ${C.stam}  ·  ACCEL ${this.accel(C)}  ·  TRACTION ${this.trac(C)}  ·  BICARB ${C.bicarb}`,W/2,46,"#94a3b8",4.2);
+      mT(x,`STAMINA ${C.stam}  ·  ACCEL ${this.accel(C)}  ·  TRACTION ${this.trac(C)}  ·  BICARB ${C.bicarb}${C.shades?"  ·  😎 SURGE":""}${this.spikes(C)?"  ·  SPIKING":""}`,W/2,46,"#94a3b8",4.2);
       this.HUB.forEach(([nm],i)=>{const b=this.hubBtn(i);mRR(x,b.x,b.y,b.w,b.h,4,i===0?"#831843":"#1e293b");mT(x,`${i+1}  ${nm}`,b.x+b.w/2,b.y+b.h/2+1,i===0?"#ffd1f0":"#e2e8f0",6);});}
     else if(m.scr==="courses"){back();mT(x,"PICK A 5K",W/2,10,"#ff8fe0",8);
       XC_COURSES.forEach((c,i)=>{const y=this.rowY(i),lock=C.lv<c.lv,w=C.wins[c.id]||0,b=C.best[c.id];mRR(x,8,y-2,W-16,18,3,lock?"#111827":"#1e293b");
