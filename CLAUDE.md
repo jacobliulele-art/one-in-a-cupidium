@@ -21,6 +21,7 @@ Relay (separate repo `lele-io/cupidium-relay`): Cloudflare Worker + one Durable 
 | `data/answers.js` | Answer banks (`EXTRA`, `BIG`, `ADDB_1..24`, `RARE_KEEP`, `QNOTE` etc.) |
 | `data/words.js` | Daily Cuepon lists `CW_OK`, `CW_BEE` |
 | `data/decks.js`, `data/art.js`, `data/maps.js` | Decks, pixel art, Chicken Horse maps |
+| `data/dsgeo.js` | Daniel Simons geography prompts: [prompt, answers most→least common, explanation shown under the prompt] |
 | `tools/check.js` | Syntax/data check |
 | `tools/trmaps.js`, `tools/trsolve.js` | Build / check Chicken Horse maps (`trsolve` needs no installs) |
 

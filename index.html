@@ -1108,6 +1108,34 @@ button.lbn .flb{flex:0 0 auto;margin-right:2px}button.lbn .flt{flex:0 1 auto;ove
 .modegrp>*,.modesub>*{flex:0 1 calc(50% - 5px)!important;min-width:0!important}.modegrp .mbtn.on{outline:3px solid var(--hl,#fde68a);outline-offset:2px}
 .modesub[hidden]{display:none!important}.modesub{animation:uiIn .18s ease-out both}
 .twtop{width:100%}
+/* Daniel Simons mode switch */
+.dsmode .dsrow{display:flex;align-items:center;justify-content:center;gap:10px}
+.dsw{position:relative;display:inline-block;width:42px;height:24px;border-radius:12px;background:#64748b;box-shadow:inset 0 1px 3px rgba(0,0,0,.35);transition:background .2s;flex:0 0 auto;font-style:normal}
+.dsw.on{background:#4ade80}.dsw>i{position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#f8fafc;box-shadow:0 2px 4px rgba(0,0,0,.35);transition:left .2s}.dsw.on>i{left:20px}
+/* preview button: small and dashed so it isn't mistaken for a map */
+.pvbtn{background:transparent;border:2px dashed rgba(255,255,255,.35);color:inherit;font:inherit;font-size:11px;padding:4px 12px;border-radius:14px;cursor:pointer;opacity:.85}.pvbtn:hover{opacity:1;border-color:rgba(255,255,255,.7)}
+/* menu bars: the buttons on one line, the theme picker on the next */
+.menubar{flex-wrap:wrap}.menubar::before{content:"";order:98;flex-basis:100%;height:0}.menubar>.themeseg{order:99}
+/* card background: mochi (soft pink and green with a highlight, a shadow and a little face) */
+.bg-mochi{background:
+ radial-gradient(circle 1.6px at calc(12% - 5px) calc(68% + 1px),#5b2a3a 99%,transparent),
+ radial-gradient(circle 1.6px at calc(12% + 5px) calc(68% + 1px),#5b2a3a 99%,transparent),
+ radial-gradient(circle 1.6px at calc(88% - 5px) calc(66% + 1px),#2f4a24 99%,transparent),
+ radial-gradient(circle 1.6px at calc(88% + 5px) calc(66% + 1px),#2f4a24 99%,transparent),
+ radial-gradient(circle 1.6px at calc(80% - 5px) calc(22% + 1px),#5b2a3a 99%,transparent),
+ radial-gradient(circle 1.6px at calc(80% + 5px) calc(22% + 1px),#5b2a3a 99%,transparent),
+ radial-gradient(ellipse 10px 6px at calc(12% - 10px) calc(68% - 11px),rgba(255,255,255,.95),transparent 99%),
+ radial-gradient(ellipse 9px 5px at calc(88% - 9px) calc(66% - 10px),rgba(255,255,255,.95),transparent 99%),
+ radial-gradient(ellipse 5px 3px at calc(80% - 5px) calc(22% - 5px),rgba(255,255,255,.95),transparent 99%),
+ radial-gradient(ellipse 32px 25px at 12% 68%,#ffd1e3 0 30%,#ff9ec4 65%,#d9628f 96%,transparent 100%),
+ radial-gradient(ellipse 29px 22px at 88% 66%,#e2fbd2 0 30%,#a8e38a 65%,#5ea84a 96%,transparent 100%),
+ radial-gradient(ellipse 16px 12px at 80% 22%,#ffe0ec 0 30%,#ffb3d0 65%,#e07aa3 96%,transparent 100%),
+ radial-gradient(ellipse 34px 8px at 12% calc(68% + 21px),rgba(90,40,60,.28),transparent 99%),
+ radial-gradient(ellipse 30px 7px at 88% calc(66% + 19px),rgba(40,70,40,.28),transparent 99%),
+ radial-gradient(ellipse 17px 4px at 80% calc(22% + 10px),rgba(90,40,60,.2),transparent 99%),
+ radial-gradient(circle 1px at 30% 20%,rgba(255,255,255,.8) 99%,transparent),radial-gradient(circle 1px at 55% 12%,rgba(255,255,255,.8) 99%,transparent),radial-gradient(circle 1px at 60% 88%,rgba(255,255,255,.8) 99%,transparent),
+ linear-gradient(160deg,#fff1f6,#f3fbef 55%,#e4f6dc)}
+.flcard.bg-mochi,.flcard.bg-mochi *{color:#5b2a3a}
 /* Daily card: as wide as the rows under it, bigger text */
 .daily{width:100%!important;max-width:100%;justify-content:stretch;grid-template-columns:auto 1fr auto!important;padding:14px 18px!important}
 .daily .dtxt b{font-size:clamp(20px,4.6vw,30px)}.daily .dtxt small{font-size:11px}.daily .dtxt span{font-size:16px}.daily .dgo{font-size:15px;padding:12px 18px}
@@ -1141,6 +1169,7 @@ button.lbn .flb{flex:0 0 auto;margin-right:2px}button.lbn .flt{flex:0 1 auto;ove
 <script src="data/decks.js"></script>
 <script src="data/art.js"></script>
 <script src="data/maps.js"></script>
+<script src="data/dsgeo.js"></script>
 <script>
 // ---------- Prompts: [common, familiar, uncommon, rare, oddball]. "|" separates answers, "/" separates aliases ----------
 const PROMPTS = OIC_DATA.PROMPTS;
@@ -2553,28 +2582,9 @@ if(typeof BLURBS!=="undefined")Object.assign(BLURBS,{
  rot("Name a US state that ends in the letter A",["north dakota","south dakota","west virginia","nebraska"]);
  rot("Name a US state on the Atlantic coast",["delaware","connecticut","new hampshire","rhode island","maryland"]);
  rot("Name a US state that touches the Mississippi River",["wisconsin","iowa","kentucky","minnesota"]);}
-// ===== Nov 20 (late): more niche geography prompts for Daniel Simons mode =====
-{const L=[
- ["Name a tributary of the Amazon","madeira|rio negro/negro|xingu|tapajos|purus|japura/caqueta|jurua|ucayali|maranon|putumayo/ica|napo|javari|trombetas|uatuma|jutai|tefe|coari"],
- ["Name a salt flat or salt lake","salar de uyuni/uyuni|great salt lake|dead sea|bonneville salt flats|lake eyre/kati thanda|etosha pan|chott el djerid|lake assal|salar de atacama|lake urmia|tuz golu/lake tuz|makgadikgadi pans|lake natron|badwater basin|salinas grandes|sambhar lake|lake baskunchak|lake elton|qarhan|lake torrens"],
- ["Name a shipping canal in Europe","kiel canal|corinth canal|manchester ship canal|caledonian canal|canal du midi|gota canal|white sea-baltic canal|volga-don canal|amsterdam-rhine canal|main-danube canal|north sea canal|danube-black sea canal|crinan canal|saimaa canal|moscow canal"],
- ["Name an exclave or enclave","kaliningrad|alaska|ceuta|melilla|nakhchivan|cabinda|llivia|point roberts|northwest angle/angle inlet|baarle-hertog|baarle-nassau|musandam|oecusse|campione d'italia|busingen|madha|nahwa|jungholz"],
- ["Name a country whose capital isn't its largest city","australia|canada|united states/usa|brazil|turkey/turkiye|switzerland|new zealand|india|china|nigeria|pakistan|vietnam|morocco|south africa|tanzania|ivory coast/cote d'ivoire|kazakhstan|myanmar/burma|bolivia|ecuador|cameroon|benin|malta|belize|liechtenstein"],
- ["Name a strait","strait of gibraltar/gibraltar|bering strait|strait of hormuz/hormuz|strait of malacca/malacca|bosphorus|dardanelles|strait of magellan/magellan|cook strait|bass strait|taiwan strait|strait of dover/dover|korea strait|torres strait|strait of messina|strait of bonifacio|bab-el-mandeb/bab el mandeb|tsugaru strait|la perouse strait|strait of otranto|palk strait|sunda strait|lombok strait|kerch strait|denmark strait|davis strait|hudson strait|cabot strait"],
- ["Name a desert in Asia","gobi|thar|taklamakan|arabian desert|syrian desert|karakum|kyzylkum|dasht-e kavir|dasht-e lut|rub' al khali/empty quarter|negev|ordos|badain jaran|tengger|kubuqi|cholistan|registan|judaean desert|wahiba sands"],
- ["Name a mountain range in Africa","atlas|drakensberg|rwenzori|ethiopian highlands|aberdare|tibesti|ahaggar/hoggar|cederberg|eastern arc|virunga|simien|usambara|air mountains/aïr|mitumba|udzungwa|chimanimani|nuba mountains"],
- ["Name a country the Danube flows through","germany|austria|hungary|serbia|romania|bulgaria|slovakia|croatia|ukraine|moldova"],
- ["Name an island in the Mediterranean Sea","sicily|sardinia|corsica|crete|cyprus|malta|mallorca/majorca|ibiza|rhodes|menorca/minorca|elba|capri|corfu|santorini|lesbos|gozo|djerba|naxos|lampedusa|kos|ischia|formentera|pantelleria|chios|samos"],
- ["Name an archipelago","hawaii|philippines|galapagos|maldives|canary islands|azores|svalbard|faroe islands|aleutian islands|andaman islands|cyclades|dodecanese|kuril islands|ryukyu islands|spratly islands|tierra del fuego|novaya zemlya|franz josef land|sulu archipelago|lofoten|aland islands|bijagos|chagos|kerguelen|bismarck archipelago"],
- ["Name a peninsula in Europe","iberian peninsula/iberia|italian peninsula|balkan peninsula/balkans|scandinavian peninsula|jutland|crimea|peloponnese|kola peninsula|brittany|cornwall|istria|gallipoli|chalkidiki/halkidiki|kintyre|gower|wirral|cotentin|mount athos/athos|gargano|salento|hel peninsula"],
- ["Name a volcano in South America","cotopaxi|chimborazo|villarrica|ojos del salado|llullaillaco|osorno|nevado del ruiz|el misti/misti|tungurahua|sangay|lascar|calbuco|galeras|puyehue|sabancaya|ubinas|parinacota|licancabur|chaiten"],
- ["Name a fjord or sound","sognefjord|geirangerfjord|hardangerfjord|milford sound|lysefjord|naeroyfjord/nærøyfjord|oslofjord|trondheimsfjord|bay of kotor/kotor|doubtful sound|scoresby sund|ilulissat icefjord|howe sound|saguenay fjord|isfjorden|porsangerfjord|limfjord"],
- ["Name a republic or region of Russia","siberia|chechnya|tatarstan|dagestan|yakutia/sakha|kamchatka|bashkortostan|karelia|buryatia|tuva|chukotka|kalmykia|ingushetia|altai|mordovia|chuvashia|udmurtia|komi|adygea|khakassia"],
- ["Name a city on the Silk Road","samarkand|bukhara|xi'an/xian|kashgar|merv|baghdad|constantinople/istanbul|tashkent|herat|dunhuang|khiva|balkh|antioch|aleppo|tabriz|nishapur|turpan|lanzhou|osh|bam|ctesiphon"],
- ["Name a sea in Europe","mediterranean sea/mediterranean|north sea|baltic sea|black sea|adriatic sea/adriatic|aegean sea/aegean|irish sea|norwegian sea|tyrrhenian sea|ionian sea|ligurian sea|sea of azov|barents sea|white sea|celtic sea|balearic sea|alboran sea|sea of marmara|wadden sea|bothnian sea"],
- ["Name a country the Andes run through","chile|argentina|peru|bolivia|colombia|ecuador|venezuela"]];
- const tiers=list=>{const a=list.split("|").filter(Boolean),n=a.length,t=[[],[],[],[],[]];a.forEach((x,i)=>{const f=i/n;t[i===n-1&&n>6?4:f<.15?0:f<.4?1:f<.7?2:3].push(x);});return t.map(z=>z.join("|"));};
- for(const [q,list] of L)if(!PROMPTS.some(p=>p.q===q))PROMPTS.push({q,c:"GEOGRAPHY",t:tiers(list),ds:1});}
+// ===== Nov 20 (late): niche geography prompts for Daniel Simons mode, from data/dsgeo.js (answers listed most → least common) =====
+{const tiers=list=>{const a=list.split("|").filter(Boolean),n=a.length,t=[[],[],[],[],[]];a.forEach((x,i)=>{const f=i/n;t[i===n-1&&n>6?4:f<.15?0:f<.4?1:f<.7?2:3].push(x);});return t.map(z=>z.join("|"));};
+ for(const [q,list] of (OIC_DATA.DS_GEO||[]))if(!PROMPTS.some(p=>p.q===q))PROMPTS.push({q,c:"GEOGRAPHY",t:tiers(list),ds:1});}
 // ===== Nov 20: household names out of the rare tiers, Silver Palace, towers =====
 {const P=q=>PROMPTS.find(p=>p.q===q);
  const nk=s=>String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/['’ʻʼ`´]/g,"").replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim().replace(/^(the|a|an) /,"");
@@ -4472,6 +4482,8 @@ Object.assign(QNOTE,{
 "Name a hairstyle":"A way of cutting or styling hair, like a bob or a mullet"
 });
 
+// explanations for the Daniel Simons geography prompts (data/dsgeo.js)
+if(window.OIC_DATA&&OIC_DATA.DS_GEO)for(const [q,,n] of OIC_DATA.DS_GEO)if(n&&!QNOTE[q])QNOTE[q]=n;
 const qNote=p=>QNOTE[p.q]?`<div class="qnote">${esc(QNOTE[p.q])}</div>`:p.deep?`<div class="qnote">🧠 Common answers don't count. Only deep cuts score.</div>`:"";
 // ================= Screen management =================
 let timerId=null,tok=0,S=null,L=null,N=null,fxTimer=null,cdTimer=null;
@@ -5152,7 +5164,7 @@ function home(){
       <div class="glass themeseg">${Object.entries(THEMES).map(([k,t])=>`<button class="${k===THEME?"on":""}" data-act="theme2" data-t="${k}">${t.name}</button>`).join("")}</div>
       <button class="pbtn" data-act="settings" aria-label="Settings">${icon("gear",18)}</button>
     </div>
-    <button class="dsmode${ds?" on":""}" data-act="dsToggle"><b>🧠 DANIEL SIMONS MODE: ${ds?"ON":"OFF"}</b><small>${ds?`Only super-niche prompts (${PROMPTS.filter(p=>p.ds).length}) · 15 seconds each · own dailies and leaderboards`:"Super-niche prompts you won't see anywhere else, 15 seconds each"}</small><small style="opacity:.75;font-style:italic">Daniel was too OP so we had to nerf him</small></button>
+    <button class="dsmode${ds?" on":""}" data-act="dsToggle" role="switch" aria-checked="${ds?"true":"false"}"><span class="dsrow"><b>🧠 DANIEL SIMONS MODE</b><i class="dsw${ds?" on":""}"><i></i></i></span><small>${ds?`Only super-niche prompts (${PROMPTS.filter(p=>p.ds).length}) · 15 seconds each · own dailies and leaderboards`:"Super-niche prompts you won't see anywhere else, 15 seconds each"}</small><small style="opacity:.75;font-style:italic">Daniel was too OP so we had to nerf him</small></button>
     <div class="statline glass" style="padding:7px 12px;align-self:center">STREAK <b>${st.streak}</b> · BEST <b>${st.best}</b> · PLAYED <b>${st.played}</b></div>
     <details class="glass legend"><summary>HOW SCORING WORKS ▾</summary><div class="tiers">${TIERS.slice(0,5).map((t,i)=>`<span>${tchip(i)}</span><span class="hint">${t.desc}</span>`).join("")}</div>
       <p class="hint" style="margin:10px 0 0">⛽ Endless runs have fuel: common answers and misses burn it, rare answers refill it. Empty tank ends the run.</p><p class="hint" style="margin:10px 0 0">${PROMPTS.length} prompts · ${(window.__ansN=window.__ansN||PROMPTS.reduce((a,p)=>a+p.t.reduce((b,t)=>b+(t?t.split("|").length:0),0),0)).toLocaleString()} answers in the bank. Answers not on the list are checked by AI when it's on${SAMPLE?"":", and by Wikipedia, where fewer page views means a rarer answer"}.</p></details>`,{cls:"menu"});
@@ -8597,6 +8609,7 @@ Object.assign(ACT,{abMore:()=>{const box=$("ablist"),st=box?box.scrollTop:0;AB.n
 
 // ===== update log =====
 function updList(){return [
+ {v:"4.6",t:"Daniel Simons geography",d:"Nov 20, 2026",s:{"Daniel Simons mode":["150+ niche geography prompts (straits, glaciers, atolls, Swiss cantons, Silk Road cities…), each with a short explanation of any tricky word","The mode button is now an on/off switch"],"Ultimate Chicken Horse":["Frozen Peaks: the ice mountain reaches the sky, so the cave and chimney is the only way","The preview button no longer looks like a map"],"Look":["Home buttons and themes on separate lines","New card background: Mochi"]}},
  {v:"4.5",t:"Tidier screens",d:"Nov 20, 2026",s:{"Look":["The Daily card is as wide as the row under it, with bigger text","Chip shop: each section is one box, easier-to-read section names","No more big gaps in leaderboards, the dev player list and between shop items"],"Ultimate Chicken Horse":["Shorter, simpler menu text"],"Daniel Simons mode":["18 more niche geography prompts"]}},
  {v:"4.4",t:"Maps, rarities and CUPIDIUM SMASH",d:"Nov 20, 2026",s:{"Ultimate Chicken Horse":["Crystal Cavern remade from the original map; new Tropical Islands, Sunset Woods and Coral Reef","Frozen Peaks has one path to the flag","A Trap Kill badge pops up when your trap gets someone"],"Rarities":["Every prompt has an answer in every rarity","Famous places (Paris, Seoul, London, Vatican City) aren't in the rare tiers any more"],"Checking":["IT'S REAL shows up after you turn down an autocorrect","Daily Tower: Enter says yes to autocorrect, and you can prove an answer is real"],"Arcade":["New: CUPIDIUM SMASH (beta), badminton like Racket Rivals","Rhythm notes move at a steady speed, with a livelier stage","Cupidium's symbol is Ci"],"Other":["Daniel Simons results show the Daniel Simons board","Blackjack deals the dealer's cards one at a time","Off the Charts menu: NORMAL and RAPID FIRE"]}},
  {v:"4.3",t:"Chicken Horse overhaul",d:"Nov 20, 2026",s:{
@@ -8978,7 +8991,7 @@ const FL_ITEMS={
  badge:[["dice","Dice",300],["cards","Cards",500],["moon","Moon",800],["duck","Duck",1000],["fire","Fire",1500],["gem","Gem",2500],["crown","Crown",5000],["heart","Cupidium Heart",20000]],
  title:[["broke","Broke",50],["lucky","Lucky",800],["shark","Card Shark",1500],["roller","High Roller",2500],["deep","Deep Cut",3000],["krill","Krillionaire",10000],["hoard","Cupidium Hoarder",25000]],
  frame:[["plain","Corners",0],["pixel","8-Bit",1500],["gold","Gold Shine",2500],["neon","Neon Pulse",3000],["hearts","Pixel Hearts",4000],["flame","On Fire",5000],["rainbow","Rainbow",7000],["cosmic","Cosmic",10000]],
- bg:[["space","Space",0],["ocean","Ocean",1500],["felt","Casino Felt",2000],["sunset","Synth Sunset",2500],["city","Night City",3000],["nebula","Nebula",4000],["synth","Retrowave",5000],["aurora","Aurora",6000],["cupidium","Cupidium Crystal",12000]]};
+ bg:[["space","Space",0],["ocean","Ocean",1500],["felt","Casino Felt",2000],["sunset","Synth Sunset",2500],["city","Night City",3000],["nebula","Nebula",4000],["synth","Retrowave",5000],["aurora","Aurora",6000],["mochi","Mochi",3500],["cupidium","Cupidium Crystal",12000]]};
 const FL_TABS=[["color","NAME COLOR"],["badge","BADGE"],["title","TITLE"],["frame","CARD FRAME"],["bg","CARD BACKGROUND"]];
 const flItem=(cat,id)=>(FL_ITEMS[cat]||[]).find(x=>x[0]===id);
 const flOwn=()=>store.get("otc.flair.own",{frame:["plain"],bg:["space"]});
@@ -10752,7 +10765,7 @@ function trapHub(){trStop();showPanel(`<div class="row" style="justify-content:s
   <div class="row"><button class="pbtn c m-nova big" data-act="trFriends">PARTY</button><button class="pbtn c m-mint" data-act="trSolo">SOLO</button><button class="pbtn" data-act="bbCustom" data-back="trapHub">🎨 CUSTOMIZE</button></div>`,{cls:"menu"});}
 // map buttons plus a preview button; points-to-win buttons (both are shared by the hub and the party page)
 function trMapSeg(act){const cur=store.get("otc.tr.map","random");return `<div class="seg trmaps">${[["random","Random"],...Object.entries(TR_MAPDATA).map(([k,v])=>[k,v.n])].map(([k,n])=>`<button class="pbtn ${cur===k?"on":""}" data-act="${act}" data-k="${k}">${n}</button>`).join("")}</div>
-  <div class="row" style="margin-top:6px"><button class="pbtn sm" data-act="trPreview">👁 PREVIEW MAPS</button></div>`;}
+  <div class="row" style="margin-top:8px;justify-content:center"><button class="pvbtn" data-act="trPreview">👁 preview the maps</button></div>`;}
 function trWinSeg(){const cur=trWinPts();return `<div class="seg trwins">${TR_WINS.map(v=>`<button class="pbtn ${cur===v?"on":""}" data-act="trWin" data-v="${v}">${v}</button>`).join("")}</div>`;}
 // a picture of the whole map: ground, hazards, water, the start (purple) and the flag (yellow)
 function trMapPic(id,s){const d=TR_MAPDATA[id],R=d.rows,H=R.length,W=R[0].length,th=TR_THEMES[d.theme]||TR_THEMES.peaks,c=document.createElement("canvas");s=s||4;c.width=W*s;c.height=H*s;const x=c.getContext("2d");
@@ -10787,7 +10800,7 @@ Object.assign(ACT,{trapHub:()=>trapHub(),trSolo:()=>{trStop();trBegin(true);trHo
     const pr=[...cards].find(c=>c.querySelector('[data-act="ngeo"]'));if(pr){const g=pr.querySelector('[data-act="ngeo"]').closest(".seg");if(g){g.previousElementSibling&&g.previousElementSibling.remove();g.remove();}}}
   else{const wait=[...cards].pop();if(wait)wait.insertAdjacentHTML("beforebegin",`<div class="glass card center"><h3 style="font-size:13px">VOTE FOR A MAP</h3><p class="hint">The host picks the map. Your vote just shows them what you'd like to play.</p>
       <div class="seg trmaps">${Object.entries(TR_MAPDATA).map(([k,v])=>`<button class="pbtn ${N.trMyVote===k?"on":""}" data-act="trVote" data-k="${k}">${v.n}</button>`).join("")}</div>
-      <div class="row" style="margin-top:6px"><button class="pbtn sm" data-act="trPreview">👁 PREVIEW MAPS</button></div><div id="trVotes" class="trvotes"></div></div>`);}
+      <div class="row" style="margin-top:8px;justify-content:center"><button class="pvbtn" data-act="trPreview">👁 preview the maps</button></div><div id="trVotes" class="trvotes"></div></div>`);}
   trVotesShow();}catch(e){}};}
 // map votes: {player name: map id}; shown as a count per map with who voted, plus the host's current pick
 function trVotesData(){if(!N)return{v:{},pick:"random"};if(N.host){const live=new Set(names());const v={};for(const n in N.trVotes||{})if(live.has(n))v[n]=N.trVotes[n];return{v,pick:store.get("otc.tr.map","random")};}return N.trVotesView||{v:{},pick:"random"};}

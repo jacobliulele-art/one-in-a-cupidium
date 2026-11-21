@@ -52,7 +52,8 @@ function peaks() {
   K.col(29, 30, 44, "s", "s"); K.checker(29, 30, 48, 55); K.island(34, 37, 45, 3, "s", "i");                                  // white snow column, an ice floe (the low road)
   K.island(26, 36, 30, 6, "s", "s"); K.checker(26, 36, 32, 36); K.rect(29, 27, 33, 29, "#"); K.rect(30, 26, 32, 26, "#");    // floating snow island + boulder
   // the huge ice mountain (its sheer ice face can't be climbed, so the only way is the cave and the chimney), snow cap, cave underneath
-  K.rect(45, 18, 67, 33, "i"); K.rect(45, 18, 67, 19, "s"); K.checker(46, 66, 20, 23);
+  // it reaches the top of the map: no getting over it (its face can be climbed by wall-jumping), so the only way on is the cave and chimney
+  K.rect(45, 0, 67, 33, "i"); K.checker(46, 66, 0, 23);
   for (const [x, l] of [[48, 3], [52, 2], [56, 4]]) K.rect(x, 34, x + 1, 33 + l, "i");                                       // icicles into the cave
   K.rect(60, 34, 60, 38, "v");                                                                                                // purple pillar
   K.col(43, 71, 46, "d", "d"); K.checker(43, 71, 48, 55, "d", "s"); K.rect(49, 43, 54, 45, "#"); K.rect(50, 42, 53, 42, "#"); // cave floor + boulder
