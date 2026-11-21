@@ -9,7 +9,9 @@ Relay (separate repo `lele-io/cupidium-relay`): Cloudflare Worker + one Durable 
 - Run `node tools/check.js` after every edit.
 - Never write the developer passcode into any file.
 - Other sessions may push to main at the same time: `git pull --rebase` before pushing, and push only your own changes.
-- Don't add entries to the in-game update log unless asked (it's shared with other work).
+- After EVERY update, add a short entry at the top of the in-game update log (`updList()` in index.html): the next version number
+  (4.5 → 4.6 …), the date, sometimes a short title, and a few concise player-facing bullets of what changed. Pull first so two
+  sessions don't reuse the same number.
 
 ## Layout
 | Path | What |
@@ -90,3 +92,5 @@ Relay (separate repo `lele-io/cupidium-relay`): Cloudflare Worker + one Durable 
 Playwright is installed in the repo (`node_modules`, ignored by git). Launch it with the installed Chrome (`chromium.launch({channel:"chrome"})`,
 no browser download needed), open `index.html` as a file:// URL (no server needed; relay fetches just fail), hide `#nameGate` with a style tag,
 call screens directly (`landing()`, `home()`, `ACT.trapHub()`…) and take screenshots. Look at the screenshots before saying a UI change is done.
+BLOCK ALL NETWORK in tests (`page.route("**/*", r => file: ? continue : abort)` and `page.routeWebSocket`): a test page that
+reaches the live relay shows up as a real player (visit log, boards).

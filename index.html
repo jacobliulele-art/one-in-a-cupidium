@@ -1092,7 +1092,9 @@ button.lbn .flb{flex:0 0 auto;margin-right:2px}button.lbn .flt{flex:0 1 auto;ove
 .modegrid .mbtn.wide,.landing .lcard.ptl{flex:0 1 auto;width:fit-content;max-width:100%;padding-inline:32px;align-self:center}
 .lcard,.lcard.bbl,.lcard.ptl,.mbtn{min-height:0!important}
 #panel>.inner>button,#panel>.inner>.pbtn,#panel>.inner>.row>.pbtn.big{align-self:center;width:fit-content;max-width:100%}
-.lcard,.mbtn,.skin,.bvitem,.bvgame,.tritem,.glass.card,.casgrid>*,.shopgrid>*,.achgrid>*,.devmenu>*,.skin h3,.skin canvas{text-align:center;margin-inline:auto}
+.lcard,.mbtn,.skin,.bvitem,.bvgame,.tritem,.glass.card,.casgrid>*,.shopgrid>*,.achgrid>*,.devmenu>*{text-align:center}.skin h3,.skin canvas{margin-inline:auto}
+/* lists and tables read left to right (names next to their rank, no gaps) */
+.lbl2,.lbl2 li,.devpr,.devpr *,.plist,.trres,.lbgroups{text-align:left}
 .lcard,.mbtn,.skin{align-items:center;justify-content:center}
 @media (max-width:560px){.modegrid>*,.xdailies>*,.casgrid>*{flex-basis:calc(50% - 6px);min-width:0}}
 /* compact pages: the default page is narrower, so cards are filled with their content instead of wide empty bands
@@ -1106,6 +1108,17 @@ button.lbn .flb{flex:0 0 auto;margin-right:2px}button.lbn .flt{flex:0 1 auto;ove
 .modegrp>*,.modesub>*{flex:0 1 calc(50% - 5px)!important;min-width:0!important}.modegrp .mbtn.on{outline:3px solid var(--hl,#fde68a);outline-offset:2px}
 .modesub[hidden]{display:none!important}.modesub{animation:uiIn .18s ease-out both}
 .twtop{width:100%}
+/* Daily card: as wide as the rows under it, bigger text */
+.daily{width:100%!important;max-width:100%;justify-content:stretch;grid-template-columns:auto 1fr auto!important;padding:14px 18px!important}
+.daily .dtxt b{font-size:clamp(20px,4.6vw,30px)}.daily .dtxt small{font-size:11px}.daily .dtxt span{font-size:16px}.daily .dgo{font-size:15px;padding:12px 18px}
+.daily .cal{transform:scale(1.15);transform-origin:left center}
+/* chip shop: one box per section */
+.shopbox{width:100%}.shoph{font-size:15px!important;letter-spacing:.14em;margin:0 0 10px}.shopbox .shopgrid{gap:10px}
+.shopgrid.shopcard .shopi b{font-size:11px}.atabs button{font-size:11px}
+/* leaderboards with tabs (arcade, academy): a compact column instead of a wide empty strip */
+.lbgroups{align-self:center;width:fit-content;max-width:100%}#lbBox:not([hidden]){width:min(620px,100%);align-self:center}
+/* dev player list: a compact table */
+.glass.card:has(.devpr){width:min(760px,100%);align-self:center}
 /* leaderboards: boards stack in columns (see lbMasonry) */
 .lbgrid.masonry{display:flex;gap:8px;align-items:flex-start}.lbcol{flex:1 1 0;display:flex;flex-direction:column;gap:8px;min-width:0}
 </style>
@@ -2540,6 +2553,28 @@ if(typeof BLURBS!=="undefined")Object.assign(BLURBS,{
  rot("Name a US state that ends in the letter A",["north dakota","south dakota","west virginia","nebraska"]);
  rot("Name a US state on the Atlantic coast",["delaware","connecticut","new hampshire","rhode island","maryland"]);
  rot("Name a US state that touches the Mississippi River",["wisconsin","iowa","kentucky","minnesota"]);}
+// ===== Nov 20 (late): more niche geography prompts for Daniel Simons mode =====
+{const L=[
+ ["Name a tributary of the Amazon","madeira|rio negro/negro|xingu|tapajos|purus|japura/caqueta|jurua|ucayali|maranon|putumayo/ica|napo|javari|trombetas|uatuma|jutai|tefe|coari"],
+ ["Name a salt flat or salt lake","salar de uyuni/uyuni|great salt lake|dead sea|bonneville salt flats|lake eyre/kati thanda|etosha pan|chott el djerid|lake assal|salar de atacama|lake urmia|tuz golu/lake tuz|makgadikgadi pans|lake natron|badwater basin|salinas grandes|sambhar lake|lake baskunchak|lake elton|qarhan|lake torrens"],
+ ["Name a shipping canal in Europe","kiel canal|corinth canal|manchester ship canal|caledonian canal|canal du midi|gota canal|white sea-baltic canal|volga-don canal|amsterdam-rhine canal|main-danube canal|north sea canal|danube-black sea canal|crinan canal|saimaa canal|moscow canal"],
+ ["Name an exclave or enclave","kaliningrad|alaska|ceuta|melilla|nakhchivan|cabinda|llivia|point roberts|northwest angle/angle inlet|baarle-hertog|baarle-nassau|musandam|oecusse|campione d'italia|busingen|madha|nahwa|jungholz"],
+ ["Name a country whose capital isn't its largest city","australia|canada|united states/usa|brazil|turkey/turkiye|switzerland|new zealand|india|china|nigeria|pakistan|vietnam|morocco|south africa|tanzania|ivory coast/cote d'ivoire|kazakhstan|myanmar/burma|bolivia|ecuador|cameroon|benin|malta|belize|liechtenstein"],
+ ["Name a strait","strait of gibraltar/gibraltar|bering strait|strait of hormuz/hormuz|strait of malacca/malacca|bosphorus|dardanelles|strait of magellan/magellan|cook strait|bass strait|taiwan strait|strait of dover/dover|korea strait|torres strait|strait of messina|strait of bonifacio|bab-el-mandeb/bab el mandeb|tsugaru strait|la perouse strait|strait of otranto|palk strait|sunda strait|lombok strait|kerch strait|denmark strait|davis strait|hudson strait|cabot strait"],
+ ["Name a desert in Asia","gobi|thar|taklamakan|arabian desert|syrian desert|karakum|kyzylkum|dasht-e kavir|dasht-e lut|rub' al khali/empty quarter|negev|ordos|badain jaran|tengger|kubuqi|cholistan|registan|judaean desert|wahiba sands"],
+ ["Name a mountain range in Africa","atlas|drakensberg|rwenzori|ethiopian highlands|aberdare|tibesti|ahaggar/hoggar|cederberg|eastern arc|virunga|simien|usambara|air mountains/aïr|mitumba|udzungwa|chimanimani|nuba mountains"],
+ ["Name a country the Danube flows through","germany|austria|hungary|serbia|romania|bulgaria|slovakia|croatia|ukraine|moldova"],
+ ["Name an island in the Mediterranean Sea","sicily|sardinia|corsica|crete|cyprus|malta|mallorca/majorca|ibiza|rhodes|menorca/minorca|elba|capri|corfu|santorini|lesbos|gozo|djerba|naxos|lampedusa|kos|ischia|formentera|pantelleria|chios|samos"],
+ ["Name an archipelago","hawaii|philippines|galapagos|maldives|canary islands|azores|svalbard|faroe islands|aleutian islands|andaman islands|cyclades|dodecanese|kuril islands|ryukyu islands|spratly islands|tierra del fuego|novaya zemlya|franz josef land|sulu archipelago|lofoten|aland islands|bijagos|chagos|kerguelen|bismarck archipelago"],
+ ["Name a peninsula in Europe","iberian peninsula/iberia|italian peninsula|balkan peninsula/balkans|scandinavian peninsula|jutland|crimea|peloponnese|kola peninsula|brittany|cornwall|istria|gallipoli|chalkidiki/halkidiki|kintyre|gower|wirral|cotentin|mount athos/athos|gargano|salento|hel peninsula"],
+ ["Name a volcano in South America","cotopaxi|chimborazo|villarrica|ojos del salado|llullaillaco|osorno|nevado del ruiz|el misti/misti|tungurahua|sangay|lascar|calbuco|galeras|puyehue|sabancaya|ubinas|parinacota|licancabur|chaiten"],
+ ["Name a fjord or sound","sognefjord|geirangerfjord|hardangerfjord|milford sound|lysefjord|naeroyfjord/nærøyfjord|oslofjord|trondheimsfjord|bay of kotor/kotor|doubtful sound|scoresby sund|ilulissat icefjord|howe sound|saguenay fjord|isfjorden|porsangerfjord|limfjord"],
+ ["Name a republic or region of Russia","siberia|chechnya|tatarstan|dagestan|yakutia/sakha|kamchatka|bashkortostan|karelia|buryatia|tuva|chukotka|kalmykia|ingushetia|altai|mordovia|chuvashia|udmurtia|komi|adygea|khakassia"],
+ ["Name a city on the Silk Road","samarkand|bukhara|xi'an/xian|kashgar|merv|baghdad|constantinople/istanbul|tashkent|herat|dunhuang|khiva|balkh|antioch|aleppo|tabriz|nishapur|turpan|lanzhou|osh|bam|ctesiphon"],
+ ["Name a sea in Europe","mediterranean sea/mediterranean|north sea|baltic sea|black sea|adriatic sea/adriatic|aegean sea/aegean|irish sea|norwegian sea|tyrrhenian sea|ionian sea|ligurian sea|sea of azov|barents sea|white sea|celtic sea|balearic sea|alboran sea|sea of marmara|wadden sea|bothnian sea"],
+ ["Name a country the Andes run through","chile|argentina|peru|bolivia|colombia|ecuador|venezuela"]];
+ const tiers=list=>{const a=list.split("|").filter(Boolean),n=a.length,t=[[],[],[],[],[]];a.forEach((x,i)=>{const f=i/n;t[i===n-1&&n>6?4:f<.15?0:f<.4?1:f<.7?2:3].push(x);});return t.map(z=>z.join("|"));};
+ for(const [q,list] of L)if(!PROMPTS.some(p=>p.q===q))PROMPTS.push({q,c:"GEOGRAPHY",t:tiers(list),ds:1});}
 // ===== Nov 20: household names out of the rare tiers, Silver Palace, towers =====
 {const P=q=>PROMPTS.find(p=>p.q===q);
  const nk=s=>String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/['’ʻʼ`´]/g,"").replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim().replace(/^(the|a|an) /,"");
@@ -8562,6 +8597,8 @@ Object.assign(ACT,{abMore:()=>{const box=$("ablist"),st=box?box.scrollTop:0;AB.n
 
 // ===== update log =====
 function updList(){return [
+ {v:"4.5",t:"Tidier screens",d:"Nov 20, 2026",s:{"Look":["The Daily card is as wide as the row under it, with bigger text","Chip shop: each section is one box, easier-to-read section names","No more big gaps in leaderboards, the dev player list and between shop items"],"Ultimate Chicken Horse":["Shorter, simpler menu text"],"Daniel Simons mode":["18 more niche geography prompts"]}},
+ {v:"4.4",t:"Maps, rarities and CUPIDIUM SMASH",d:"Nov 20, 2026",s:{"Ultimate Chicken Horse":["Crystal Cavern remade from the original map; new Tropical Islands, Sunset Woods and Coral Reef","Frozen Peaks has one path to the flag","A Trap Kill badge pops up when your trap gets someone"],"Rarities":["Every prompt has an answer in every rarity","Famous places (Paris, Seoul, London, Vatican City) aren't in the rare tiers any more"],"Checking":["IT'S REAL shows up after you turn down an autocorrect","Daily Tower: Enter says yes to autocorrect, and you can prove an answer is real"],"Arcade":["New: CUPIDIUM SMASH (beta), badminton like Racket Rivals","Rhythm notes move at a steady speed, with a livelier stage","Cupidium's symbol is Ci"],"Other":["Daniel Simons results show the Daniel Simons board","Blackjack deals the dealer's cards one at a time","Off the Charts menu: NORMAL and RAPID FIRE"]}},
  {v:"4.3",t:"Chicken Horse overhaul",d:"Nov 20, 2026",s:{
    "Ultimate Chicken Horse maps":["Frozen Peaks, Crystal Cavern, Tropical Islands and Sunset Woods are rebuilt to match the original maps: ice staircases, the ice mountain with a cave, giant crystals, palm-top climbs and red acacia canopies","3 new maps: Moon Base (space, low gravity), Cloud Kingdom (dream, rainbow bridge) and Coral Reef (ocean, dive down to the flag)","Preview any map from the map picker","In a party room, players can vote for a map. The host still picks; votes just show what everyone wants"],
    "Ultimate Chicken Horse rules":["Points to win setting (50 to 200, default 100), and solo practice now scores and ends","The score screen shows the whole game: every point, coloured by what earned it","Bombs, dynamite and nukes only blow up placed items. The rare Cupidium Nuke scorches the map itself","A bomb, dynamite or nuke shows up at least every 2 rounds; the nuke looks like an atomic bomb","Spikes, honey and ice must sit on a block; honey and ice are full blocks","One portal per pick (your next portal links to it); one coin grab per round","Trusses are solid and climbable, the candy cane carries you, frozen players don't fall, the angry cube sleeps until you go near it, fans are a touch weaker","See a fan's reach (and flamethrowers, freeze rays, crossbows) while placing; turrets and bullets are much easier to see","You can't move before GO, can't get stuck inside walls, and Play as Ghost only shows once you're out","Customize button on the Chicken Horse menu"],
@@ -8979,10 +9016,10 @@ function chipShop(tab){if(tab)FLTAB=tab;const own=flOwn(),eq=flEq(),chips=casChi
       <p class="hint">Flair shows next to your name on every leaderboard. Your card is what friends see.</p>${flCard(lbMe()||"You",flMine(),flStats())}</div>
     <div class="glass card center ptokcard"><b>🏴‍☠️ MIHIR’S CUPIDIDDIUM TOKENS: ${ptok()}</b><p class="hint">Every Daily hides one secret deep-cut answer. Say it to win a token: tap any item to get it free, or cash a token in for 🪙 5,000. Finding one also pays 🪙 1,000 on the spot.</p>${ptok()?`<button class="pbtn sm c m-sun" data-act="ptokCash">CASH IN 1 FOR 🪙 5,000</button>`:""}</div>
     <div class="glass atabs">${FL_TABS.map(([k,l])=>`<button class="${k===FLTAB?"on":""}" data-act="shopTab" data-t="${k}">${l}</button>`).join("")}</div>
-    <div class="shopgrid">${(eq[FLTAB]&&!["frame","bg"].includes(FLTAB)?`<button class="glass shopi" data-act="shopOff" data-c="${FLTAB}"><b>None</b><small>take it off</small></button>`:"")+
+    <div class="glass card shopbox"><h3 class="shoph">${esc((FL_TABS.find(t=>t[0]===FLTAB)||[,""])[1])}</h3><div class="shopgrid${["frame","bg"].includes(FLTAB)?" shopcard":""}">${(eq[FLTAB]&&!["frame","bg"].includes(FLTAB)?`<button class="glass shopi" data-act="shopOff" data-c="${FLTAB}"><b>None</b><small>take it off</small></button>`:"")+
       FL_ITEMS[FLTAB].map(([id,nm,cost,col])=>{const has=(own[FLTAB]||[]).includes(id)||cost===0,on=eq[FLTAB]===id||(!eq[FLTAB]&&cost===0);
         const prev=FLTAB==="color"?flName(nm,{c:id}):FLTAB==="badge"?pxBadge(id,40):FLTAB==="title"?`<span class="flt">${esc(nm)}</span>`:`<div class="flswatch ${FLTAB==="frame"?"fr-"+id+" bg-space":"fr-plain bg-"+id}"></div>`;
-        return `<button class="glass shopi${on?" on":""}" data-act="shopBuy" data-c="${FLTAB}" data-id="${id}">${prev}${FLTAB!=="color"&&FLTAB!=="title"?`<b>${esc(nm)}</b>`:""}<small>${on?"✓ EQUIPPED":has?"tap to equip":`🪙 ${cost.toLocaleString()}`}</small></button>`;}).join("")}</div>`,{cls:"menu"});}
+        return `<button class="glass shopi${on?" on":""}" data-act="shopBuy" data-c="${FLTAB}" data-id="${id}">${prev}${FLTAB!=="color"&&FLTAB!=="title"?`<b>${esc(nm)}</b>`:""}<small>${on?"✓ EQUIPPED":has?"tap to equip":`🪙 ${cost.toLocaleString()}`}</small></button>`;}).join("")}</div></div>`,{cls:"menu"});}
 // ---------- Mihir’s Cupididdium Token: every daily hides one unmarked deep-cut answer. Say it and you get a token:
 // one free item from the chip shop, or cash it in for 1500 chips ----------
 const ptok=()=>store.get("otc.ptok",0);
@@ -10706,12 +10743,12 @@ function trBegin(solo){trSetMap(store.get("otc.tr.map","peaks")in TR_MAPDATA?sto
 function trStop(){if(TRG){TRG.dead=true;if(TRG.H)clearTimeout(TRG.H.timer);}TRG=null;}
 function trapHub(){trStop();showPanel(`<div class="row" style="justify-content:space-between"><h2 style="font-size:16px">ULTIMATE CHICKEN HORSE</h2><button class="pbtn sm" data-act="landing">◀ BACK</button></div>
   <div class="devbanner">CURRENTLY IN DEVELOPMENT · still playable, things may change or break</div>
-  <div class="glass card"><p>Pick an item from the party box, place it on the course, then race your friends to the flag. Help yourself, trap everyone else.</p>
-  <p class="hint">Reach the flag for 10 points, +5 if you're first, +5 if you're the only one, +3 for the round's coin. Your traps earn 3 for each friend they get. If everyone makes it or nobody does, nobody scores. In solo practice you score 10 a finish (+3 coin). First to the points to win wins.</p>
-  <p class="hint">Controls: ← → or A D to run, ↑ / W / SPACE to jump (hold to jump higher), jump off walls to wall-jump, hold jump on a truss to climb. On phones, use the on-screen buttons. When placing: drag or use the arrow keys to look around the map, tap a spot, ROTATE with R, PLACE with a click or ENTER.</p></div>
+  <div class="glass card"><p>Place a trap, then race your friends to the flag.</p>
+  <p class="hint">Reaching the flag earns points, and so do your traps when they catch someone. If everyone makes it, or no one does, no one scores.</p>
+  <p class="hint">Move ← → · jump ↑ / SPACE · R rotate · click to place</p></div>
   <div class="glass card"><h3 style="font-size:13px">MAP</h3>${trMapSeg("trMap")}
-  <p class="hint">Big maps that scroll: the camera follows you while you race. In a party room the host picks the map on the party page.</p></div>
-  <div class="glass card"><h3 style="font-size:13px">POINTS TO WIN</h3>${trWinSeg()}<p class="hint">Used for solo practice and for party rooms you host.</p></div>
+  <p class="hint">In party rooms the host picks the map.</p></div>
+  <div class="glass card"><h3 style="font-size:13px">POINTS TO WIN</h3>${trWinSeg()}</div>
   <div class="row"><button class="pbtn c m-nova big" data-act="trFriends">PARTY</button><button class="pbtn c m-mint" data-act="trSolo">SOLO</button><button class="pbtn" data-act="bbCustom" data-back="trapHub">🎨 CUSTOMIZE</button></div>`,{cls:"menu"});}
 // map buttons plus a preview button; points-to-win buttons (both are shared by the hub and the party page)
 function trMapSeg(act){const cur=store.get("otc.tr.map","random");return `<div class="seg trmaps">${[["random","Random"],...Object.entries(TR_MAPDATA).map(([k,v])=>[k,v.n])].map(([k,n])=>`<button class="pbtn ${cur===k?"on":""}" data-act="${act}" data-k="${k}">${n}</button>`).join("")}</div>
