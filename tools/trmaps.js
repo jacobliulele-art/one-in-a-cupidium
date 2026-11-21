@@ -59,8 +59,9 @@ function peaks() {
   // the huge ice mountain (its sheer ice face can't be climbed, so the only way is the cave and the chimney), snow cap, cave underneath
   // it reaches the top of the map: no getting over it (its face can be climbed by wall-jumping), so the only way on is the cave and chimney
   // the top curves inward (steep low down, gentler near the top), so climbers can get up on its shoulder and try something
-  // clever there (a portal to the far side?), but the thin spire still reaches the sky, so there's no walking over
-  K.rect(45, 18, 67, 33, "i"); for (let y = 0; y < 18; y++) K.rect(45 + Math.round(13 * ((17 - y) / 17) ** 2), y, 67, y, "i"); K.checker(46, 66, 0, 23);
+  // clever there (a portal to the far side?), but the thin spire still reaches the sky, so there's no walking over;
+  // the right edge slants in too, so the top is a spire rather than a cliff over the chimney
+  K.rect(45, 18, 67, 33, "i"); for (let y = 0; y < 18; y++) K.rect(45 + Math.round(13 * ((17 - y) / 17) ** 2), y, 67 - Math.round(8 * ((17 - y) / 17) ** 2), y, "i"); K.checker(46, 66, 0, 23);
   for (const [x, l] of [[48, 3], [52, 2], [56, 4]]) K.rect(x, 34, x + 1, 33 + l, "i");                                       // icicles into the cave
   K.rect(60, 34, 60, 38, "v");                                                                                                // purple pillar
   K.col(43, 71, 46, "d", "d"); K.checker(43, 71, 48, 55, "d", "s"); K.rect(49, 43, 54, 45, "#"); K.rect(50, 42, 53, 42, "#"); // cave floor + boulder
