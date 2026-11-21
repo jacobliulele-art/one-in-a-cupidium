@@ -2564,16 +2564,26 @@ if(typeof BLURBS!=="undefined")Object.assign(BLURBS,{
   for(const p of PROMPTS){if(!p.t||p.deep||p.ds||!PL(p.q)||!SIZE(p.q))continue;const t=T(p);let ch=false;
     for(const i of [3,4]){const keep=[];for(const x of t[i]){if(fam(x)){t[2].push(x);ch=true;}else keep.push(x);}t[i]=keep;}
     if(ch){refill4(t,fam);save(p,t);}}}
- // Vatican City is a household name: never in the two rarest tiers of any prompt
+ // Vatican City is a household name: at most the second most common tier, in every prompt
  for(const p of PROMPTS){if(!p.t)continue;const t=T(p);let ch=false;
-   for(const i of [3,4]){t[i]=t[i].filter(x=>{if(ks(x).includes("vatican city")){t[2].push(x);ch=true;return false;}return true;});}
+   for(const i of [2,3,4]){t[i]=t[i].filter(x=>{if(ks(x).includes("vatican city")){t[1].push(x);ch=true;return false;}return true;});}
    if(ch){refill4(t,x=>ks(x).includes("vatican city"));save(p,t);}}
+ // Ethiopia stays the second rarest for 100+ million people (it's the least obvious of the big ones)
+ put("Name a country with more than 100 million people",3,"ethiopia");
  // open-world games: Silver Palace (an upcoming open-world anime RPG) is real
  put("Name an open-world game",3,"silver palace");
  // towers: Djibouti City isn't famous for a tower; San Gimignano (the medieval "town of fine towers") and Bologna (the Two Towers) are
  put("Name a city famous for a tower",2,"djibouti city/djibouti");
  put("Name a city famous for a tower",3,"bologna");
- {const p=P("Name a city famous for a tower");if(p){const t=T(p);t[3]=t[3].concat(t[4]);t[4]=[];save(p,t);put("Name a city famous for a tower",4,"san gimignano");}}}
+ {const p=P("Name a city famous for a tower");if(p){const t=T(p);t[3]=t[3].concat(t[4]);t[4]=[];save(p,t);put("Name a city famous for a tower",4,"san gimignano");}}
+ // every prompt with 5+ answers has at least one answer in every rarity. An empty tier is filled by sliding the tier boundaries:
+ // the nearest tier with 2+ answers gives up its edge answer and each tier in between passes one along, so the order (common → rare)
+ // is kept. When both sides could give, the rarer side gives (making a rare answer a bit more common is safer than the reverse).
+ for(const p of PROMPTS){if(!p.t)continue;const t=T(p);if(t.reduce((a,b)=>a+b.length,0)<5)continue;let ch=false;
+   for(let guard=0;guard<10;guard++){const i=t.findIndex(a=>!a.length);if(i<0)break;let j=-1;
+     for(let d=1;d<5&&j<0;d++){if(i+d<5&&t[i+d].length>=2)j=i+d;else if(i-d>=0&&t[i-d].length>=2)j=i-d;}if(j<0)break;
+     if(j>i)for(let k=j;k>i;k--)t[k-1].push(t[k].shift());else for(let k=j;k<i;k++)t[k+1].unshift(t[k].pop());ch=true;}
+   if(ch)save(p,t);}}
 </script>
 <script>
 // ===== Pixel-art refiner: turns flat, black-outlined grids into multi-tone sprites with colored edges =====
@@ -6003,7 +6013,7 @@ addEventListener("touchmove",e=>{if(!CUP)return;const r=cv.getBoundingClientRect
 // plus Cupidium Rush (which flies through the main scene).
 const MGAMES={};let MG=null;
 const ELEM=[["H","HYDROGEN","#93c5fd"],["He","HELIUM","#fde68a"],["Li","LITHIUM","#fca5a5"],["C","CARBON","#9ca3af"],["O","OXYGEN","#67e8f9"],
-  ["Fe","IRON","#fb923c"],["Ag","SILVER","#e5e7eb"],["Au","GOLD","#facc15"],["Pt","PLATINUM","#c4b5fd"],["U","URANIUM","#86efac"],["Cy","CUPIDIUM","#ff5fd2"]];
+  ["Fe","IRON","#fb923c"],["Ag","SILVER","#e5e7eb"],["Au","GOLD","#facc15"],["Pt","PLATINUM","#c4b5fd"],["U","URANIUM","#86efac"],["Ci","CUPIDIUM","#ff5fd2"]];
 const CUPC="#ff5fd2";
 // drawing helpers for the arcade canvases
 // Arcade canvases: still pixel art, but on a grid twice as fine as the logical size (half-unit pixels),
@@ -7419,7 +7429,7 @@ MGAMES.breaker={name:"CUPIDIUM BREAKER",w:180,h:240,blurb:"Brick breaker with mu
     if(m.t%300<dt)mgHud(`LV ${m.lv} · ${"●".repeat(m.lives)}`);},
   draw(m,x,t,dt){mBg(x,m.W,m.H,t,"#1c1038","#0b0820");
     for(const br of m.bricks){const fl=br.flash&&m.t-br.flash<70;if(br.cup)mGlow(x,br.x+8,br.y+4,12,"#ff5fd2",.4+.2*Math.sin(t*.008));
-      mR(x,br.x,br.y,br.w,br.h,fl?"#fff":br.c);mR(x,br.x,br.y,br.w,1.5,"#ffffffaa");mR(x,br.x,br.y+br.h-1.5,br.w,1.5,"#00000033");if(br.hp>1){mR(x,br.x+3,br.y+3,br.w-6,2,"#00000044");}if(br.cup)mT(x,"Cy",br.x+8.5,br.y+4.5,"#fff",6);}
+      mR(x,br.x,br.y,br.w,br.h,fl?"#fff":br.c);mR(x,br.x,br.y,br.w,1.5,"#ffffffaa");mR(x,br.x,br.y+br.h-1.5,br.w,1.5,"#00000033");if(br.hp>1){mR(x,br.x+3,br.y+3,br.w-6,2,"#00000044");}if(br.cup)mT(x,"Ci",br.x+8.5,br.y+4.5,"#fff",6);}
     for(const u of m.pu){mR(x,u.x-6,u.y-3,12,7,"#2d1b55");mR(x,u.x-5.5,u.y-2.5,11,6,{M:"#bdb2ff",W:"#caffbf",L:"#ffadad",S:"#9bf6ff"}[u.k]);mT(x,u.k,u.x,u.y+.5,"#0b1020",6);}
     for(const l of m.las)mR(x,l.x-.5,l.y-3,1,4,"#ffadad");
     const pd=m.pad;mR(x,pd.x-pd.w/2,214,pd.w,5,"#a0c4ff");mR(x,pd.x-pd.w/2,214,pd.w,1.5,"#e2ecff");mR(x,pd.x-pd.w/2,217.5,pd.w,1.5,"#6d84d8");if(m.t<m.laser){mR(x,pd.x-pd.w/2+2,211,2,3,"#ffadad");mR(x,pd.x+pd.w/2-4,211,2,3,"#ffadad");}
@@ -7506,7 +7516,7 @@ MGAMES.dash={name:"CUPIDIUM DASH",w:240,h:135,blurb:"Endless runner: jump, doubl
     for(const b of m.bars)if(p.x+2.5>b.x&&p.x-2.5<b.x+b.w&&p.y-h<b.y-7)return this.die(m,"BONK! SLIDE UNDER BARRIERS");
     for(const a of m.atoms)if(!a.got&&Math.abs(a.x-p.x)<7&&Math.abs(a.y-(p.y-h/2))<8){a.got=1;m.got++;m.score+=25;mBurst(m,a.x,a.y,6,["#ff8fe0","#fff"],.7);tone(1100+((m.got*60)%600),.03,"square",.02);}
     if(p.y>m.H+20)return this.die(m,"FELL!");
-    m.score=Math.floor(m.dist/5)+m.got*25;m.trail.push({x:p.x,y:p.y-h/2});if(m.trail.length>10)m.trail.shift();this.gen(m);if(m.t%250<dt)mgHud(`${Math.floor(m.dist/5)} m · ${m.got} Cy`);},
+    m.score=Math.floor(m.dist/5)+m.got*25;m.trail.push({x:p.x,y:p.y-h/2});if(m.trail.length>10)m.trail.shift();this.gen(m);if(m.t%250<dt)mgHud(`${Math.floor(m.dist/5)} m · ${m.got} Ci`);},
   die(m,why){mBurst(m,m.p.x,m.p.y-4,40,PAST2,1.8);mShake(m,400,3);sfx.bad();mgEnd(why,`${Math.floor(m.dist/5)} m · ${m.got} cupidium`);},
   draw(m,x,t,dt){const c=m.cam,g2=x.createLinearGradient(0,0,0,m.H);g2.addColorStop(0,"#1b0f3a");g2.addColorStop(1,"#3a1f5e");x.fillStyle=g2;x.fillRect(0,0,m.W,m.H);
     for(let i=0;i<30;i++){const R=rng("ds"+i),sx=((R()*400-c*.1)%400+400)%400-80;mR(x,sx,R()*70,1,1,"#e9d5ff");}
@@ -7520,80 +7530,118 @@ MGAMES.dash={name:"CUPIDIUM DASH",w:240,h:135,blurb:"Endless runner: jump, doubl
     m.trail.forEach((q,i)=>{x.globalAlpha=i/20;mR(x,q.x-c-3,q.y-2,6,4,PAST2[i%PAST2.length]);});x.globalAlpha=1;
     mR(x,px-4,p.y-h,8,h,"#9bf6ff");mR(x,px-4,p.y-h,8,2,"#e0fcff");mR(x,px+1,p.y-h+2,2,2,"#2d1b55");if(h>5){const leg=((t/80)|0)%2;mR(x,px-3,p.y-2,2,2+leg,"#5b8bd8");mR(x,px+1,p.y-2,2,3-leg,"#5b8bd8");}
     mR(x,px-5,p.y-h+3,2,4,"#ff8fe0");
-    mT(x,`${Math.floor(m.dist/5)} m`,m.W-6,8,"#e9d5ff",7,"right");mT(x,`${m.got} Cy`,6,8,"#ff8fe0",7,"left");
+    mT(x,`${Math.floor(m.dist/5)} m`,m.W-6,8,"#e9d5ff",7,"right");mT(x,`${m.got} Ci`,6,8,"#ff8fe0",7,"left");
     mFx(m,x,dt);mPops(m,x,dt);}};
 
-// ---------- CUPIDIUM SMASH (beta): 1v1 badminton against the CPU, in the spirit of racket games like Racket Rivals ----------
-// Side view. Move, jump, and swing: a normal swing is a high CLEAR to the back of the court, hold ↓ while swinging for a soft DROP
-// just over the net, and swing in the air while the shuttle is above you for a SMASH. Rally scoring, first to 11 (win by 2, max 15).
-MGAMES.badminton={persist:false,name:"CUPIDIUM SMASH",w:240,h:150,blurb:"BETA · 1v1 badminton against the CPU: clears, drops and jump smashes. First to 11.",
-  controls:"← → / A D move · ↑ / W jump · SPACE (or J) swing. Hold ↓ / S while swinging = soft drop shot. Swing in the air with the shuttle above you = SMASH. Touch: hold the left / right third to move, tap the middle to swing, tap the top to jump.",
+// ---------- CUPIDIUM SMASH (beta): 1v1 badminton vs the CPU, made to play like Racket Rivals ----------
+// Pick a racket (power / speed / jump). Tap swing for a quick shot or HOLD to charge a power shot; jump and swing with the shuttle
+// above you to SMASH; SET pops the shuttle up so you can smash it yourself; DASH is a quick burst; FREEZE (your spirit skill) stops
+// the shuttle in the air for a moment; your AWAKENING fills as you hit and turns your next shot into a COMET. Rally scoring to 11.
+MGAMES.badminton={persist:false,name:"CUPIDIUM SMASH",w:240,h:150,blurb:"BETA · Racket Rivals style 1v1 badminton vs the CPU: power swings, set + jump smash, dash, freeze the shuttle and unleash your awakening. First to 11.",
+  controls:"A D / ← → move · W / ↑ / SPACE jump · J or click: swing (HOLD to charge a power shot) · hold S / ↓ while swinging = drop shot · jump + swing with the shuttle above you = SMASH · K / E set (pops it up so you can smash) · Q / SHIFT dash · 1 freeze the shuttle · 2 awakening (fills as you hit). Touch: hold the left / right third to move, hold the middle to charge and let go to swing, tap the top to jump.",
   FLOOR:132,NET:120,NET_TOP:97,G:.00042,REACH:15,
-  init(m){m.pl={x:50,y:this.FLOOR,vy:0,face:1,sw:-1e9,ground:true};m.cpu={x:190,y:this.FLOOR,vy:0,face:-1,sw:-1e9,ground:true,tx:190,think:0,next:"clear"};
-    m.pts=[0,0];m.server=0;m.state="serve";m.serveAt=m.t+700;m.sh=null;m.last=null;m.rally=0;m.msg="YOUR SERVE · SPACE";m.score=0;m.trail=[];m.tp={};this.place(m);},
-  place(m){const s=m.server;m.pl.x=s===0?40:60;m.cpu.x=s===1?200:180;m.pl.y=m.cpu.y=this.FLOOR;m.pl.vy=m.cpu.vy=0;
-    const who=s===0?m.pl:m.cpu;m.sh={x:who.x+(s===0?6:-6),y:this.FLOOR-16,vx:0,vy:0,held:s};m.last=s;m.rally=0;m.trail=[];},
-  // aim a shot from (x,y) so it lands at tx after T ms, raising the arc until it clears the net
-  aim(sh,tx,T,minClear){const g=this.G,vx=(tx-sh.x)/T;let vy=(this.FLOOR-sh.y-.5*g*T*T)/T;const tn=(this.NET-sh.x)/vx;
-    // if that path would clip the net, lift it so it passes just over the tape (it then lands a little deeper)
-    if(tn>0&&tn<T){const want=this.NET_TOP-minClear,yn=sh.y+vy*tn+.5*g*tn*tn;if(yn>want)vy=(want-sh.y-.5*g*tn*tn)/Math.max(tn,60);}sh.vx=vx;sh.vy=vy;},
-  hit(m,who,side,kind){const sh=m.sh,dir=side===0?1:-1,far=side===0?[196,228]:[12,44],near=side===0?[130,146]:[94,110];sh.held=null;
-    if(kind==="smash"){this.aim(sh,side===0?160+Math.random()*50:30+Math.random()*50,300,1);tone(220,.08,"sawtooth",.05);mShake(m,180,2);mBurst(m,sh.x,sh.y,14,["#fde047","#fff"],1.2);}
+  RACKETS:[{nm:"CUPID CLASSIC",c:"#ff8fe0",pow:1,spd:1,jmp:1,info:"balanced"},{nm:"NOVA SMASHER",c:"#fde047",pow:1.35,spd:.9,jmp:.95,info:"huge smashes, slower feet"},{nm:"COMET DASHER",c:"#67e8f9",pow:.9,spd:1.2,jmp:1.1,info:"fast feet, quick dashes, high jumps"}],
+  fresh(x,face){return{x,y:this.FLOOR,vy:0,face,sw:-1e9,ground:true,ch:null,dash:0,dashCd:0,frzCd:0,aw:0,awOn:false};},
+  init(m){m.scr="select";m.rk=(+store.get("otc.bad.rk",0)||0)%3;m.tp={};m.score=0;m.fx=[];mgHud("PICK A RACKET");},
+  start(m){store.set("otc.bad.rk",m.rk);m.scr="play";m.R=this.RACKETS[m.rk];m.CR=this.RACKETS[(m.rk+1+Math.floor(Math.random()*2))%3];
+    m.pl=this.fresh(50,1);m.cpu=this.fresh(190,-1);m.cpu.tx=190;m.cpu.think=0;m.pts=[0,0];m.server=0;m.state="serve";m.serveAt=m.t+700;m.msg="YOUR SERVE · SWING";m.trail=[];this.place(m);mgHud("YOU 0 · CPU 0");},
+  place(m){const s=m.server;m.pl.x=s===0?40:60;m.cpu.x=s===1?200:180;for(const f of [m.pl,m.cpu]){f.y=this.FLOOR;f.vy=0;f.ground=true;f.ch=null;}
+    const who=s===0?m.pl:m.cpu;m.sh={x:who.x+(s===0?6:-6),y:this.FLOOR-16,vx:0,vy:0,held:s,frozen:0};m.last=s;m.rally=0;m.trail=[];},
+  // aim so the shuttle lands at tx after T ms; if that would clip the net, lift it just over the tape
+  // aim so the shuttle lands at tx after about T ms; if that would clip the net, lift it over the tape and slow it so it still lands at tx
+  aim(sh,tx,T,minClear){const g=this.G,dy=this.FLOOR-sh.y;let vx=(tx-sh.x)/T,vy=(dy-.5*g*T*T)/T;
+    for(let k=0;k<20;k++){const tn=(this.NET-sh.x)/vx;if(!(tn>0&&tn<T))break;const want=this.NET_TOP-minClear-2,yn=sh.y+vy*tn+.5*g*tn*tn;if(yn<=want)break;
+      vy=(want-4-sh.y-.5*g*tn*tn)/Math.max(tn,60);T=(-vy+Math.sqrt(vy*vy+2*g*dy))/g;vx=(tx-sh.x)/T;}
+    sh.vx=vx;sh.vy=vy;},
+  // a shot: kind = clear / drop / smash / comet, pw = charge 0..1, R = the hitter's racket
+  hit(m,who,side,kind,pw,R){const sh=m.sh,far=side===0?[196,228]:[12,44],near=side===0?[130,146]:[94,110],deep=()=>far[0]+Math.random()*(far[1]-far[0]);sh.held=null;sh.frozen=0;
+    if(kind==="comet"){this.aim(sh,side===0?150+Math.random()*70:20+Math.random()*70,230,2);tone(140,.25,"sawtooth",.06);mShake(m,300,3);mBurst(m,sh.x,sh.y,28,["#ff5fd2","#fde047","#fff"],1.8);mPop(m,sh.x,sh.y-12,"COMET!","#ff5fd2");}
+    else if(kind==="smash"){this.aim(sh,side===0?160+Math.random()*50:30+Math.random()*50,Math.max(190,(430-220*pw)/R.pow),1);tone(220,.08,"sawtooth",.05);mShake(m,180,2);mBurst(m,sh.x,sh.y,14,["#fde047","#fff"],1.2);}
     else if(kind==="drop"){this.aim(sh,near[0]+Math.random()*(near[1]-near[0]),760,7);tone(880,.04,"triangle",.03);}
-    else{this.aim(sh,far[0]+Math.random()*(far[1]-far[0]),1050,14);tone(600,.05,"square",.03);}
-    // the CPU reacts a moment late and misjudges a little (more on smashes and drops), so it can be beaten
-    if(side===0){m.cpu.react=m.t+(kind==="smash"?120:kind==="drop"?200:240);m.cpu.err=(Math.random()-.5)*(kind==="smash"?34:kind==="drop"?22:8);}
-    sh.kind=kind;m.last=side;m.rally++;who.sw=m.t;mBurst(m,sh.x,sh.y,6,"#fff",.6);},
-  canHit(m,who,side){const sh=m.sh;if(!sh||sh.held!=null||m.state!=="rally"||m.last===side)return false;const rx=who.x+who.face*6,ry=who.y-14;return Math.hypot(sh.x-rx,sh.y-ry)<this.REACH&&(side===0?sh.x<this.NET:sh.x>this.NET);},
-  swing(m){const p=m.pl;if(m.t-p.sw<260)return;p.sw=m.t;
-    if(m.state==="serve"&&m.server===0&&m.sh.held===0){m.state="rally";m.msg="";this.aim(m.sh,200+Math.random()*24,1150,16);m.sh.held=null;m.last=0;m.sh.kind="serve";tone(600,.05,"square",.03);return;}
-    if(!this.canHit(m,p,0))return;const kind=!p.ground&&m.sh.y<p.y-18?"smash":(m.keys.dn||m.tp.drop)?"drop":"clear";this.hit(m,p,0,kind);if(kind==="smash")mPop(m,p.x,p.y-30,"SMASH!","#fde047");},
-  key(m,k,down,first,raw){if(!down||!first)return;if(k==="sp"||raw==="j"||k==="ent")this.swing(m);if(k==="u"&&m.pl.ground){m.pl.vy=-.3;m.pl.ground=false;}},
-  ptr(m,x,y,t){if(t==="pointerdown"){if(y<m.H*.35){if(m.pl.ground){m.pl.vy=-.3;m.pl.ground=false;}return;}if(x<m.W/3)m.tp.l=1;else if(x>m.W*2/3)m.tp.r=1;else{m.tp.drop=y>m.H*.8;this.swing(m);m.tp.drop=0;}}
-    else if(t==="pointerup"||t==="pointercancel"){m.tp.l=0;m.tp.r=0;}},
-  // where will the shuttle land? (simulate it forward)
+    else{this.aim(sh,deep(),Math.max(560,(1100-430*pw*R.pow)),14);tone(600-120*pw,.05,"square",.03);}
+    if(side===0){m.cpu.react=m.t+(kind==="smash"||kind==="comet"?120:kind==="drop"?200:240-80*pw);m.cpu.err=(Math.random()-.5)*(kind==="comet"?50:kind==="smash"?26:kind==="drop"?16:5+8*pw);}
+    who.aw=Math.min(100,who.aw+(kind==="comet"?0:9+8*pw));sh.kind=kind;m.last=side;m.rally++;who.sw=m.t;mBurst(m,sh.x,sh.y,6,"#fff",.6);},
+  // can this player hit it now? (on their side, in reach, and not the one who hit it last, unless they just SET it for themselves)
+  canHit(m,who,side){const sh=m.sh;if(!sh||sh.held!=null||m.state!=="rally"||(m.last===side&&!(sh.kind==="set"&&sh.setBy===side)))return false;
+    const rx=who.x+who.face*6,ry=who.y-14;return Math.hypot(sh.x-rx,sh.y-ry)<this.REACH+(who===m.pl?m.R.pow>1?0:2:0)&&(side===0?sh.x<this.NET:sh.x>this.NET);},
+  shotKind(m,who,pw,soft){const sh=m.sh;if(who.awOn){who.awOn=false;return"comet";}if(!who.ground&&sh.y<who.y-18)return"smash";return soft?"drop":"clear";},
+  // swing (on release): pw is how long you charged (0 = a tap, 1 = full charge after 1.2 s)
+  swing(m,pw){const p=m.pl;if(m.t-p.sw<240)return;p.sw=m.t;
+    if(m.state==="serve"&&m.server===0&&m.sh.held===0){m.state="rally";m.msg="";this.aim(m.sh,200+Math.random()*24,1150-300*pw,16);m.sh.held=null;m.last=0;m.sh.kind="serve";tone(600,.05,"square",.03);return;}
+    if(!this.canHit(m,p,0))return;const kind=this.shotKind(m,p,pw,m.keys.dn||m.tp.drop);this.hit(m,p,0,kind,pw,m.R);
+    if(kind==="smash")mPop(m,p.x,p.y-30,pw>.8?"POWER SMASH!":"SMASH!","#fde047");},
+  // SET: pop it straight up on your side so you can jump and smash it
+  set(m,who,side){const sh=m.sh;if(m.state!=="rally"||sh.held!=null)return;const rx=who.x+who.face*6,ry=who.y-14;if(Math.hypot(sh.x-rx,sh.y-ry)>this.REACH+3||(side===0?sh.x>=this.NET:sh.x<=this.NET))return;
+    if(m.last===side&&sh.kind==="set")return;sh.vx=((side===0?Math.min(this.NET-14,who.x+8):Math.max(this.NET+14,who.x-8))-sh.x)/900;sh.vy=-Math.sqrt(2*this.G*58);sh.kind="set";sh.setBy=side;sh.frozen=0;m.last=side;who.sw=m.t;
+    tone(700,.05,"triangle",.03);mBurst(m,sh.x,sh.y,6,"#9bf6ff",.6);if(side===0)mPop(m,who.x,who.y-28,"SET!","#9bf6ff");},
+  dash(m,f,R){if(m.t<f.dashCd)return;f.dash=m.t+150;f.dashCd=m.t+900/R.spd;mBurst(m,f.x,f.y-4,8,"#e9d5ff",.8);tone(300,.05,"triangle",.03);},
+  freeze(m,f){if(m.t<f.frzCd||m.state!=="rally"||m.sh.held!=null)return;m.sh.frozen=m.t+1100;f.frzCd=m.t+14000;tone(1200,.12,"sine",.04);mBurst(m,m.sh.x,m.sh.y,14,["#9bf6ff","#fff"],1);mPop(m,m.sh.x,m.sh.y-10,"FREEZE!","#9bf6ff");},
+  awaken(m,f){if(f.aw<100||f.awOn)return;f.aw=0;f.awOn=true;tone(400,.2,"sawtooth",.04);mBurst(m,f.x,f.y-10,24,["#ff5fd2","#fde047"],1.4);if(f===m.pl)mPop(m,f.x,f.y-34,"AWAKENED!","#ff5fd2");},
+  jump(m,f,R){if(f.ground){f.vy=-.3*R.jmp;f.ground=false;}},
+  key(m,k,down,first,raw){
+    if(m.scr==="select"){if(!down||!first)return;if(k==="l"){m.rk=(m.rk+2)%3;sfx.tick();}else if(k==="r"){m.rk=(m.rk+1)%3;sfx.tick();}else if(k==="sp"||k==="ent"||raw==="j")this.start(m);return;}
+    if(m.scr!=="play")return;const p=m.pl;
+    if(raw==="j"){if(down&&first)p.ch=m.t;else if(!down&&p.ch!=null){const pw=Math.min(1,(m.t-p.ch)/1200);p.ch=null;this.swing(m,pw<.12?0:pw);}return;}
+    if(!down||!first)return;
+    if(k==="u"||k==="sp")this.jump(m,p,m.R);else if(raw==="k"||raw==="e")this.set(m,p,0);else if(raw==="q"||raw==="shift")this.dash(m,p,m.R);else if(raw==="1")this.freeze(m,p);else if(raw==="2")this.awaken(m,p);},
+  ptr(m,x,y,t){if(m.scr==="select"){if(t!=="pointerdown")return;if(y>m.H*.75)return this.start(m);m.rk=Math.max(0,Math.min(2,Math.floor(x/(m.W/3))));sfx.tick();return;}
+    const p=m.pl;if(t==="pointerdown"){if(y<m.H*.3)return this.jump(m,p,m.R);if(x<m.W/3)m.tp.l=1;else if(x>m.W*2/3)m.tp.r=1;else{p.ch=m.t;m.tp.drop=y>m.H*.8;}}
+    else if(t==="pointerup"||t==="pointercancel"){m.tp.l=0;m.tp.r=0;if(p.ch!=null){const pw=Math.min(1,(m.t-p.ch)/1200);p.ch=null;this.swing(m,pw<.12?0:pw);m.tp.drop=0;}}},
   landX(m){const sh=m.sh;let x=sh.x,y=sh.y,vx=sh.vx,vy=sh.vy;for(let i=0;i<400&&y<this.FLOOR;i++){x+=vx*10;y+=vy*10+.5*this.G*100;vy+=this.G*10;}return x;},
   point(m,winner,why){m.pts[winner]++;m.server=winner;m.state="point";m.msg=(winner===0?"YOUR POINT":"CPU POINT")+(why?" · "+why:"");tone(winner===0?880:200,.15,"triangle",.05);
-    if(winner===0)burst&&burst(10);m.score=m.pts[0]*10+(m.pts[0]>m.pts[1]?50:0);mgHud(`YOU ${m.pts[0]} · CPU ${m.pts[1]}`);
+    if(winner===0&&typeof burst==="function")burst(10);m.score=m.pts[0]*10;mgHud(`YOU ${m.pts[0]} · CPU ${m.pts[1]}`);
     const [a,b]=m.pts,over=(a>=11||b>=11)&&Math.abs(a-b)>=2||a>=15||b>=15;
-    setTimeout(()=>{if(MG!==m)return;if(over){m.score=a*10+(a>b?500:0);return mgEnd(a>b?"YOU WIN THE MATCH!":"CPU WINS THE MATCH",`${a} – ${b} · beta badminton`);}
-      m.state="serve";this.place(m);m.serveAt=m.t+900;m.msg=m.server===0?"YOUR SERVE · SPACE":"CPU SERVES…";},1100);},
-  move(m,f,want,spd,dt,lo,hi){f.x+=Math.max(-spd*dt,Math.min(spd*dt,want-f.x));f.x=Math.max(lo,Math.min(hi,f.x));if(!f.ground){f.vy+=.0011*dt;f.y+=f.vy*dt;if(f.y>=this.FLOOR){f.y=this.FLOOR;f.vy=0;f.ground=true;}}},
-  update(m,dt){const p=m.pl,c=m.cpu,sh=m.sh,k=m.keys;
-    const dir=(k.r||m.tp.r?1:0)-(k.l||m.tp.l?1:0);this.move(m,p,p.x+dir*999,.11,dt,6,this.NET-6);if(dir)p.face=1;
-    // CPU: run to where the shuttle will come down, jump-smash high balls, otherwise clear or drop
-    if(m.state==="rally"&&sh&&sh.held==null&&m.last===0){if(m.t>c.think&&m.t>(c.react||0)){c.think=m.t+120;c.tx=Math.max(this.NET+8,Math.min(234,this.landX(m)+6+(c.err||0)));}
-      if(sh.vy>0&&sh.x>this.NET&&sh.y<c.y-26&&Math.abs(sh.x-c.x)<10&&c.ground&&Math.random()<.04*dt/16)  {c.vy=-.29;c.ground=false;}}
+    setTimeout(()=>{if(MG!==m)return;if(over){m.score=a*10+(a>b?500:0);return mgEnd(a>b?"YOU WIN THE MATCH!":"CPU WINS THE MATCH",`${a} – ${b} · ${m.R.nm} · beta`);}
+      m.state="serve";this.place(m);m.serveAt=m.t+900;m.msg=m.server===0?"YOUR SERVE · SWING":"CPU SERVES…";},1100);},
+  move(m,f,want,spd,dt,lo,hi){const v=m.t<f.dash?.32*Math.sign(f.face):0;if(v)f.x+=v*dt;else f.x+=Math.max(-spd*dt,Math.min(spd*dt,want-f.x));f.x=Math.max(lo,Math.min(hi,f.x));
+    if(!f.ground){f.vy+=.0011*dt;f.y+=f.vy*dt;if(f.y>=this.FLOOR){f.y=this.FLOOR;f.vy=0;f.ground=true;}}},
+  update(m,dt){if(m.scr!=="play")return;const p=m.pl,c=m.cpu,sh=m.sh,k=m.keys;
+    const dir=(k.r||m.tp.r?1:0)-(k.l||m.tp.l?1:0);if(dir)p.face=dir;this.move(m,p,p.x+dir*999,.11*m.R.spd,dt,6,this.NET-6);p.face=dir||1;
+    // the CPU: run to where it'll come down (a beat late, a little off), set + jump-smash high balls, freeze/awaken now and then
+    if(m.state==="rally"&&sh&&sh.held==null&&(m.last===0||sh.kind==="set"&&sh.setBy===1)){if(m.t>c.think&&m.t>(c.react||0)){c.think=m.t+120;c.tx=Math.max(this.NET+8,Math.min(234,this.landX(m)+6+(sh.kind==="set"?0:c.err||0)));}
+      if(sh.x>this.NET&&sh.y<c.y-24&&Math.abs(sh.x-c.x)<12&&c.ground&&sh.vy>-.05&&Math.random()<.05*dt/16)this.jump(m,c,m.CR);}
     else if(m.state!=="point")c.tx=190;
-    this.move(m,c,c.tx,.085+Math.min(.03,m.pts[0]*.003),dt,this.NET+6,234);c.face=-1;
-    if(this.canHit(m,c,1)&&m.t-c.sw>200){const r=Math.random(),kind=!c.ground&&sh.y<c.y-18?"smash":r<.3?"drop":"clear";this.hit(m,c,1,kind);}
+    if(Math.abs(c.tx-c.x)>40&&m.t>c.dashCd&&m.state==="rally"&&Math.random()<.02){c.face=Math.sign(c.tx-c.x);this.dash(m,c,m.CR);}
+    this.move(m,c,c.tx,(.085+Math.min(.03,m.pts[0]*.003))*m.CR.spd,dt,this.NET+6,234);if(m.t>=c.dash)c.face=-1;
+    if(c.aw>=100&&!c.awOn&&Math.random()<.01)this.awaken(m,c);
+    if(m.state==="rally"&&sh.held==null&&m.last===0&&sh.x>this.NET+30&&m.t>c.frzCd&&Math.random()<.002)this.freeze(m,c);
+    if(this.canHit(m,c,1)&&m.t-c.sw>200){if(c.ground&&sh.kind!=="set"&&sh.y<c.y-10&&Math.random()<.2)this.set(m,c,1);
+      else{const pw=Math.random()*.9,kind=this.shotKind(m,c,pw,Math.random()<.3);this.hit(m,c,1,kind,pw,m.CR);}}
     if(m.state==="serve"){const s=m.server===0?p:c;sh.x=s.x+(m.server===0?6:-6);sh.y=s.y-16;
       if(m.server===1&&m.t>m.serveAt){m.state="rally";m.msg="";sh.held=null;m.last=1;this.aim(sh,18+Math.random()*30,1150,16);sh.kind="serve";c.sw=m.t;tone(600,.05,"square",.03);}}
-    if(m.state==="rally"&&sh&&sh.held==null){const ox=sh.x;sh.x+=sh.vx*dt;sh.y+=sh.vy*dt+.5*this.G*dt*dt;sh.vy+=this.G*dt;// exact for constant gravity, so shots follow the aimed arcm.trail.push({x:sh.x,y:sh.y});if(m.trail.length>8)m.trail.shift();
-      // the net: crossing it below the tape is a fault for whoever hit it
+    if(m.state==="rally"&&sh&&sh.held==null&&!(sh.frozen>m.t)){const ox=sh.x;sh.x+=sh.vx*dt;sh.y+=sh.vy*dt+.5*this.G*dt*dt;sh.vy+=this.G*dt;
+      if(sh.kind==="comet"){mBurst(m,sh.x,sh.y,1,["#ff5fd2","#fde047"],.3);}m.trail.push({x:sh.x,y:sh.y});if(m.trail.length>8)m.trail.shift();
       if((ox-this.NET)*(sh.x-this.NET)<=0&&sh.y>this.NET_TOP){sh.vx*=-.2;sh.x=this.NET+(ox<this.NET?-2:2);return this.point(m,1-m.last,"INTO THE NET");}
-      if(sh.y>=this.FLOOR){sh.y=this.FLOOR;const side=sh.x<this.NET?0:1,out=sh.x<4||sh.x>236;return out?this.point(m,1-m.last,"OUT"):this.point(m,1-side,side===0?"":"");}
+      if(sh.y>=this.FLOOR){sh.y=this.FLOOR;const side=sh.x<this.NET?0:1,out=sh.x<4||sh.x>236;return out?this.point(m,1-m.last,"OUT"):this.point(m,1-side,"");}
       if(sh.x<-10||sh.x>250)return this.point(m,1-m.last,"OUT");}},
-  drawPlayer(x,f,c1,c2,t,isMe){const sw=Math.max(0,1-(MG.t-f.sw)/220),px=f.x,py=f.y;
+  drawPlayer(x,m,f,R,c2,isMe){const sw=Math.max(0,1-(m.t-f.sw)/220),px=f.x,py=f.y,c1=R.c;
+    if(f.awOn)mGlow(x,px,py-10,14,"#ff5fd2",.5);if(m.t<f.dash){x.globalAlpha=.35;mR(x,px-3-f.face*6,py-12,6,8,c1);x.globalAlpha=1;}
     mR(x,px-3,py-12,6,8,c1);mR(x,px-3,py-12,6,2,c2);mD(x,px,py-16,3,"#ffd6b8");mR(x,px-3,py-19,6,2,c2);
-    const leg=f.ground&&Math.abs(f.vx||0)>0?((MG.t/90)|0)%2:0;mR(x,px-3,py-4,2,4,"#2d1b55");mR(x,px+1,py-4,2,4,"#2d1b55");
-    const a=-1.2+sw*2.6,rx=px+f.face*4+Math.cos(a)*f.face*7,ry=py-12+Math.sin(-a)*-7;x.strokeStyle="#e5e7eb";x.lineWidth=1;x.beginPath();x.moveTo(px+f.face*3,py-10);x.lineTo(rx,ry);x.stroke();
-    x.strokeStyle=c2;x.beginPath();x.ellipse(rx+f.face*2,ry-2,2.5,3.5,0,0,7);x.stroke();if(isMe)mT(x,"YOU",px,py-26,c2,5);},
-  draw(m,x,t,dt){const W=m.W,H=m.H,F=this.FLOOR,g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,"#1b1240");g.addColorStop(1,"#3a1f5e");x.fillStyle=g;x.fillRect(0,0,W,H);
-    // gym: lights, banners, stands
+    mR(x,px-3,py-4,2,4,"#2d1b55");mR(x,px+1,py-4,2,4,"#2d1b55");
+    const charging=isMe&&f.ch!=null,a=charging?-2.2:-1.2+sw*2.6,rx=px+f.face*4+Math.cos(a)*f.face*7,ry=py-12+Math.sin(-a)*-7;
+    x.strokeStyle="#e5e7eb";x.lineWidth=1;x.beginPath();x.moveTo(px+f.face*3,py-10);x.lineTo(rx,ry);x.stroke();x.strokeStyle=c1;x.beginPath();x.ellipse(rx+f.face*2,ry-2,2.5,3.5,0,0,7);x.stroke();
+    if(charging){const pw=Math.min(1,(m.t-f.ch)/1200);mR(x,px-8,py-30,16,3,"#1b1238");mR(x,px-8,py-30,16*pw,3,pw>=1?"#fde047":"#ff8fe0");}
+    if(isMe)mT(x,"YOU",px,py-26-(charging?6:0),c2,5);},
+  drawSelect(m,x,t){const W=m.W,H=m.H;mBg(x,W,H,t,"#1b1240","#3a1f5e");mT(x,"CUPIDIUM SMASH",W/2,14,"#ff8fe0",10);mT(x,"BETA · PICK YOUR RACKET",W/2,28,"#fdffb6",6);
+    this.RACKETS.forEach((R,i)=>{const cx=W/6+i*W/3,on=i===m.rk;mR(x,cx-36,40,72,78,on?"#3a2a6e":"#241a48");if(on){x.strokeStyle=R.c;x.lineWidth=1;x.strokeRect(cx-35.5,40.5,71,77);}
+      x.strokeStyle=R.c;x.beginPath();x.ellipse(cx,58,6,9,0,0,7);x.stroke();mR(x,cx-.5,66,1,10,"#e5e7eb");mT(x,R.nm,cx,84,R.c,5);
+      [["PWR",R.pow],["SPD",R.spd],["JMP",R.jmp]].forEach(([n,v],j)=>{mT(x,n,cx-24,94+j*7,"#c4b5fd",4,"left");mR(x,cx-8,92+j*7,32,3,"#1b1238");mR(x,cx-8,92+j*7,32*Math.min(1,v/1.4),3,R.c);});});
+    mT(x,this.RACKETS[m.rk].info,W/2,126,"#e9d5ff",5);mT(x,"← → PICK · SPACE / ENTER PLAY",W/2,140,"#fdffb6",5);},
+  draw(m,x,t,dt){if(m.scr==="select")return this.drawSelect(m,x,t);const W=m.W,H=m.H,F=this.FLOOR,g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,"#1b1240");g.addColorStop(1,"#3a1f5e");x.fillStyle=g;x.fillRect(0,0,W,H);
     for(let i=0;i<5;i++){mR(x,20+i*48,4,24,3,"#fde68a");x.globalAlpha=.07;x.fillStyle="#fde68a";x.beginPath();x.moveTo(20+i*48,7);x.lineTo(44+i*48,7);x.lineTo(56+i*48,F);x.lineTo(8+i*48,F);x.fill();x.globalAlpha=1;}
-    for(let i=0;i<24;i++)mR(x,i*10+((i*7)%5),40+((i*13)%8),6,6,["#ff8fe055","#9bf6ff55","#fdffb655","#c4b5fd55"][i%4]);
+    for(let i=0;i<24;i++)mR(x,i*10+((i*7)%5),40+((i*13)%8)+Math.round(Math.sin(t/300+i)*(m.state==="point"?2:0)),6,6,["#ff8fe055","#9bf6ff55","#fdffb655","#c4b5fd55"][i%4]);
     mR(x,0,F,W,H-F,"#3b7a57");mR(x,0,F,W,1,"#e5e7eb");mR(x,4,F,1,4,"#fff");mR(x,235,F,1,4,"#fff");mR(x,60,F,1,3,"#fff");mR(x,180,F,1,3,"#fff");
-    // net
     mR(x,this.NET-1,this.NET_TOP,2,F-this.NET_TOP,"#cbd5e1");for(let y=this.NET_TOP+3;y<F-6;y+=3)mR(x,this.NET-1,y,2,1,"#64748b");mR(x,this.NET-2,this.NET_TOP-1,4,2,"#fff");
-    this.drawPlayer(x,m.pl,"#ff8fe0","#fdf2f8",t,true);this.drawPlayer(x,m.cpu,"#67e8f9","#ecfeff",t,false);
-    // shuttle with a little tail
-    const sh=m.sh;if(sh){m.trail.forEach((q,i)=>{x.globalAlpha=i/14;mR(x,q.x-1,q.y-1,2,2,"#fff");});x.globalAlpha=1;const a=Math.atan2(sh.vy||0,sh.vx||1);
+    this.drawPlayer(x,m,m.pl,m.R,"#fdf2f8",true);this.drawPlayer(x,m,m.cpu,m.CR,"#ecfeff",false);
+    const sh=m.sh;if(sh){m.trail.forEach((q,i)=>{x.globalAlpha=i/14;mR(x,q.x-1,q.y-1,2,2,sh.kind==="comet"?"#ff5fd2":"#fff");});x.globalAlpha=1;const a=Math.atan2(sh.vy||0,sh.vx||1);
+      if(sh.frozen>m.t){mGlow(x,sh.x,sh.y,8,"#9bf6ff",.6);x.strokeStyle="#e0fcff";x.strokeRect(sh.x-5.5,sh.y-5.5,11,11);}
       x.save();x.translate(sh.x,sh.y);x.rotate(a);x.fillStyle="#f8fafc";x.beginPath();x.moveTo(-5,-3);x.lineTo(0,-1);x.lineTo(0,1);x.lineTo(-5,3);x.fill();x.fillStyle="#fb7185";x.fillRect(0,-1.5,2,3);x.restore();
-      if(sh.held==null&&sh.y<6){mT(x,"▲",sh.x,8,"#fff",6);}}
-    // scoreboard
+      if(sh.held==null&&sh.y<6)mT(x,"▲",sh.x,8,"#fff",6);}
     mR(x,W/2-40,10,80,16,"#0f0a24cc");mT(x,String(m.pts[0]),W/2-20,18,"#ff8fe0",10);mT(x,"–",W/2,18,"#e9d5ff",8);mT(x,String(m.pts[1]),W/2+20,18,"#67e8f9",10);
     mT(x,"BETA",W-14,8,"#fde047",5);if(m.msg)mT(x,m.msg,W/2,36,"#fdffb6",6);
+    // your skills: dash and freeze cooldowns, awakening meter
+    const p=m.pl,cd=(at,len)=>at>m.t?1-(at-m.t)/len:1,sk=[["Q DASH",cd(p.dashCd,900/m.R.spd),"#e9d5ff"],["1 FREEZE",cd(p.frzCd,14000),"#9bf6ff"],[p.awOn?"2 READY!":"2 AWAKEN",p.aw/100,"#ff5fd2"]];
+    sk.forEach(([n,v,c],i)=>{const bx=6+i*44;mR(x,bx,140,40,6,"#0f0a24cc");mR(x,bx+1,141,38*Math.max(0,Math.min(1,v)),4,v>=1?c:c+"66");mT(x,n,bx+20,136,v>=1?c:"#8b7fb8",4);});
     mFx(m,x,dt);mPops(m,x,dt);}};
 
 // ---------- 15. CUPIDIUM BRAWL (platform fighter, same device + controllers + CPUs) ----------
@@ -7693,7 +7741,7 @@ const ARCADE_CATS=[
   ["action","ACTION",[["blaster","Shoot waves of thieves and beat the boss."],["dash","Endless runner. Jump, slide, don't fall."],["rush","Fly and grab cupidium, dodge hazards."],["defense","Build turrets to guard the core."]]],
   ["arcade","ARCADE",[["breaker","Brick breaker with power-ups."],["golf","9 holes of wacky mini golf."],["stack","Stack the tallest crystal tower."],["rhythm","Project Sekai style: holds, flicks, 5 difficulties."]]],
   ["puzzle","PUZZLE",[["lab","Fuse elements up to cupidium."],["merge","Drop and merge atoms in a jar."],["isit","Real element or made up?"],["heist","Sneak the vial past the guards."]]],
-  ["versus","VERSUS",[["fight","1v1, 2v2 or free-for-all brawls."],["catch","Grab the most atoms, bump rivals."],["badminton","BETA · badminton vs the CPU: clears, drops, smashes."]]],
+  ["versus","VERSUS",[["fight","1v1, 2v2 or free-for-all brawls."],["catch","Grab the most atoms, bump rivals."],["badminton","BETA · Racket Rivals style badminton: power swings, set + smash, skills."]]],
   ["more","MORE",[["miner","Drill deep for rare ore."],["xc","Cross country career: train and race 5Ks."]]]];
 const ARCADE_NAMES={rush:"CUPIDIUM RUSH"};
 // small pixel icons for the arcade list
@@ -7707,7 +7755,7 @@ const AICON={
   golf:x=>{mR(x,0,16,24,8,"#a9ebbc");mD(x,16,19,2.5,"#2d1b55");mR(x,16,4,1,15,"#fff");mR(x,17,4,5,3,"#ff5fd2");mD(x,6,19,1.8,"#fff");},
   stack:x=>{const c=["#ffadad","#ffd6a5","#fdffb6","#caffbf","#9bf6ff"];for(let i=0;i<5;i++)mR(x,4+(i%2)*2-i%3,19-i*4,16-i,3,c[i]);},
   rhythm:x=>{for(let i=0;i<4;i++)mR(x,2+i*6,0,4,24,"#ffffff10");mR(x,1,19,22,1,"#c4b5fd");mD(x,5,8,2,"#93c5fd");mD(x,17,13,2,CUPC);mD(x,11,4,2,"#fde68a");},
-  lab:x=>{mR(x,3,3,18,18,"#ff8fe0");mR(x,3,3,18,2,"#ffd6f5");mT(x,"Cy",12,12,"#2d1b55",8);},
+  lab:x=>{mR(x,3,3,18,18,"#ff8fe0");mR(x,3,3,18,2,"#ffd6f5");mT(x,"Ci",12,12,"#2d1b55",8);},
   merge:x=>{mR(x,3,4,1,18,"#c4b5fd");mR(x,20,4,1,18,"#c4b5fd");mR(x,3,21,18,1,"#c4b5fd");mD(x,8,17,3.5,"#67e8f9");mD(x,15,16,4.5,"#fb923c");mD(x,10,10,2.5,"#fde68a");},
   isit:x=>{mR(x,1,4,10,16,"#ffadad55");mR(x,13,4,10,16,"#caffbf55");mT(x,"?",12,12,"#fdffb6",12);},
   heist:x=>{mD(x,12,12,8,"#1e293b");mR(x,5,10,14,3,"#ff5fd2");mR(x,8,11,2,1,"#fff");mR(x,14,11,2,1,"#fff");mD(x,20,4,2,CUPC);},

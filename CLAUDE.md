@@ -71,9 +71,11 @@ Relay (separate repo `lele-io/cupidium-relay`): Cloudflare Worker + one Durable 
 
 ## Arcade
 - Games are `MGAMES.<id>` objects (`init/update/draw/key/ptr`, `m.t` ms, `m.keys`, keys `l r u dn sp ent`), listed in `ARCADE_CATS`
-  with a pixel icon in `AICON`. Cupidium's element symbol is **Cy** (never "Cp").
-- `badminton` (CUPIDIUM SMASH) is a beta: side-view badminton vs a CPU. Its physics are exact for constant gravity so `aim()`'s
-  arcs are what you get; the CPU has a reaction delay and a misjudgment per shot (`react`, `err`) so it can be beaten.
+  with a pixel icon in `AICON`. Cupidium's element symbol is **Ci** (C and i are both in the name; never "Cp").
+- `badminton` (CUPIDIUM SMASH, beta) plays like Racket Rivals (the owner asked for similar, not a copy): 3 rackets with power/speed/jump,
+  tap or HOLD-to-charge swings, jump smash, SET (pop it up for yourself), DASH, FREEZE (spirit-style skill), AWAKENING meter -> COMET shot.
+  `aim()` lifts low shots over the net and slows them so they still land on target; the shuttle physics are exact for constant gravity.
+  The CPU has a reaction delay and a misjudgment per shot (`react`, `err`). Check balance with a quick Node simulation of matches.
 - Rhythm: notes travel at a constant speed (`fOf` is linear); the highway only narrows for the 3D look.
 
 ## Layout rules (the owner is strict about these)
