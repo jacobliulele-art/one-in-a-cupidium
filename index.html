@@ -891,6 +891,11 @@ body.gated>*:not(#gateBlock){visibility:hidden!important}
 .trpv{width:min(760px,94vw);display:flex;flex-direction:column;gap:8px}.trpvpic{overflow:auto;max-height:60vh;border:2px solid var(--edge);background:#000}.trpvc{display:block;width:100%;image-rendering:pixelated}
 .trvotes{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:4px 0 8px}.trvote{display:flex;flex-direction:column;align-items:center;text-align:center;padding:5px 10px;border:2px solid var(--edge);background:rgba(255,255,255,.06)}
 .trvote.pick{border-color:var(--hl)}.trvote b{font-size:12px}.trvote .trvn{font-size:11px;color:var(--hl)}.trvote small{font-size:10px;opacity:.8}
+.trkills{position:absolute;left:50%;bottom:58px;transform:translateX(-50%);display:flex;gap:14px;pointer-events:none;z-index:6}
+.trkill{display:flex;flex-direction:column;align-items:center;text-align:center;animation:trkIn .3s cubic-bezier(.2,1.5,.4,1) both;transition:opacity .4s}.trkill.out{opacity:0}
+.trkill .ring{width:58px;height:58px;border:3px solid #fff;border-radius:50%;background:rgba(10,8,30,.45);display:grid;place-items:center;box-shadow:0 0 10px rgba(0,0,0,.5)}
+.trkill img{width:42px;height:42px;image-rendering:pixelated}.trkill b{font-size:13px;color:#ffd1d9;text-shadow:0 2px 0 #000,0 0 4px #000;margin-top:2px}
+.trkill small{font-size:12px;color:#ff8fa3;text-shadow:0 2px 0 #000,0 0 4px #000}@keyframes trkIn{from{transform:scale(.3);opacity:0}}
 .trscore{max-width:720px}.trsc{display:flex;flex-direction:column;gap:8px;margin:10px 0}.trsrow{display:grid;grid-template-columns:120px 1fr 40px;gap:8px;align-items:center;text-align:left}
 .trsrow.me .trsn b{color:var(--hl)}.trsn{display:flex;flex-direction:column;line-height:1.2}.trsn small{font-size:10px;opacity:.75}.trsrow strong{font-size:18px;text-align:right}
 .trsbar{position:relative;height:22px;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.2);display:flex;overflow:visible}
@@ -959,7 +964,8 @@ body.gated>*:not(#gateBlock){visibility:hidden!important}
 .twcol{display:flex;flex-direction:column;align-items:center;gap:4px;flex:0 0 auto;width:58px}
 .twcol .twh{font-family:var(--head);font-size:10px}
 .twstack{display:flex;flex-direction:column-reverse;width:42px;border-radius:3px 3px 0 0;overflow:hidden;box-shadow:0 0 0 2px rgba(255,255,255,.12)}
-.twstack i{display:block;width:100%;border-top:1px solid rgba(0,0,0,.35);background:var(--c);box-shadow:inset 3px 0 0 rgba(255,255,255,.25),inset -3px 0 0 rgba(0,0,0,.18)}
+.twstack i{display:block;width:100%;min-height:0;background:var(--c);box-sizing:border-box;box-shadow:inset 3px 0 0 rgba(255,255,255,.25),inset -3px 0 0 rgba(0,0,0,.18),inset 0 -1px 0 rgba(0,0,0,.35)}
+.twboard{width:100%;align-self:stretch}.twstage{justify-content:center}
 .twstack.solid{background:repeating-linear-gradient(0deg,#a78bfa 0 8px,#8b5cf6 8px 9px)}
 .twcol.me .twstack{box-shadow:0 0 0 2px #fde047,0 0 14px rgba(253,224,71,.5)}
 .twcol small{font-size:10px;max-width:58px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;opacity:.85}
@@ -1089,6 +1095,17 @@ button.lbn .flb{flex:0 0 auto;margin-right:2px}button.lbn .flt{flex:0 1 auto;ove
 .lcard,.mbtn,.skin,.bvitem,.bvgame,.tritem,.glass.card,.casgrid>*,.shopgrid>*,.achgrid>*,.devmenu>*,.skin h3,.skin canvas{text-align:center;margin-inline:auto}
 .lcard,.mbtn,.skin{align-items:center;justify-content:center}
 @media (max-width:560px){.modegrid>*,.xdailies>*,.casgrid>*{flex-basis:calc(50% - 6px);min-width:0}}
+/* compact pages: the default page is narrower, so cards are filled with their content instead of wide empty bands
+   (wide pages such as the leaderboards keep their own width) */
+#panel>.inner:not(.wide):not(.partyp){width:min(640px,100%)}
+#panel>.inner.wide{width:min(980px,100%)}
+#panel>.inner:has(#mgwrap){width:min(700px,100%)}
+.landing{max-width:640px;margin-inline:auto;gap:10px}.landing>*{flex-basis:calc(50% - 5px)}
+.lcard{padding:14px 14px!important;gap:6px!important}.lcard b{line-height:1.25}.lcard span{line-height:1.35}
+.glass.card{padding:10px 14px}.modegrid,.xdailies{gap:10px}
+.modegrp>*,.modesub>*{flex:0 1 calc(50% - 5px)!important;min-width:0!important}.modegrp .mbtn.on{outline:3px solid var(--hl,#fde68a);outline-offset:2px}
+.modesub[hidden]{display:none!important}.modesub{animation:uiIn .18s ease-out both}
+.twtop{width:100%}
 /* leaderboards: boards stack in columns (see lbMasonry) */
 .lbgrid.masonry{display:flex;gap:8px;align-items:flex-start}.lbcol{flex:1 1 0;display:flex;flex-direction:column;gap:8px;min-width:0}
 </style>
@@ -2523,6 +2540,40 @@ if(typeof BLURBS!=="undefined")Object.assign(BLURBS,{
  rot("Name a US state that ends in the letter A",["north dakota","south dakota","west virginia","nebraska"]);
  rot("Name a US state on the Atlantic coast",["delaware","connecticut","new hampshire","rhode island","maryland"]);
  rot("Name a US state that touches the Mississippi River",["wisconsin","iowa","kentucky","minnesota"]);}
+// ===== Nov 20: household names out of the rare tiers, Silver Palace, towers =====
+{const P=q=>PROMPTS.find(p=>p.q===q);
+ const nk=s=>String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/['’ʻʼ`´]/g,"").replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim().replace(/^(the|a|an) /,"");
+ const ks=x=>x.split("/").map(nk);
+ const T=p=>{p.t=p.t||[];while(p.t.length<5)p.t.push("");return p.t.map(s=>s?s.split("|").filter(Boolean):[]);};
+ const save=(p,t)=>{p.t=t.map(a=>a.join("|"));p.idx=null;p._cx=null;};
+ const put=(q,tier,list)=>{const p=P(q);if(!p)return;const t=T(p);
+   for(const a of list.split("|")){const names=ks(a);let kept=a;
+     for(let i=0;i<t.length;i++)t[i]=t[i].filter(x=>{if(ks(x).some(k=>names.includes(k))){if(!a.includes("/")&&x.length>kept.length)kept=x;return false;}return true;});
+     t[tier].push(kept);}
+   save(p,t);};
+ // an emptied ONE IN A CUPIDIUM tier gets the first tier-3 answer that isn't a household name
+ const refill4=(t,isFamous)=>{if(t[4].length)return;const i=t[3].findIndex(x=>!isFamous(x));if(i>=0)t[4]=t[3].splice(i,1);};
+ // Why Paris and Seoul were second rarest for "a city with more than 10 million people": that prompt's tiers followed the
+ // population ranking (biggest = most common), so famous cities that only just pass 10 million (Paris, Seoul, London) landed
+ // in the rare tiers even though almost everyone names them. Rule for every size/population prompt about places: a household
+ // name (a top answer in 3+ place prompts) can't be in the two rarest tiers. Trick prompts (borders, flags, rivers, Olympics…)
+ // keep their surprising picks, since there a famous name really is a rare answer.
+ {const PL=q=>/\b(cit(y|ies)|countr(y|ies)|capital|nation|place)\b/i.test(q),SIZE=q=>/million|population|people|largest|biggest|tallest|most visited|square kilometers/i.test(q);
+  const top={};for(const p of PROMPTS){if(!p.t||!PL(p.q))continue;for(const x of String(p.t[0]||"").split("|").filter(Boolean)){const k=ks(x)[0];top[k]=(top[k]||0)+1;}}
+  const fam=x=>(top[ks(x)[0]]||0)>=3;
+  for(const p of PROMPTS){if(!p.t||p.deep||p.ds||!PL(p.q)||!SIZE(p.q))continue;const t=T(p);let ch=false;
+    for(const i of [3,4]){const keep=[];for(const x of t[i]){if(fam(x)){t[2].push(x);ch=true;}else keep.push(x);}t[i]=keep;}
+    if(ch){refill4(t,fam);save(p,t);}}}
+ // Vatican City is a household name: never in the two rarest tiers of any prompt
+ for(const p of PROMPTS){if(!p.t)continue;const t=T(p);let ch=false;
+   for(const i of [3,4]){t[i]=t[i].filter(x=>{if(ks(x).includes("vatican city")){t[2].push(x);ch=true;return false;}return true;});}
+   if(ch){refill4(t,x=>ks(x).includes("vatican city"));save(p,t);}}
+ // open-world games: Silver Palace (an upcoming open-world anime RPG) is real
+ put("Name an open-world game",3,"silver palace");
+ // towers: Djibouti City isn't famous for a tower; San Gimignano (the medieval "town of fine towers") and Bologna (the Two Towers) are
+ put("Name a city famous for a tower",2,"djibouti city/djibouti");
+ put("Name a city famous for a tower",3,"bologna");
+ {const p=P("Name a city famous for a tower");if(p){const t=T(p);t[3]=t[3].concat(t[4]);t[4]=[];save(p,t);put("Name a city famous for a tower",4,"san gimignano");}}}
 </script>
 <script>
 // ===== Pixel-art refiner: turns flat, black-outlined grids into multi-tone sprites with colored edges =====
@@ -2660,26 +2711,30 @@ function casino(){CAS={};const c=casChips(),day=today(),bonus=store.get("otc.cas
 // ---------- BLACKJACK ----------
 const bjVal=h=>{let t=0,a=0;for(const c of h){const v=c.r===12?11:c.r>=8?10:c.r+2;t+=v;if(c.r===12)a++;}while(t>21&&a){t-=10;a--;}return t;};
 const bjSoft=h=>{let t=0,a=0;for(const c of h){t+=c.r===12?11:c.r>=8?10:c.r+2;if(c.r===12)a++;}while(t>21&&a){t-=10;a--;}return a>0&&t<=21;};
-function bj(st){const G=CAS.bj||(CAS.bj={phase:"bet"});if(st)Object.assign(G,st);const done=G.phase==="done",play=G.phase==="play";
-  const dealerShown=play?[G.d[0],null]:G.d||[];
+function bj(st){const G=CAS.bj||(CAS.bj={phase:"bet"});if(st)Object.assign(G,st);const reveal=G.phase==="reveal",done=G.phase==="done",play=G.phase==="play"||reveal&&G.dShow<2;
+  const dealerShown=play?[G.d[0],null]:reveal?G.d.slice(0,G.dShow):G.d||[];
   panelIn("bj",`${casTop("🂡 BLACKJACK")}
     <div class="glass card casfelt">
-      <div class="lbl">DEALER ${G.d?(play?"":"· "+bjVal(G.d)):""}</div><div class="hand">${G.d?dealerShown.map((c,i)=>casCard(c,{back:!c,k:"d"+i})).join(""):`<div class="ccard ghost"></div><div class="ccard ghost"></div>`}</div>
+      <div class="lbl">DEALER ${G.d?(play?"":"· "+bjVal(dealerShown)):""}</div><div class="hand">${G.d?dealerShown.map((c,i)=>casCard(c,{back:!c,k:"d"+i})).join(""):`<div class="ccard ghost"></div><div class="ccard ghost"></div>`}</div>
       <div class="casmsg">${G.msg||"Place a bet and deal."}</div>
       <div class="hand">${G.p?G.p.map((c,i)=>casCard(c,{k:"p"+i})).join(""):`<div class="ccard ghost"></div><div class="ccard ghost"></div>`}</div><div class="lbl">YOU ${G.p?"· "+bjVal(G.p)+(bjSoft(G.p)&&bjVal(G.p)<21?" (soft)":""):""}${G.bet?` · BET ${G.bet}`:""}</div></div>
-    ${play?`<div class="row" style="justify-content:center;gap:8px"><button class="pbtn c m-nova" data-act="bjHit">HIT</button><button class="pbtn c m-ice" data-act="bjStand">STAND</button>${G.p.length===2&&casChips()>=G.bet?`<button class="pbtn c m-sun" data-act="bjDouble">DOUBLE</button>`:""}</div>`
+    ${reveal?`<div class="row" style="justify-content:center"><button class="pbtn" disabled>DEALER'S TURN…</button></div>`:play?`<div class="row" style="justify-content:center;gap:8px"><button class="pbtn c m-nova" data-act="bjHit">HIT</button><button class="pbtn c m-ice" data-act="bjStand">STAND</button>${G.p.length===2&&casChips()>=G.bet?`<button class="pbtn c m-sun" data-act="bjDouble">DOUBLE</button>`:""}</div>`
       :`${casBetBar()}<div class="row" style="justify-content:center"><button class="pbtn c m-nova" data-act="bjDeal">${done?"DEAL AGAIN":"DEAL"}</button></div>`}
     <p class="hint center">Dealer stands on 17. Blackjack pays 3:2. Double on your first two cards. ${BJ_DECKS}-deck shoe · ${BJ_SHOE?BJ_SHOE.length:BJ_DECKS*52} cards left before the reshuffle at ${Math.round(BJ_DECKS*52*.25)}.</p>`,{cls:"menu"});}
 function bjDeal(){const bet=casBet(),c=casChips();if(c<bet||bet<1)return toast("Not enough chips");casSet(c-bet);const sh=bjShoe();
   const G={phase:"play",sh,bet,p:[sh.pop(),sh.pop()],d:[sh.pop(),sh.pop()],msg:""};CAS.bj=G;sfx.tick();
   if(bjVal(G.p)===21||bjVal(G.d)===21)return bjEnd();bj();}
-function bjEnd(){const G=CAS.bj;G.phase="done";const pv=bjVal(G.p),dv=bjVal(G.d),pbj=pv===21&&G.p.length===2,dbj=dv===21&&G.d.length===2;let pay=0,msg;
+function bjEnd(){const G=CAS.bj;if(G.phase!=="play")return;G.phase="reveal";const pv=bjVal(G.p),dv=bjVal(G.d),pbj=pv===21&&G.p.length===2,dbj=dv===21&&G.d.length===2;let pay=0,msg;
   if(pv>21){msg="BUST. Dealer wins.";}
   else if(pbj&&!dbj){pay=Math.floor(G.bet*2.5);msg=`BLACKJACK! +${pay-G.bet}`;}
   else if(dbj&&!pbj){msg="Dealer has blackjack.";}
   else{if(!pbj){while(bjVal(G.d)<17)G.d.push(G.sh.pop());}const d2=bjVal(G.d);
     if(d2>21||pv>d2){pay=G.bet*2;msg=d2>21?`Dealer busts! +${G.bet}`:`You win! +${G.bet}`;}else if(pv===d2){pay=G.bet;msg="Push. Bet returned.";}else msg=`Dealer wins with ${d2}.`;}
-  if(pay)casSet(casChips()+pay,pay-G.bet);if(pay>G.bet){sfx.ok(3);burst(20);}else if(!pay)sfx.miss();G.msg=msg;bj();}
+  // play the dealer's cards out one at a time, then settle
+  G.dShow=1;G.msg="";const hand=G,step=()=>{if(CAS.bj!==hand||hand.phase!=="reveal")return;hand.dShow++;sfx.tick();
+    if(hand.dShow<hand.d.length){bj();return void setTimeout(step,650);}
+    hand.phase="done";if(pay)casSet(casChips()+pay,pay-hand.bet);if(pay>hand.bet){sfx.ok(3);burst(20);}else if(!pay)sfx.miss();hand.msg=msg;bj();};
+  bj();setTimeout(step,500);}
 // ---------- TEXAS HOLD'EM (you vs three cupid bots) ----------
 // The big blind is your chosen bet. Your bets come out of your chips; the bots play with house money.
 // read = how often their face shows what they really hold · flip = the rest of the time they act the opposite (else a blank poker face)
@@ -4148,6 +4203,10 @@ const QNOTE={"Name a country in the G20":"The G20 is a group of 19 countries wit
 Object.assign(QNOTE,{"Name a tarot card": "The 78 cards of a tarot deck: the Major Arcana (The Fool, Death...) and the suit cards (cups, wands, swords, pentacles)", "Name a Unix or terminal command": "Commands typed into a Mac or Linux terminal, like ls, cd or grep", "Name an HTML tag": "The building blocks of web pages, like div, p or img", "Name a famous algorithm or data structure": "Programming recipes and ways to store data, like binary search or a hash table", "Name a cipher or secret code": "A way of hiding a message, like the Caesar cipher or Enigma", "Name an intelligence or spy agency": "A government spy service, like the CIA, MI6 or the KGB", "Name a logical fallacy": "A flaw in an argument, like ad hominem or a straw man", "Name a cognitive bias": "A thinking shortcut that leads people wrong, like confirmation bias", "Name a type of screw, nail or fastener": "Anything that holds things together: screws, bolts, rivets, zippers, and screw types like Phillips", "Name a gemstone cut or piece of jewelry": "A piece of jewelry (ring, necklace...) or a way gems are cut (princess, emerald...)", "Name a piece of armor": "A piece of a knight's or soldier's armor, like a helmet, breastplate or gauntlets", "Name a term from sailing or boats": "Boat words like port, starboard, bow or mast", "Name a snowboarding or skiing term": "Slope words, tricks and events, like moguls, a halfpipe or a 1080", "Name a surfing term": "Surf words like barrel, wipeout or hang ten", "Name a poker hand or poker term": "Like a full house, a bluff or the river", "Name an English word borrowed from Japanese": "An everyday English word that came from Japanese, like tsunami or karaoke", "Name an English word borrowed from French": "An everyday English word that came from French, like cafe or ballet", "Name an English word borrowed from Spanish": "An everyday English word that came from Spanish, like patio or tornado", "Name an English word borrowed from Yiddish or German": "An everyday English word from Yiddish or German, like kindergarten or klutz", "Name a word borrowed into English from Arabic": "An everyday English word that came from Arabic, like algebra or coffee", "Name a writing system or alphabet": "A script for writing a language, like Cyrillic, hangul or hieroglyphs", "Name a Lego theme or set line": "A Lego product line, like Lego City, Ninjago or Bionicle", "Name a gland in the human body": "A body part that makes and releases something, like the thyroid or sweat glands", "Name a poetic form": "A type of poem with its own rules, like a sonnet or a haiku", "Name a disease named after a person": "Named after the doctor who described it (or a patient), like Alzheimer's or Parkinson's", "Name a unit of measurement named after a person": "Like the watt, the newton or the kelvin", "Name a famous chemistry experiment, reaction or process": "Like electrolysis, the Haber process or elephant toothpaste", "Name a law or equation in physics": "Like Newton's laws, E=mc2 or Ohm's law", "Name a speedrun or gaming community term": "Gaming slang like any%, PB, RNG or GG", "Name a US constitutional amendment by what it does": "Say what an amendment does, like free speech (1st) or abolishing slavery (13th)", "Name a country that has changed its capital city since 1950": "Like Brazil (Rio to Brasilia) or Nigeria (Lagos to Abuja)", "Name a Central Asian or Caucasus capital": "Capitals of the 'stans and the countries between the Black and Caspian Seas", "Name a creature from European folklore": "Monsters and spirits from European myths and legends, like trolls, kelpies or Baba Yaga", "Name a type of coin or old coin": "Real coins, modern or historic, like a nickel, a doubloon or a denarius", "Name a city with a famous subway or metro": "A city with an underground or metro rail system", "Name a cactus or succulent": "Plants that store water in thick leaves or stems, like aloe or a saguaro", "Name a crustacean": "Shelled animals like crabs, shrimp, barnacles and pill bugs", "Name a term from music theory": "Like chord, tempo, crescendo or the circle of fifths", "Name a genre of electronic music": "Like house, techno or dubstep", "Name a famous photographer or photo": "A photographer, or a famous photo like Earthrise or Migrant Mother", "Name a world record in track and field": "Name an event with a world record, like the 100m or the marathon", "Name a named regional wind": "A local wind with its own name, like the Mistral or the Santa Ana", "Name a lanthanide element": "The row of elements from lanthanum to lutetium (the 'rare earths' row)", "Name an actinide element": "The row of elements from actinium to lawrencium, like uranium and plutonium", "Name a phylum or major group of animals": "A big branch of the animal family tree, like arthropods or chordates", "Name an SI base unit": "The 7 base units of the metric system, like the meter and the kilogram", "Name a Japanese era name (nengō)": "The names Japan gives its eras, like Reiwa (now) or Meiji", "Name a mineral on the Mohs hardness scale": "The 10 minerals used to rank hardness, from talc (1) to diamond (10)", "Name a famous psychology experiment or effect": "Like the Stanford prison experiment or the placebo effect", "Name a famous esports team, player or event": "Like T1, Faker or the League of Legends Worlds"});
 // Nov 19: short explanations for obscure prompts (shown under the prompt)
 Object.assign(QNOTE,{
+"Name a city north of the Arctic Circle":"The Arctic Circle is the line around the top of the Earth (about 66.5° north) above which the sun stays up all day in midsummer and never rises in midwinter",
+"Name a country that reaches north of the Arctic Circle":"The Arctic Circle is the line around the top of the Earth (about 66.5° north) above which the sun stays up all day in midsummer and never rises in midwinter",
+"Name a country the Tropic of Cancer passes through":"The Tropic of Cancer is the line about 23.4° north of the equator: the furthest north the sun is ever directly overhead",
+"Name a country the Tropic of Capricorn passes through":"The Tropic of Capricorn is the line about 23.4° south of the equator: the furthest south the sun is ever directly overhead",
 "Name a city that was in the Hanseatic League":"The Hanseatic League was a medieval trading alliance of North German and Baltic cities (1200s-1600s), like Lübeck and Hamburg",
 "Name a former name of a country that still exists":"A country that was once called something else, like Siam (now Thailand) or Persia (now Iran)",
 "Name a moon of Uranus":"Uranus has nearly 30 known moons, mostly named after characters from Shakespeare and Pope, like Titania and Ariel",
@@ -4437,8 +4496,10 @@ function playRound(p,o){if(DSM())o=Object.assign({},o,{secs:15});
       sfx.bad();$("cntIt").onclick=()=>{const e={display:txt.toLowerCase(),tier:2,keys:[norm(txt)],ai:true,manual:true};finish(e);};inp.select();return;}
     if((r&&r.invalid||!r)&&aiReady()&&appeals<AP_MAX){reject(r?"NOT VALID"+(r.why?": "+esc(r.why):""):"NOT ON THE LIST");offerAp();return;}
     if(r&&r.invalid)return reject("NOT VALID"+(r.why?": "+esc(r.why):""));
-    if(r&&r.display&&r.fixAsk){asking={yes:()=>{asking=null;finish(r.orig);},no:()=>{asking=null;reject("OK, TRY ANOTHER.");}};askFix(fb,r.orig,asking.yes,asking.no);return;}
-    if(r&&r.display&&!directFix(txt,r.orig||r)){const e=r.orig||r;asking={yes:()=>{asking=null;finish(e);},no:()=>{asking=null;reject("OK, TRY ANOTHER.");}};askFix(fb,e,asking.yes,asking.no);return;}
+    // saying NO to "did you mean…?" means the player meant what they typed: let them prove it's real
+    const noFix=()=>{asking=null;reject("OK, NOT THAT ONE.");if(aiReady()&&appeals<AP_MAX)offerAp();};
+    if(r&&r.display&&r.fixAsk){asking={yes:()=>{asking=null;finish(r.orig);},no:noFix};askFix(fb,r.orig,asking.yes,asking.no);return;}
+    if(r&&r.display&&!directFix(txt,r.orig||r)){const e=r.orig||r;asking={yes:()=>{asking=null;finish(e);},no:noFix};askFix(fb,e,asking.yes,asking.no);return;}
     if(r&&r.display)return finish(r.orig||r);
     reject("NOT ON THE LIST. TRY ANOTHER.");
     // up to 3 "IT'S REAL!" appeals per prompt; a failed one can be tried again with a better hint
@@ -5033,11 +5094,9 @@ function home(){
       <span class="cal"><small>${d.toLocaleString("en-US",{month:"short"}).toUpperCase()}</small><b>${d.getDate()}</b></span>
       <span class="dtxt"><small>TODAY'S MISSION · #${num}</small><b>${M.daily}</b><span>${done?`${done.score} pts · ${zoneAt(done.score*K).n.toLowerCase()}`:`${ROUNDS} prompts · one shot each`}</span></span>
       <span class="dgo">${done?"RESULT":TH.go}</span></button>
+    <div class="modegrid modegrp">${modeGrpHtml()}</div>
+    <div class="modegrid modesub" id="modeSub" ${store.get("otc.modeGrp","")?"":"hidden"}>${modeSubHtml(store.get("otc.modeGrp",""))}</div>
     <div class="modegrid">
-      <button class="mbtn m-fire" data-act="blitz">${M.blitz}${bb?`<small>BEST ${bb}</small>`:""}</button>
-      <button class="mbtn m-ice" data-act="endless">${M.endless}${store.get(runKey("endless",false),null)?`<small>RUN IN PROGRESS</small>`:eb?`<small>BEST ${eb}</small>`:""}<small class="fuelnote">⛽ common answers burn fuel · rare ones refuel</small></button>
-      <button class="mbtn m-fire" data-act="rendless">${M.rendless}${store.get(runKey("rendless",false),null)?`<small>RUN IN PROGRESS</small>`:rb?`<small>BEST ${rb}</small>`:""}<small class="fuelnote">⛽ common answers burn fuel · rare ones refuel</small></button>
-      <button class="mbtn m-mint" data-act="practice">${M.practice}</button>
       <button class="mbtn m-mint wide" data-act="geo">🌍 GEOGRAPHY<small>${store.get(dKey(true),null)?"✓ DAILY DONE":"NEW DAILY GEOGRAPHY"} · ${PROMPTS.filter(p=>isGeo(p)&&dsOk(p)).length} PLACE PROMPTS</small></button>
     </div>
     <div class="menubar">
@@ -5053,6 +5112,13 @@ function home(){
     <details class="glass legend"><summary>HOW SCORING WORKS ▾</summary><div class="tiers">${TIERS.slice(0,5).map((t,i)=>`<span>${tchip(i)}</span><span class="hint">${t.desc}</span>`).join("")}</div>
       <p class="hint" style="margin:10px 0 0">⛽ Endless runs have fuel: common answers and misses burn it, rare answers refill it. Empty tank ends the run.</p><p class="hint" style="margin:10px 0 0">${PROMPTS.length} prompts · ${(window.__ansN=window.__ansN||PROMPTS.reduce((a,p)=>a+p.t.reduce((b,t)=>b+(t?t.split("|").length:0),0),0)).toLocaleString()} answers in the bank. Answers not on the list are checked by AI when it's on${SAMPLE?"":", and by Wikipedia, where fewer page views means a rarer answer"}.</p></details>`,{cls:"menu"});
 }
+// the mode picker on the Off the Charts menu
+function modeGrpHtml(){const g=store.get("otc.modeGrp","");return `<button class="mbtn m-ice${g==="normal"?" on":""}" data-act="modeGrp" data-g="normal">NORMAL<small>ENDLESS · PRACTICE</small></button><button class="mbtn m-fire${g==="rapid"?" on":""}" data-act="modeGrp" data-g="rapid">⚡ RAPID FIRE<small>ENDLESS · PRACTICE</small></button>`;}
+function modeSubHtml(g){if(!g)return"";const eb=store.get(bestKey("endless",false),0),bb=store.get(bestKey("blitz",false),0),rb=store.get(bestKey("rendless",false),0);
+  return g==="rapid"?`<button class="mbtn m-fire" data-act="rendless">ENDLESS${store.get(runKey("rendless",false),null)?"<small>RUN IN PROGRESS</small>":rb?`<small>BEST ${rb}</small>`:""}</button><button class="mbtn m-fire" data-act="blitz">PRACTICE${bb?`<small>BEST ${bb}</small>`:""}</button>`
+    :`<button class="mbtn m-ice" data-act="endless">ENDLESS${store.get(runKey("endless",false),null)?"<small>RUN IN PROGRESS</small>":eb?`<small>BEST ${eb}</small>`:""}</button><button class="mbtn m-mint" data-act="practice">PRACTICE</button>`;}
+setTimeout(()=>Object.assign(ACT,{modeGrp:b=>{const cur=store.get("otc.modeGrp",""),g=cur===b.dataset.g?"":b.dataset.g;store.set("otc.modeGrp",g);
+  const grp=document.querySelector(".modegrp"),sub=$("modeSub");if(grp)grp.innerHTML=modeGrpHtml();if(sub){sub.innerHTML=modeSubHtml(g);sub.hidden=!g;}}}),0);
 function skins(){
   const cur=skinId();
   showPanel(`
@@ -5154,7 +5220,7 @@ function soloResults(data,mode){
       <div class="ra">${esc(r.ans)}${r.ai?`<span class="aitag">AI</span>`:""}<br>${tchip(r.tier)}</div></div>`).join("")}</div>
     ${mode==="daily"?`<div id="lbBox"></div><p class="hint center">${lbOn()?"Everyone gets the same "+data.log.length+" prompts today. The board updates live.":"This version can't reach the shared boards, so this shows scores on this device."} New Daily at midnight Eastern time.</p>`:""}
     <div class="row"><button class="pbtn c m-mint" data-act="${data.geo?(mode==="daily"?"geo":"practiceGeo"):"practice"}">${mode==="daily"?(data.geo?"MORE GEOGRAPHY":"PLAY PRACTICE"):"PLAY AGAIN"}</button><button class="pbtn" data-act="copy" data-share="${esc(share)}">COPY RESULT</button>${mode==="daily"?"":`<button class="pbtn c m-sun" data-act="leaderboards" data-back="${data.geo?"geo":"home"}" data-k="${data.geo?"dailyGeo":"daily"}">🏆 LEADERBOARDS</button>`}<button class="pbtn" data-act="blitz">${TH.modes.blitz}</button><button class="pbtn" data-act="endless">${TH.modes.endless}</button><button class="pbtn" data-act="home">HOME</button></div>`);
-  if(mode==="daily"){LBV.k=data.kind?KIND[data.kind].lb:data.geo?"dailyGeo":"daily";LBV.sec="otc";if(typeof lbStart==="function")lbStart();lbRender();}
+  if(mode==="daily"){LBV.k=data.kind?KIND[data.kind].lb:data.geo?"dailyGeo":"daily";if(DSM()&&DS_LB[LBV.k])LBV.k=DS_LB[LBV.k];LBV.sec="otc";if(typeof lbStart==="function")lbStart();lbRender();}
 }
 
 // ================= Endless (saved runs; your altitude/depth carries on) =================
@@ -5937,7 +6003,7 @@ addEventListener("touchmove",e=>{if(!CUP)return;const r=cv.getBoundingClientRect
 // plus Cupidium Rush (which flies through the main scene).
 const MGAMES={};let MG=null;
 const ELEM=[["H","HYDROGEN","#93c5fd"],["He","HELIUM","#fde68a"],["Li","LITHIUM","#fca5a5"],["C","CARBON","#9ca3af"],["O","OXYGEN","#67e8f9"],
-  ["Fe","IRON","#fb923c"],["Ag","SILVER","#e5e7eb"],["Au","GOLD","#facc15"],["Pt","PLATINUM","#c4b5fd"],["U","URANIUM","#86efac"],["Cp","CUPIDIUM","#ff5fd2"]];
+  ["Fe","IRON","#fb923c"],["Ag","SILVER","#e5e7eb"],["Au","GOLD","#facc15"],["Pt","PLATINUM","#c4b5fd"],["U","URANIUM","#86efac"],["Cy","CUPIDIUM","#ff5fd2"]];
 const CUPC="#ff5fd2";
 // drawing helpers for the arcade canvases
 // Arcade canvases: still pixel art, but on a grid twice as fine as the logical size (half-unit pixels),
@@ -6523,10 +6589,15 @@ MGAMES.rhythm={persist:false,name:"CUPIDIUM RHYTHM",w:240,h:200,blurb:"A Project
     if(now>this.LEN&&!m.notes.some(n=>!n.miss&&!(n.ty==="hold"?n.done:n.hit)))this.finish(m,false);},
   // ---- 3D highway: lanes meet at the horizon, notes grow as they come toward you ----
   geo(f){const W=this.w,top=26,bot=W-12,half=top/2+(bot-top)/2*f;return{l:W/2-half,r:W/2+half,y:this.HZ+(this.JY-this.HZ)*f};},
-  fOf(dt){const p=Math.max(0,Math.min(1.08,1-dt/this.TRAVEL));return p*p*.55+p*.45;},
+  fOf(dt){return Math.max(0,Math.min(1.08,1-dt/this.TRAVEL));},
   draw(m,x,t){const W=this.w,H=this.h;
     if(m.scr==="select")return this.drawSelect(m,x,t);
     const S=this.SONGS[m.song],now=this.st(m);mBg(x,W,H,t,"#160a2e","#05040f");
+    {const bt=60000/S.bpm,ph=now>2400?((now-2400)/bt)%1:1,pulse=1-ph,mt=m.t||0,cols=["#ff5fd2","#67e8f9","#fde047","#a78bfa"];
+      for(let i=0;i<4;i++){const a=Math.sin(mt/900+i*1.7)*.45;x.save();x.globalAlpha=.08+.06*pulse;x.fillStyle=cols[i];x.translate(W*(.12+i*.25),-6);x.rotate(a);x.beginPath();x.moveTo(-2,0);x.lineTo(2,0);x.lineTo(26,H);x.lineTo(-26,H);x.fill();x.restore();}
+      if(now>2400){x.strokeStyle=`rgba(255,143,224,${.45*pulse})`;x.lineWidth=1;for(const k of [0,.5]){const q=(ph+k)%1;x.beginPath();x.ellipse(W/2,this.HZ,14+70*q,4+18*q,0,0,7);x.stroke();}}
+      for(let i=0;i<34;i++){const sx=((i*53+mt*.012*(1+i%3))%W+W)%W,sy=((i*37-mt*.02*(1+i%4))%H+H)%H,tw=.3+.7*Math.abs(Math.sin(mt/400+i));x.fillStyle=`rgba(255,255,255,${.35*tw})`;x.fillRect(sx,sy,i%5?1:2,i%5?1:2);}
+      for(const side of [0,1]){const bx=side?W-5:2;for(let k=0;k<8;k++){const on=(Math.floor(mt/120)+k+side*3)%8<3;x.fillStyle=on?cols[(k+side)%4]:"rgba(255,255,255,.06)";x.globalAlpha=on?.55+.3*pulse:1;x.fillRect(bx,28+k*20,3,14);x.globalAlpha=1;}}}
     // highway
     const g0=this.geo(0),g1=this.geo(1.06);x.fillStyle="rgba(20,14,48,.92)";x.beginPath();x.moveTo(g0.l,g0.y);x.lineTo(g0.r,g0.y);x.lineTo(g1.r,g1.y);x.lineTo(g1.l,g1.y);x.closePath();x.fill();
     for(let i=0;i<6;i++){const lit=m.held[i]&&m.t-m.held[i]<5000;if(!lit)continue;const a=this.geo(0),b=this.geo(1.06),la=a.l+(a.r-a.l)*i/6,lb=b.l+(b.r-b.l)*i/6,ra=a.l+(a.r-a.l)*(i+1)/6,rb=b.l+(b.r-b.l)*(i+1)/6;
@@ -6535,7 +6606,7 @@ MGAMES.rhythm={persist:false,name:"CUPIDIUM RHYTHM",w:240,h:200,blurb:"A Project
     // beat lines sliding down
     const beat=60000/S.bpm;for(let k=0;k<8;k++){const bt=Math.ceil((now-2400)/beat)*beat+2400+k*beat,dtt=bt-now;if(dtt>this.TRAVEL)break;const g=this.geo(this.fOf(dtt));x.fillStyle="rgba(196,181,253,.12)";x.fillRect(g.l,g.y,g.r-g.l,.5);}
     // judgment line
-    const gj=this.geo(1);mR(x,gj.l-2,gj.y-1,gj.r-gj.l+4,2,"#ff8fe0");for(let i=0;i<6;i++)mT(x,this.KEYS[i].toUpperCase(),gj.l+(gj.r-gj.l)*(i+.5)/6,gj.y+12,m.held[i]?"#ff8fe0":"#a78bfa",6);
+    const gj=this.geo(1);{const bt=60000/S.bpm,pu=now>2400?1-((now-2400)/bt)%1:0;mGlow(x,W/2,gj.y,(gj.r-gj.l)/2+6*pu,"#ff8fe0",.25+.25*pu);}mR(x,gj.l-2,gj.y-1,gj.r-gj.l+4,2,"#ff8fe0");mR(x,gj.l-2,gj.y-1,gj.r-gj.l+4,1,"#ffffff");for(let i=0;i<6;i++)mT(x,this.KEYS[i].toUpperCase(),gj.l+(gj.r-gj.l)*(i+.5)/6,gj.y+12,m.held[i]?"#ff8fe0":"#a78bfa",6);
     // holds first (bodies), then heads
     const span=(n,f)=>{const g=this.geo(f);return{x0:g.l+(g.r-g.l)*n.l/6+.6,x1:g.l+(g.r-g.l)*(n.l+n.w)/6-.6,y:g.y,s:f};};
     for(const n of m.notes){if(n.ty!=="hold"||n.done)continue;const fa=this.fOf(n.hit?0:n.at-now),fb=this.fOf(n.end-now);if(fb<=0&&fa<=0)continue;const A=span(n,Math.min(1,fa)),B=span(n,Math.max(0,fb));
@@ -6543,9 +6614,11 @@ MGAMES.rhythm={persist:false,name:"CUPIDIUM RHYTHM",w:240,h:200,blurb:"A Project
       if(fb>0){const E=span(n,fb),h=1+3*fb;x.fillStyle="#86efac";x.fillRect(E.x0,E.y-h/2,E.x1-E.x0,h);}}
     for(const n of m.notes){if(n.hit||n.miss)continue;const dtt=n.at-now;if(dtt>this.TRAVEL)continue;const f=this.fOf(dtt),P=span(n,f),h=1.4+4.2*f;
       const col=n.ty==="crit"?["#fde047","#a16207"]:n.ty==="flick"?["#ff5fd2","#9d174d"]:n.ty==="hold"?["#4ade80","#166534"]:["#67e8f9","#0e7490"];
+      if(n.ty==="crit"||n.ty==="flick")mGlow(x,(P.x0+P.x1)/2,P.y,(P.x1-P.x0)*.6,col[0],.35*f);
       x.fillStyle=col[1];x.fillRect(P.x0,P.y-h/2,P.x1-P.x0,h);x.fillStyle=col[0];x.fillRect(P.x0+.5,P.y-h/2,P.x1-P.x0-1,h-1);x.fillStyle="rgba(255,255,255,.7)";x.fillRect(P.x0+1,P.y-h/2+.5,P.x1-P.x0-2,Math.max(.5,h*.25));
       if(n.ty==="flick"){const cx=(P.x0+P.x1)/2,ah=3+6*f;x.fillStyle="#ff8fe0";x.beginPath();x.moveTo(cx,P.y-h/2-ah);x.lineTo(cx-ah*.8,P.y-h/2-1);x.lineTo(cx+ah*.8,P.y-h/2-1);x.fill();}}
     // hit sparks
+    for(const f of m.fx){const a=1-(m.t-f.t)/300,P=span(f,1),Q=span(f,.55);x.globalAlpha=a*.35;x.fillStyle=f.c;x.beginPath();x.moveTo(P.x0,P.y);x.lineTo(P.x1,P.y);x.lineTo(Q.x1,Q.y);x.lineTo(Q.x0,Q.y);x.fill();x.globalAlpha=1;}
     for(const f of m.fx){const a=1-(m.t-f.t)/300,P=span(f,1);x.globalAlpha=a;x.fillStyle=f.c;x.fillRect(P.x0,P.y-10*(1-a)-4,P.x1-P.x0,3);mGlow(x,(P.x0+P.x1)/2,P.y,8+10*(1-a),f.c,.6);x.globalAlpha=1;}
     // combo + judgment, big in the middle like the real game
     if(m.combo>=2){mT(x,String(m.combo),W/2,78,"#ffffff",18);mT(x,"COMBO",W/2,94,"#c4b5fd",6);}
@@ -7346,7 +7419,7 @@ MGAMES.breaker={name:"CUPIDIUM BREAKER",w:180,h:240,blurb:"Brick breaker with mu
     if(m.t%300<dt)mgHud(`LV ${m.lv} · ${"●".repeat(m.lives)}`);},
   draw(m,x,t,dt){mBg(x,m.W,m.H,t,"#1c1038","#0b0820");
     for(const br of m.bricks){const fl=br.flash&&m.t-br.flash<70;if(br.cup)mGlow(x,br.x+8,br.y+4,12,"#ff5fd2",.4+.2*Math.sin(t*.008));
-      mR(x,br.x,br.y,br.w,br.h,fl?"#fff":br.c);mR(x,br.x,br.y,br.w,1.5,"#ffffffaa");mR(x,br.x,br.y+br.h-1.5,br.w,1.5,"#00000033");if(br.hp>1){mR(x,br.x+3,br.y+3,br.w-6,2,"#00000044");}if(br.cup)mT(x,"Cp",br.x+8.5,br.y+4.5,"#fff",6);}
+      mR(x,br.x,br.y,br.w,br.h,fl?"#fff":br.c);mR(x,br.x,br.y,br.w,1.5,"#ffffffaa");mR(x,br.x,br.y+br.h-1.5,br.w,1.5,"#00000033");if(br.hp>1){mR(x,br.x+3,br.y+3,br.w-6,2,"#00000044");}if(br.cup)mT(x,"Cy",br.x+8.5,br.y+4.5,"#fff",6);}
     for(const u of m.pu){mR(x,u.x-6,u.y-3,12,7,"#2d1b55");mR(x,u.x-5.5,u.y-2.5,11,6,{M:"#bdb2ff",W:"#caffbf",L:"#ffadad",S:"#9bf6ff"}[u.k]);mT(x,u.k,u.x,u.y+.5,"#0b1020",6);}
     for(const l of m.las)mR(x,l.x-.5,l.y-3,1,4,"#ffadad");
     const pd=m.pad;mR(x,pd.x-pd.w/2,214,pd.w,5,"#a0c4ff");mR(x,pd.x-pd.w/2,214,pd.w,1.5,"#e2ecff");mR(x,pd.x-pd.w/2,217.5,pd.w,1.5,"#6d84d8");if(m.t<m.laser){mR(x,pd.x-pd.w/2+2,211,2,3,"#ffadad");mR(x,pd.x+pd.w/2-4,211,2,3,"#ffadad");}
@@ -7433,7 +7506,7 @@ MGAMES.dash={name:"CUPIDIUM DASH",w:240,h:135,blurb:"Endless runner: jump, doubl
     for(const b of m.bars)if(p.x+2.5>b.x&&p.x-2.5<b.x+b.w&&p.y-h<b.y-7)return this.die(m,"BONK! SLIDE UNDER BARRIERS");
     for(const a of m.atoms)if(!a.got&&Math.abs(a.x-p.x)<7&&Math.abs(a.y-(p.y-h/2))<8){a.got=1;m.got++;m.score+=25;mBurst(m,a.x,a.y,6,["#ff8fe0","#fff"],.7);tone(1100+((m.got*60)%600),.03,"square",.02);}
     if(p.y>m.H+20)return this.die(m,"FELL!");
-    m.score=Math.floor(m.dist/5)+m.got*25;m.trail.push({x:p.x,y:p.y-h/2});if(m.trail.length>10)m.trail.shift();this.gen(m);if(m.t%250<dt)mgHud(`${Math.floor(m.dist/5)} m · ${m.got} Cp`);},
+    m.score=Math.floor(m.dist/5)+m.got*25;m.trail.push({x:p.x,y:p.y-h/2});if(m.trail.length>10)m.trail.shift();this.gen(m);if(m.t%250<dt)mgHud(`${Math.floor(m.dist/5)} m · ${m.got} Cy`);},
   die(m,why){mBurst(m,m.p.x,m.p.y-4,40,PAST2,1.8);mShake(m,400,3);sfx.bad();mgEnd(why,`${Math.floor(m.dist/5)} m · ${m.got} cupidium`);},
   draw(m,x,t,dt){const c=m.cam,g2=x.createLinearGradient(0,0,0,m.H);g2.addColorStop(0,"#1b0f3a");g2.addColorStop(1,"#3a1f5e");x.fillStyle=g2;x.fillRect(0,0,m.W,m.H);
     for(let i=0;i<30;i++){const R=rng("ds"+i),sx=((R()*400-c*.1)%400+400)%400-80;mR(x,sx,R()*70,1,1,"#e9d5ff");}
@@ -7447,7 +7520,80 @@ MGAMES.dash={name:"CUPIDIUM DASH",w:240,h:135,blurb:"Endless runner: jump, doubl
     m.trail.forEach((q,i)=>{x.globalAlpha=i/20;mR(x,q.x-c-3,q.y-2,6,4,PAST2[i%PAST2.length]);});x.globalAlpha=1;
     mR(x,px-4,p.y-h,8,h,"#9bf6ff");mR(x,px-4,p.y-h,8,2,"#e0fcff");mR(x,px+1,p.y-h+2,2,2,"#2d1b55");if(h>5){const leg=((t/80)|0)%2;mR(x,px-3,p.y-2,2,2+leg,"#5b8bd8");mR(x,px+1,p.y-2,2,3-leg,"#5b8bd8");}
     mR(x,px-5,p.y-h+3,2,4,"#ff8fe0");
-    mT(x,`${Math.floor(m.dist/5)} m`,m.W-6,8,"#e9d5ff",7,"right");mT(x,`${m.got} Cp`,6,8,"#ff8fe0",7,"left");
+    mT(x,`${Math.floor(m.dist/5)} m`,m.W-6,8,"#e9d5ff",7,"right");mT(x,`${m.got} Cy`,6,8,"#ff8fe0",7,"left");
+    mFx(m,x,dt);mPops(m,x,dt);}};
+
+// ---------- CUPIDIUM SMASH (beta): 1v1 badminton against the CPU, in the spirit of racket games like Racket Rivals ----------
+// Side view. Move, jump, and swing: a normal swing is a high CLEAR to the back of the court, hold ↓ while swinging for a soft DROP
+// just over the net, and swing in the air while the shuttle is above you for a SMASH. Rally scoring, first to 11 (win by 2, max 15).
+MGAMES.badminton={persist:false,name:"CUPIDIUM SMASH",w:240,h:150,blurb:"BETA · 1v1 badminton against the CPU: clears, drops and jump smashes. First to 11.",
+  controls:"← → / A D move · ↑ / W jump · SPACE (or J) swing. Hold ↓ / S while swinging = soft drop shot. Swing in the air with the shuttle above you = SMASH. Touch: hold the left / right third to move, tap the middle to swing, tap the top to jump.",
+  FLOOR:132,NET:120,NET_TOP:97,G:.00042,REACH:15,
+  init(m){m.pl={x:50,y:this.FLOOR,vy:0,face:1,sw:-1e9,ground:true};m.cpu={x:190,y:this.FLOOR,vy:0,face:-1,sw:-1e9,ground:true,tx:190,think:0,next:"clear"};
+    m.pts=[0,0];m.server=0;m.state="serve";m.serveAt=m.t+700;m.sh=null;m.last=null;m.rally=0;m.msg="YOUR SERVE · SPACE";m.score=0;m.trail=[];m.tp={};this.place(m);},
+  place(m){const s=m.server;m.pl.x=s===0?40:60;m.cpu.x=s===1?200:180;m.pl.y=m.cpu.y=this.FLOOR;m.pl.vy=m.cpu.vy=0;
+    const who=s===0?m.pl:m.cpu;m.sh={x:who.x+(s===0?6:-6),y:this.FLOOR-16,vx:0,vy:0,held:s};m.last=s;m.rally=0;m.trail=[];},
+  // aim a shot from (x,y) so it lands at tx after T ms, raising the arc until it clears the net
+  aim(sh,tx,T,minClear){const g=this.G,vx=(tx-sh.x)/T;let vy=(this.FLOOR-sh.y-.5*g*T*T)/T;const tn=(this.NET-sh.x)/vx;
+    // if that path would clip the net, lift it so it passes just over the tape (it then lands a little deeper)
+    if(tn>0&&tn<T){const want=this.NET_TOP-minClear,yn=sh.y+vy*tn+.5*g*tn*tn;if(yn>want)vy=(want-sh.y-.5*g*tn*tn)/Math.max(tn,60);}sh.vx=vx;sh.vy=vy;},
+  hit(m,who,side,kind){const sh=m.sh,dir=side===0?1:-1,far=side===0?[196,228]:[12,44],near=side===0?[130,146]:[94,110];sh.held=null;
+    if(kind==="smash"){this.aim(sh,side===0?160+Math.random()*50:30+Math.random()*50,300,1);tone(220,.08,"sawtooth",.05);mShake(m,180,2);mBurst(m,sh.x,sh.y,14,["#fde047","#fff"],1.2);}
+    else if(kind==="drop"){this.aim(sh,near[0]+Math.random()*(near[1]-near[0]),760,7);tone(880,.04,"triangle",.03);}
+    else{this.aim(sh,far[0]+Math.random()*(far[1]-far[0]),1050,14);tone(600,.05,"square",.03);}
+    // the CPU reacts a moment late and misjudges a little (more on smashes and drops), so it can be beaten
+    if(side===0){m.cpu.react=m.t+(kind==="smash"?120:kind==="drop"?200:240);m.cpu.err=(Math.random()-.5)*(kind==="smash"?34:kind==="drop"?22:8);}
+    sh.kind=kind;m.last=side;m.rally++;who.sw=m.t;mBurst(m,sh.x,sh.y,6,"#fff",.6);},
+  canHit(m,who,side){const sh=m.sh;if(!sh||sh.held!=null||m.state!=="rally"||m.last===side)return false;const rx=who.x+who.face*6,ry=who.y-14;return Math.hypot(sh.x-rx,sh.y-ry)<this.REACH&&(side===0?sh.x<this.NET:sh.x>this.NET);},
+  swing(m){const p=m.pl;if(m.t-p.sw<260)return;p.sw=m.t;
+    if(m.state==="serve"&&m.server===0&&m.sh.held===0){m.state="rally";m.msg="";this.aim(m.sh,200+Math.random()*24,1150,16);m.sh.held=null;m.last=0;m.sh.kind="serve";tone(600,.05,"square",.03);return;}
+    if(!this.canHit(m,p,0))return;const kind=!p.ground&&m.sh.y<p.y-18?"smash":(m.keys.dn||m.tp.drop)?"drop":"clear";this.hit(m,p,0,kind);if(kind==="smash")mPop(m,p.x,p.y-30,"SMASH!","#fde047");},
+  key(m,k,down,first,raw){if(!down||!first)return;if(k==="sp"||raw==="j"||k==="ent")this.swing(m);if(k==="u"&&m.pl.ground){m.pl.vy=-.3;m.pl.ground=false;}},
+  ptr(m,x,y,t){if(t==="pointerdown"){if(y<m.H*.35){if(m.pl.ground){m.pl.vy=-.3;m.pl.ground=false;}return;}if(x<m.W/3)m.tp.l=1;else if(x>m.W*2/3)m.tp.r=1;else{m.tp.drop=y>m.H*.8;this.swing(m);m.tp.drop=0;}}
+    else if(t==="pointerup"||t==="pointercancel"){m.tp.l=0;m.tp.r=0;}},
+  // where will the shuttle land? (simulate it forward)
+  landX(m){const sh=m.sh;let x=sh.x,y=sh.y,vx=sh.vx,vy=sh.vy;for(let i=0;i<400&&y<this.FLOOR;i++){x+=vx*10;y+=vy*10+.5*this.G*100;vy+=this.G*10;}return x;},
+  point(m,winner,why){m.pts[winner]++;m.server=winner;m.state="point";m.msg=(winner===0?"YOUR POINT":"CPU POINT")+(why?" · "+why:"");tone(winner===0?880:200,.15,"triangle",.05);
+    if(winner===0)burst&&burst(10);m.score=m.pts[0]*10+(m.pts[0]>m.pts[1]?50:0);mgHud(`YOU ${m.pts[0]} · CPU ${m.pts[1]}`);
+    const [a,b]=m.pts,over=(a>=11||b>=11)&&Math.abs(a-b)>=2||a>=15||b>=15;
+    setTimeout(()=>{if(MG!==m)return;if(over){m.score=a*10+(a>b?500:0);return mgEnd(a>b?"YOU WIN THE MATCH!":"CPU WINS THE MATCH",`${a} – ${b} · beta badminton`);}
+      m.state="serve";this.place(m);m.serveAt=m.t+900;m.msg=m.server===0?"YOUR SERVE · SPACE":"CPU SERVES…";},1100);},
+  move(m,f,want,spd,dt,lo,hi){f.x+=Math.max(-spd*dt,Math.min(spd*dt,want-f.x));f.x=Math.max(lo,Math.min(hi,f.x));if(!f.ground){f.vy+=.0011*dt;f.y+=f.vy*dt;if(f.y>=this.FLOOR){f.y=this.FLOOR;f.vy=0;f.ground=true;}}},
+  update(m,dt){const p=m.pl,c=m.cpu,sh=m.sh,k=m.keys;
+    const dir=(k.r||m.tp.r?1:0)-(k.l||m.tp.l?1:0);this.move(m,p,p.x+dir*999,.11,dt,6,this.NET-6);if(dir)p.face=1;
+    // CPU: run to where the shuttle will come down, jump-smash high balls, otherwise clear or drop
+    if(m.state==="rally"&&sh&&sh.held==null&&m.last===0){if(m.t>c.think&&m.t>(c.react||0)){c.think=m.t+120;c.tx=Math.max(this.NET+8,Math.min(234,this.landX(m)+6+(c.err||0)));}
+      if(sh.vy>0&&sh.x>this.NET&&sh.y<c.y-26&&Math.abs(sh.x-c.x)<10&&c.ground&&Math.random()<.04*dt/16)  {c.vy=-.29;c.ground=false;}}
+    else if(m.state!=="point")c.tx=190;
+    this.move(m,c,c.tx,.085+Math.min(.03,m.pts[0]*.003),dt,this.NET+6,234);c.face=-1;
+    if(this.canHit(m,c,1)&&m.t-c.sw>200){const r=Math.random(),kind=!c.ground&&sh.y<c.y-18?"smash":r<.3?"drop":"clear";this.hit(m,c,1,kind);}
+    if(m.state==="serve"){const s=m.server===0?p:c;sh.x=s.x+(m.server===0?6:-6);sh.y=s.y-16;
+      if(m.server===1&&m.t>m.serveAt){m.state="rally";m.msg="";sh.held=null;m.last=1;this.aim(sh,18+Math.random()*30,1150,16);sh.kind="serve";c.sw=m.t;tone(600,.05,"square",.03);}}
+    if(m.state==="rally"&&sh&&sh.held==null){const ox=sh.x;sh.x+=sh.vx*dt;sh.y+=sh.vy*dt+.5*this.G*dt*dt;sh.vy+=this.G*dt;// exact for constant gravity, so shots follow the aimed arcm.trail.push({x:sh.x,y:sh.y});if(m.trail.length>8)m.trail.shift();
+      // the net: crossing it below the tape is a fault for whoever hit it
+      if((ox-this.NET)*(sh.x-this.NET)<=0&&sh.y>this.NET_TOP){sh.vx*=-.2;sh.x=this.NET+(ox<this.NET?-2:2);return this.point(m,1-m.last,"INTO THE NET");}
+      if(sh.y>=this.FLOOR){sh.y=this.FLOOR;const side=sh.x<this.NET?0:1,out=sh.x<4||sh.x>236;return out?this.point(m,1-m.last,"OUT"):this.point(m,1-side,side===0?"":"");}
+      if(sh.x<-10||sh.x>250)return this.point(m,1-m.last,"OUT");}},
+  drawPlayer(x,f,c1,c2,t,isMe){const sw=Math.max(0,1-(MG.t-f.sw)/220),px=f.x,py=f.y;
+    mR(x,px-3,py-12,6,8,c1);mR(x,px-3,py-12,6,2,c2);mD(x,px,py-16,3,"#ffd6b8");mR(x,px-3,py-19,6,2,c2);
+    const leg=f.ground&&Math.abs(f.vx||0)>0?((MG.t/90)|0)%2:0;mR(x,px-3,py-4,2,4,"#2d1b55");mR(x,px+1,py-4,2,4,"#2d1b55");
+    const a=-1.2+sw*2.6,rx=px+f.face*4+Math.cos(a)*f.face*7,ry=py-12+Math.sin(-a)*-7;x.strokeStyle="#e5e7eb";x.lineWidth=1;x.beginPath();x.moveTo(px+f.face*3,py-10);x.lineTo(rx,ry);x.stroke();
+    x.strokeStyle=c2;x.beginPath();x.ellipse(rx+f.face*2,ry-2,2.5,3.5,0,0,7);x.stroke();if(isMe)mT(x,"YOU",px,py-26,c2,5);},
+  draw(m,x,t,dt){const W=m.W,H=m.H,F=this.FLOOR,g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,"#1b1240");g.addColorStop(1,"#3a1f5e");x.fillStyle=g;x.fillRect(0,0,W,H);
+    // gym: lights, banners, stands
+    for(let i=0;i<5;i++){mR(x,20+i*48,4,24,3,"#fde68a");x.globalAlpha=.07;x.fillStyle="#fde68a";x.beginPath();x.moveTo(20+i*48,7);x.lineTo(44+i*48,7);x.lineTo(56+i*48,F);x.lineTo(8+i*48,F);x.fill();x.globalAlpha=1;}
+    for(let i=0;i<24;i++)mR(x,i*10+((i*7)%5),40+((i*13)%8),6,6,["#ff8fe055","#9bf6ff55","#fdffb655","#c4b5fd55"][i%4]);
+    mR(x,0,F,W,H-F,"#3b7a57");mR(x,0,F,W,1,"#e5e7eb");mR(x,4,F,1,4,"#fff");mR(x,235,F,1,4,"#fff");mR(x,60,F,1,3,"#fff");mR(x,180,F,1,3,"#fff");
+    // net
+    mR(x,this.NET-1,this.NET_TOP,2,F-this.NET_TOP,"#cbd5e1");for(let y=this.NET_TOP+3;y<F-6;y+=3)mR(x,this.NET-1,y,2,1,"#64748b");mR(x,this.NET-2,this.NET_TOP-1,4,2,"#fff");
+    this.drawPlayer(x,m.pl,"#ff8fe0","#fdf2f8",t,true);this.drawPlayer(x,m.cpu,"#67e8f9","#ecfeff",t,false);
+    // shuttle with a little tail
+    const sh=m.sh;if(sh){m.trail.forEach((q,i)=>{x.globalAlpha=i/14;mR(x,q.x-1,q.y-1,2,2,"#fff");});x.globalAlpha=1;const a=Math.atan2(sh.vy||0,sh.vx||1);
+      x.save();x.translate(sh.x,sh.y);x.rotate(a);x.fillStyle="#f8fafc";x.beginPath();x.moveTo(-5,-3);x.lineTo(0,-1);x.lineTo(0,1);x.lineTo(-5,3);x.fill();x.fillStyle="#fb7185";x.fillRect(0,-1.5,2,3);x.restore();
+      if(sh.held==null&&sh.y<6){mT(x,"▲",sh.x,8,"#fff",6);}}
+    // scoreboard
+    mR(x,W/2-40,10,80,16,"#0f0a24cc");mT(x,String(m.pts[0]),W/2-20,18,"#ff8fe0",10);mT(x,"–",W/2,18,"#e9d5ff",8);mT(x,String(m.pts[1]),W/2+20,18,"#67e8f9",10);
+    mT(x,"BETA",W-14,8,"#fde047",5);if(m.msg)mT(x,m.msg,W/2,36,"#fdffb6",6);
     mFx(m,x,dt);mPops(m,x,dt);}};
 
 // ---------- 15. CUPIDIUM BRAWL (platform fighter, same device + controllers + CPUs) ----------
@@ -7547,11 +7693,12 @@ const ARCADE_CATS=[
   ["action","ACTION",[["blaster","Shoot waves of thieves and beat the boss."],["dash","Endless runner. Jump, slide, don't fall."],["rush","Fly and grab cupidium, dodge hazards."],["defense","Build turrets to guard the core."]]],
   ["arcade","ARCADE",[["breaker","Brick breaker with power-ups."],["golf","9 holes of wacky mini golf."],["stack","Stack the tallest crystal tower."],["rhythm","Project Sekai style: holds, flicks, 5 difficulties."]]],
   ["puzzle","PUZZLE",[["lab","Fuse elements up to cupidium."],["merge","Drop and merge atoms in a jar."],["isit","Real element or made up?"],["heist","Sneak the vial past the guards."]]],
-  ["versus","VERSUS",[["fight","1v1, 2v2 or free-for-all brawls."],["catch","Grab the most atoms, bump rivals."]]],
+  ["versus","VERSUS",[["fight","1v1, 2v2 or free-for-all brawls."],["catch","Grab the most atoms, bump rivals."],["badminton","BETA · badminton vs the CPU: clears, drops, smashes."]]],
   ["more","MORE",[["miner","Drill deep for rare ore."],["xc","Cross country career: train and race 5Ks."]]]];
 const ARCADE_NAMES={rush:"CUPIDIUM RUSH"};
 // small pixel icons for the arcade list
 const AICON={
+  badminton:x=>{mR(x,0,19,24,3,"#3b7a57");mR(x,11,10,2,9,"#cbd5e1");mR(x,10,9,4,1,"#fff");x.strokeStyle="#ff8fe0";x.lineWidth=1;x.beginPath();x.ellipse(5,7,3,4,-.5,0,7);x.stroke();mR(x,6,10,1,5,"#e5e7eb");mR(x,17,4,3,2,"#f8fafc");mR(x,20,4,1,2,"#fb7185");},
   blaster:x=>{mR(x,10,4,4,12,"#e2ecff");mR(x,6,12,12,3,"#a0c4ff");mR(x,11,16,2,3,"#fdffb6");mR(x,11,7,2,2,"#ff8fe0");mR(x,4,4,3,3,"#bdb2ff");mR(x,17,6,2,2,"#ffadad");},
   dash:x=>{mR(x,9,8,7,9,"#9bf6ff");mR(x,13,10,2,2,"#2d1b55");mR(x,2,10,5,1,"#ff8fe0");mR(x,1,13,6,1,"#ffc6ff");mR(x,0,19,24,3,"#c86bd8");mR(x,18,15,4,4,"#ffadad");},
   rush:x=>{mR(x,10,5,4,11,"#f1f5f9");mR(x,10,3,4,2,"#ffadad");mR(x,8,13,8,3,"#ffadad");mR(x,11,16,2,4,"#fdffb6");mD(x,19,6,2.5,CUPC);},
@@ -7560,7 +7707,7 @@ const AICON={
   golf:x=>{mR(x,0,16,24,8,"#a9ebbc");mD(x,16,19,2.5,"#2d1b55");mR(x,16,4,1,15,"#fff");mR(x,17,4,5,3,"#ff5fd2");mD(x,6,19,1.8,"#fff");},
   stack:x=>{const c=["#ffadad","#ffd6a5","#fdffb6","#caffbf","#9bf6ff"];for(let i=0;i<5;i++)mR(x,4+(i%2)*2-i%3,19-i*4,16-i,3,c[i]);},
   rhythm:x=>{for(let i=0;i<4;i++)mR(x,2+i*6,0,4,24,"#ffffff10");mR(x,1,19,22,1,"#c4b5fd");mD(x,5,8,2,"#93c5fd");mD(x,17,13,2,CUPC);mD(x,11,4,2,"#fde68a");},
-  lab:x=>{mR(x,3,3,18,18,"#ff8fe0");mR(x,3,3,18,2,"#ffd6f5");mT(x,"Cp",12,12,"#2d1b55",8);},
+  lab:x=>{mR(x,3,3,18,18,"#ff8fe0");mR(x,3,3,18,2,"#ffd6f5");mT(x,"Cy",12,12,"#2d1b55",8);},
   merge:x=>{mR(x,3,4,1,18,"#c4b5fd");mR(x,20,4,1,18,"#c4b5fd");mR(x,3,21,18,1,"#c4b5fd");mD(x,8,17,3.5,"#67e8f9");mD(x,15,16,4.5,"#fb923c");mD(x,10,10,2.5,"#fde68a");},
   isit:x=>{mR(x,1,4,10,16,"#ffadad55");mR(x,13,4,10,16,"#caffbf55");mT(x,"?",12,12,"#fdffb6",12);},
   heist:x=>{mD(x,12,12,8,"#1e293b");mR(x,5,10,14,3,"#ff5fd2");mR(x,8,11,2,1,"#fff");mR(x,14,11,2,1,"#fff");mD(x,20,4,2,CUPC);},
@@ -7590,7 +7737,7 @@ function landing(){
       <button class="glass lcard casl" data-act="casino"><b><span class="glow cup" style="padding:0 6px">CUPIDIUM CASINO</span></b><em>🎰 ${(typeof casChips==="function"?casChips():1000).toLocaleString()} CHIPS</em></button>
       <button class="glass lcard cpl" data-act="cuepon"><b>DAILY CUEPON</b><span>NYT Games</span><em>${typeof cpDoneCount==="function"?cpDoneCount():0}/3 DONE TODAY</em></button>
       <button class="glass lcard bbl" data-act="brainLab"><i class="devtag">CURRENTLY IN DEVELOPMENT</i><b>CUPIDIUM ACADEMY</b><span>Big Brain Academy. 20 brain games</span><em>ENTER ▶</em></button>
-      <button class="glass lcard trl" data-act="trapHub"><i class="devtag">CURRENTLY IN DEVELOPMENT</i><b>ULTIMATE CHICKEN HORSE</b><span>Place traps, then race your friends to the flag. Help yourself, sabotage everyone else.</span><em>PLAY ▶</em></button>
+      <button class="glass lcard trl" data-act="trapHub"><i class="devtag">CURRENTLY IN DEVELOPMENT</i><b>ULTIMATE CHICKEN HORSE</b><em>PLAY ▶</em></button>
       <button class="glass lcard ptl" data-act="party"><b>PARTY</b><em>ROOMS</em></button>
     </div>
     <div class="menubar"><button class="pbtn" data-act="leaderboards" data-back="landing" data-k="daily">🏆 LEADERBOARDS</button><button class="pbtn" data-act="chipShop">🛍 CHIP SHOP</button><button class="pbtn" data-act="collection">📖 COLLECTION</button>${store.get("otc.dev",false)?`<button class="pbtn" data-act="devHome">🛠 DEV PAGE</button>`:""}<button class="pbtn" data-act="skins">SKINS</button><button class="pbtn" data-act="palettes">COLORS</button>
@@ -7897,7 +8044,8 @@ function lbStart(){if(!lbOn()||LB.es)return;
   setTimeout(share,20000+Math.random()*40000);setInterval(share,30*60e3);}
 let LBV={k:"daily"};
 // show the board for a game right on its results screen (needs a <div id="lbBox"> already on the page)
-function lbHere(k){LBV.k=k;LBV.sec=MGAMES[k]||k==="cup"?"arc":/^cas/.test(k)?"cas":/^cp[A-Z]/.test(k)?"cp":"otc";try{lbStart();}catch(e){}lbRender();}
+// in Daniel Simons mode the results screen shows the Daniel Simons board (the same one the score was sent to)
+function lbHere(k){if(typeof DSM==="function"&&DSM()&&DS_LB[k])k=DS_LB[k];LBV.k=k;LBV.sec=MGAMES[k]||k==="cup"?"arc":/^cas/.test(k)?"cas":/^cp[A-Z]/.test(k)?"cp":"otc";try{lbStart();}catch(e){}lbRender();}
 function leaderboards(back){LBV.back=back||LBV.back||"landing";
   // two sections: Off the Charts modes, and the arcade grouped like the arcade menu
   const cat=typeof catToday==="function"&&catToday(),OTCN=["daily","speed"].concat(cat?["catd"]:[]).concat(["dailyGeo","blitz","endless","rendless","endlessGeo","rendlessGeo"]),
@@ -10383,7 +10531,12 @@ function trCamClamp(G){const c=G.cam,mw=TR_W*TR_TS,mh=TR_H*TR_TS,vw=trVW(),vh=tr
 function trCamOn(G,px,py){G.cam.x=px-trVW()/2;G.cam.y=py-trVH()/2;trCamClamp(G);}
 function trZoomTo(z,sx,sy){const G=TRG;if(!G)return;const cv=$("trCv");sx=sx==null?cv.width/2:sx;sy=sy==null?cv.height/2:sy;const z0=trZ(),wx=G.cam.x+sx/z0,wy=G.cam.y+sy/z0;
   G.zoom=Math.max(trZmin(),Math.min(2.5,z));G.cam.x=wx-sx/G.zoom;G.cam.y=wy-sy/G.zoom;G.whole=G.zoom<=trZmin()+1e-3;trCamClamp(G);trTools();}
-function trApply(m){const G=TRG;if(!G)return;const prev=G.st;G.st=m;G.endAt=Date.now()+(m.ends||0);const oldC=G.C;G.C=trBuild(m);
+function trKillNote(name){const box=$("trKills");if(!box||!TRG)return;const pp=TRG.peers&&TRG.peers[name],av=(pp&&pp.av)||{};
+  let src="";try{const k="av|"+JSON.stringify(av);let s=_trSpr[k];if(!s){const [g,pal]=bbAvGrid(av);s=trSprite(k,g,pal,BB_HAND);}src=s.toDataURL();}catch(e){}
+  const el=document.createElement("div");el.className="trkill";el.innerHTML=`<div class="ring">${src?`<img src="${src}" alt="">`:""}</div><b>${esc(name)}</b><small>Trap Kill</small>`;
+  box.appendChild(el);try{sfx.ok&&sfx.ok(3);}catch(e){}setTimeout(()=>el.classList.add("out"),4600);setTimeout(()=>el.remove(),5000);}
+function trApply(m){const G=TRG;if(!G)return;const prev=G.st;
+  if(prev&&m&&prev.r===m.r&&m.ph==="run"&&m.res){for(const n in m.res){const r=m.res[n];if(!(prev.res&&prev.res[n])&&r&&r.st==="dead"&&r.kill===G.me&&n!==G.me)trKillNote(n);}}G.st=m;G.endAt=Date.now()+(m.ends||0);const oldC=G.C;G.C=trBuild(m);
   // keep pushed boxes where they are while a run is going
   if(prev&&prev.r===m.r&&prev.ph===m.ph&&m.ph==="run"&&oldC){G.C.dyn.forEach((d,i)=>{const o=oldC.dyn[i];if(o&&o.ty===d.ty&&d.ty==="mbox"){d.bx=o.bx;d.by=o.by;d.vy=o.vy;}if(o&&o.ty===d.ty&&d.ty==="angry"){d.trig=o.trig;d.cool=o.cool;}});G.C.turrets.forEach((t,i)=>{if(oldC.turrets[i])t.next=oldC.turrets[i].next;});}
   if(!$("trCv"))trShell();
@@ -10394,7 +10547,7 @@ function trApply(m){const G=TRG;if(!G)return;const prev=G.st;G.st=m;G.endAt=Date
   if(m.ph==="place"&&m.picks[G.me]!=null){G.my.ty=m.box[m.picks[G.me]];G.my.placed=!!m.placed[G.me];}
   trPanel();}
 function trShell(){showPanel(`<div class="trwrap"><div class="trtop"><b>ULTIMATE CHICKEN HORSE</b><span id="trInfo"></span><button class="pbtn sm" data-act="trQuit">QUIT</button></div>
-   <div class="trstage"><canvas id="trCv" width="${TR_VW*TR_TS}" height="${TR_VH*TR_TS}"></canvas><div id="trTools" class="trtools"></div><div id="trOver" class="trover"></div></div>
+   <div class="trstage"><canvas id="trCv" width="${TR_VW*TR_TS}" height="${TR_VH*TR_TS}"></canvas><div id="trTools" class="trtools"></div><div id="trKills" class="trkills"></div><div id="trOver" class="trover"></div></div>
    <div id="trBar" class="trbar"></div>
    <div class="trpad" id="trPad"><button data-k="l">◀</button><button data-k="r">▶</button><span></span><button data-k="j" class="j">JUMP</button></div></div>`,{cls:"menu trmenu"});
   const cv=$("trCv");
@@ -10751,16 +10904,17 @@ function tower(){const pi=twPrompt(),p=PROMPTS[pi];if(!p)return toast("No tower 
       <div class="twkey">${TW_H.map((h,i)=>`<span><i style="--c:${TIERS[i].c}"></i>${esc(TIERS[i].name)} +${h} m</span>`).join("")}</div>
       <p class="hint" style="margin:8px 0 0">Add as many answers as you can, any time today. Each new answer adds a block, and rarer answers make taller blocks. Wrong answers cost nothing. New prompt at midnight (Eastern).</p></div>
       <div class="glass card"><span class="lbl">YOUR TOWER · <b id="twMyH">${t.h}</b> m · <span id="twMyN">${t.list.length}</span> answers</span><div class="twans" id="twAns"></div></div></div>
-    <div class="glass card"><span class="lbl">EVERYONE'S TOWERS TODAY</span><div class="twstage" id="twStage"></div>${lbOn()?"":`<p class="hint">This version can't reach the shared boards, so only your tower shows.</p>`}</div>`,{cls:"menu wide"});
-  const inp=$("twIn");if(inp){inp.focus();inp.onkeydown=e=>{e.stopPropagation();if(e.key==="Enter")twAdd();};}
+    <div class="glass card twboard"><span class="lbl">EVERYONE'S TOWERS TODAY</span><div class="twstage" id="twStage"></div>${lbOn()?"":`<p class="hint">This version can't reach the shared boards, so only your tower shows.</p>`}</div>`,{cls:"menu wide"});
+  // Enter = stack it (or YES to "did you mean…?" when the box is empty); Esc = NO
+  const inp=$("twIn");if(inp){inp.focus();inp.onkeydown=e=>{e.stopPropagation();if(e.key==="Enter"){e.preventDefault();if(TWV.ask&&!inp.value.trim())ACT.twYes();else twAdd();}else if(e.key==="Escape"&&TWV.ask){e.preventDefault();ACT.twNo();}};}
   twDraw();twShare();twFetch();clearInterval(TWV.timer);TWV.timer=setInterval(()=>{if(!$("twStage"))return clearInterval(TWV.timer);twFetch();},60e3);}
 function twDraw(){const st=$("twStage");if(!st)return;const t=twMine(),day=today(),rows=(LB.b["tower:"+day]||[]).slice();
   if(t.list.length&&!rows.some(r=>r.i===LB.id))rows.push({i:LB.id,n:lbMe()||"You",s:t.h});
   for(const r of rows)if(r.i===LB.id)r.s=t.h;rows.sort((a,b)=>b.s-a.s);
   const max=Math.max(10,...rows.map(r=>r.s)),px=Math.min(14,230/max);
   st.innerHTML=rows.length?rows.map(r=>{const me=r.i===LB.id,b=me?t.list.map(x=>x.t).join(""):(TWO[day]||{})[r.i];
-    const inner=b&&b.length?[...b].map(c=>`<i style="--c:${TIERS[+c].c};height:${Math.max(1,TW_H[+c]*px).toFixed(1)}px"></i>`).join(""):"";
-    return`<div class="twcol${me?" me":""}"><span class="twh">${r.s} m</span><div class="twstack${inner?"":" solid"}" style="${inner?"":`height:${Math.max(2,r.s*px).toFixed(1)}px`}">${inner}</div><small title="${esc(r.n)}">${esc(r.n)}</small></div>`;}).join("")
+    const inner=b&&b.length?[...b].map(c=>`<i style="--c:${TIERS[+c].c};flex:${TW_H[+c]} 1 0"></i>`).join(""):"";
+    return`<div class="twcol${me?" me":""}"><span class="twh">${r.s} m</span><div class="twstack${inner?"":" solid"}" style="height:${Math.max(2,r.s*px).toFixed(1)}px">${inner}</div><small title="${esc(r.n)}">${esc(r.n)}</small></div>`;}).join("")
     :"";
   const a=$("twAns");if(a)a.innerHTML=t.list.length?t.list.slice().reverse().map(x=>`<span style="--c:${TIERS[x.t].c}">${esc(x.d)} +${TW_H[x.t]}</span>`).join(""):`<p class="hint">Nothing stacked yet.</p>`;
   const h=$("twMyH"),n=$("twMyN");if(h)h.textContent=t.h;if(n)n.textContent=t.list.length;}
@@ -10769,16 +10923,32 @@ function twPut(e){const t=twMine(),k=norm(e.display);if(t.list.some(x=>norm(x.d)
   const tier=Math.max(0,Math.min(4,e.tier|0));t.list.push({d:String(e.display).slice(0,40),t:tier,at:Date.now()});t.h=t.list.reduce((a,x)=>a+TW_H[x.t],0);store.set(twKey(),t);
   twFb(`${tchip(tier,`${esc(e.display)} · +${TW_H[tier]} m`)}`);try{sfx.ok(tier>=3?4:2);if(tier>=4)burst(60);}catch(x){}
   lbSubmit("tower",t.h);clearTimeout(TWV.sh);TWV.sh=setTimeout(twShare,2500);twDraw();}
-async function twAdd(){const inp=$("twIn"),p=PROMPTS[twPrompt()];if(!inp||!p||TWV.busy)return;const txt=inp.value.trim().slice(0,60);if(!txt)return;inp.value="";TWV.ask=null;
+async function twAdd(){const inp=$("twIn"),p=PROMPTS[twPrompt()];if(!inp||!p||TWV.busy)return;const txt=inp.value.trim().slice(0,60);if(!txt)return;inp.value="";TWV.ask=null;TWV.askTxt=null;
   {const h=hardCheck(p,txt);if(h)return twFb(`<span class="err">✗ ${esc(txt)}: ${esc(h.why||"doesn't count")}</span>`);}
   const m=matchAns(txt,p);
-  if(m&&m.e){if(m.suggest&&norm(m.e.display)!==norm(txt)){TWV.ask=m.e;return twFb(`Did you mean <b>${esc(m.e.display)}</b>? <button class="pbtn sm c m-mint" data-act="twYes">YES</button><button class="pbtn sm" data-act="twNo">NO</button>`);}return twPut(m.e);}
+  if(m&&m.e){if(m.suggest&&norm(m.e.display)!==norm(txt))return twAsk(m.e,txt,true);return twPut(m.e);}
+  return twCheck(p,txt,null);}
+// "did you mean…?" (Enter = yes, Esc = no). Saying NO means you meant what you typed, so that spelling gets checked for real.
+function twAsk(e,txt,fromBank){TWV.ask=e;TWV.askTxt=txt;TWV.askBank=!!fromBank;
+  twFb(`Did you mean <b>${esc(e.display)}</b>? <button class="pbtn sm c m-mint" data-act="twYes">YES ↵</button><button class="pbtn sm" data-act="twNo">NO · ESC</button>`);}
+// check an answer that isn't on the list (AI / Wikipedia). declined = the name the player already said NO to.
+async function twCheck(p,txt,declined){
   if(!(aiReady()||wikiOn()))return twFb(`<span class="err">✗ ${esc(txt)} isn't on the list</span>`);
-  TWV.busy=true;twFb(`<span class="hint">Checking <b>${esc(txt)}</b>…</span>`);
+  TWV.busy=true;twFb(`<span class="hint">Checking <b>${esc(txt)}</b>…</span>`);if(declined)DECLINED={t:norm(txt),d:norm(declined)};
   let r=null;try{r=await Promise.race([smartJudge(p,txt),new Promise(z=>setTimeout(()=>z({error:"took too long"}),12000))]);}catch(e){r={error:"check failed"};}TWV.busy=false;
-  if(r&&r.display&&!r.invalid){if(r.fixAsk&&norm(r.display)!==norm(txt)){TWV.ask=r;return twFb(`Did you mean <b>${esc(r.display)}</b>? <button class="pbtn sm c m-mint" data-act="twYes">YES</button><button class="pbtn sm" data-act="twNo">NO</button>`);}return twPut(r);}
-  twFb(`<span class="err">✗ ${esc(txt)}${r&&r.why?": "+esc(r.why):r&&r.error?` (${esc(r.error)})`:" doesn't count"}</span>`);}
-Object.assign(ACT,{tower:()=>tower(),twAdd:()=>twAdd(),twYes:()=>{const e=TWV.ask;TWV.ask=null;if(e)twPut(e);const i=$("twIn");if(i)i.focus();},twNo:()=>{TWV.ask=null;twFb(`<span class="hint">OK, not stacked.</span>`);const i=$("twIn");if(i)i.focus();}});
+  if(r&&r.display&&!r.invalid){const same=declined&&norm(r.display)===norm(declined);
+    if(!same&&r.fixAsk&&norm(r.display)!==norm(txt))return twAsk(r,txt,false);if(!same)return twPut(r);r={invalid:true,why:"not a match for what you typed"};}
+  twFb(`<span class="err">✗ ${esc(txt)}${r&&r.why?": "+esc(r.why):r&&r.error?` (${esc(r.error)})`:" doesn't count"}</span>`);twOfferReal(p,txt);}
+// IT'S REAL: say where it's from and the AI takes a careful second look (up to 3 a day)
+function twOfferReal(p,txt){if(!aiReady())return;const k="otc.twap."+today(),used=store.get(k,0);if(used>=3)return;const f=$("twFb");if(!f)return;
+  f.insertAdjacentHTML("beforeend",` <button class="pbtn sm c m-sun" id="twAp">🙋 IT'S REAL! <small>(${3-used} left)</small></button>`);
+  $("twAp").onclick=()=>{twFb(`<span class="hint">Where's "${esc(txt)}" from?</span> <input id="twApCtx" maxlength="80" placeholder="it's from…" style="max-width:220px"> <button class="pbtn sm c m-nova" id="twApGo">CHECK AGAIN</button>`);
+    const ci=$("twApCtx");ci.focus();const run=async()=>{const hint=ci.value.trim();if(!hint)return ci.focus();store.set(k,store.get(k,0)+1);twFb(`<span class="hint">Checking again…</span>`);
+      let r2=null;try{r2=await appealJudge(p,txt,hint);}catch(e){r2={error:"check failed"};}
+      if(r2&&r2.display){toast("Appeal accepted ✓");return twPut(r2);}twFb(`<span class="err">✗ still not valid${r2&&r2.why?": "+esc(r2.why):""}</span>`);twOfferReal(p,txt);};
+    $("twApGo").onclick=run;ci.onkeydown=e=>{e.stopPropagation();if(e.key==="Enter"){e.preventDefault();run();}};};}
+Object.assign(ACT,{tower:()=>tower(),twAdd:()=>twAdd(),twYes:()=>{const e=TWV.ask;TWV.ask=null;if(e)twPut(e);const i=$("twIn");if(i)i.focus();},twNo:()=>{const e=TWV.ask,txt=TWV.askTxt;TWV.ask=null;TWV.askTxt=null;const i=$("twIn");if(i)i.focus();const p=PROMPTS[twPrompt()];
+    if(!e||!txt||!p)return twFb(`<span class="hint">OK, not stacked.</span>`);twCheck(p,txt,e.display);}});
 </script>
 
 </body>

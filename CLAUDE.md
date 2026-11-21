@@ -60,7 +60,24 @@ Relay (separate repo `lele-io/cupidium-relay`): Cloudflare Worker + one Durable 
 - Quick logic test without a browser: run the UCH section of index.html in a Node `vm` with stub `$`/canvas/`store`
   (see how `tools/trsolve.js` slices the section out).
 
+## Answer tiers: things that went wrong before
+- A prompt whose tiers follow a ranking (population, size) puts famous-but-smaller answers in rare tiers (Paris/Seoul for
+  "city with more than 10 million people"). The "Nov 20" block at the end of script 1 keeps household names (a tier-0 answer
+  in 3+ place prompts) out of tiers 3-4 of size/population place prompts, and Vatican City out of tiers 3-4 everywhere.
+  Don't apply fame across unrelated prompts (kangaroo is a common animal but a rare pizza topping), and leave trick prompts
+  (borders, flags, rivers, Olympics hosts) alone.
+- To inspect tiers in Node: run script 1 in a `vm` after the data files (stub `localStorage`, `document`, `location`, `navigator`).
+- Saying NO to "did you mean…?" must lead to IT'S REAL (main input and Daily Tower both do this now).
+
+## Arcade
+- Games are `MGAMES.<id>` objects (`init/update/draw/key/ptr`, `m.t` ms, `m.keys`, keys `l r u dn sp ent`), listed in `ARCADE_CATS`
+  with a pixel icon in `AICON`. Cupidium's element symbol is **Cy** (never "Cp").
+- `badminton` (CUPIDIUM SMASH) is a beta: side-view badminton vs a CPU. Its physics are exact for constant gravity so `aim()`'s
+  arcs are what you get; the CPU has a reaction delay and a misjudgment per shot (`react`, `err`) so it can be beaten.
+- Rhythm: notes travel at a constant speed (`fOf` is linear); the highway only narrows for the 3D look.
+
 ## Layout rules (the owner is strict about these)
+- Default page width is 640px (wide pages 980px, arcade game pages 700px). Pages scroll vertically, so narrow is fine.
 - No empty bands: boxes hug their content; a lone short label must not sit in a full-width box.
 - Rows of cards/buttons are centred, including a leftover last row, and the text inside boxes is centred.
   The CSS block at the end of the first `<style>` turns the card grids (`.landing .modegrid .xdailies .skins .casgrid .bvitems …`)
