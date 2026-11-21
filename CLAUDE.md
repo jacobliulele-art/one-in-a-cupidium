@@ -87,4 +87,6 @@ Relay (separate repo `lele-io/cupidium-relay`): Cloudflare Worker + one Durable 
 - Empty leaderboards show just their title (no "No scores yet" text).
 
 ## Testing in a browser
-`npm i playwright`, serve the repo with `python3 -m http.server`, hide `#nameGate` with a style tag.
+Playwright is installed in the repo (`node_modules`, ignored by git). Launch it with the installed Chrome (`chromium.launch({channel:"chrome"})`,
+no browser download needed), open `index.html` as a file:// URL (no server needed; relay fetches just fail), hide `#nameGate` with a style tag,
+call screens directly (`landing()`, `home()`, `ACT.trapHub()`…) and take screenshots. Look at the screenshots before saying a UI change is done.
