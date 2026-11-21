@@ -34,6 +34,11 @@ function kit(R) {
     cloud: (x0, x1, y, c = "o", c2 = "p") => { rect(x0 + 1, y, x1 - 1, y, c); rect(x0, y + 1, x1, y + 1, c); rect(x0 + 1, y + 2, x1 - 1, y + 2, c2); },
     // a leaning crystal: a 3-wide band going up, `lean` tiles sideways per row, with a white streak down the middle
     crystal: (x, y, len, lean, c, hi = "h") => { for (let i = 0; i < len; i++) { const cx = Math.round(x + i * lean), w = i > len - 3 ? 0 : 1; rect(cx - w, y - i, cx + w, y - i, c); if (i % 3 !== 2 && w) set(cx, y - i, hi); } },
+    // carve a winding tunnel: circles of radius r along a path of points (organic caves, like Crystal Cavern's)
+    worm: (pts, r, c = ".") => { for (let i = 0; i + 1 < pts.length; i++) { const [x0, y0] = pts[i], [x1, y1] = pts[i + 1], n = Math.ceil(Math.hypot(x1 - x0, y1 - y0) * 2);
+      for (let k = 0; k <= n; k++) { const cx = x0 + (x1 - x0) * k / n, cy = y0 + (y1 - y0) * k / n; for (let y = Math.floor(cy - r); y <= cy + r; y++) for (let x = Math.floor(cx - r); x <= cx + r; x++) if ((x - cx) ** 2 + (y - cy) ** 2 <= r * r) set(x, y, c); } } },
+    // a filled blob (for rock masses, coral heads, clouds)
+    blob: (cx, cy, rx, ry, c) => { for (let y = Math.floor(cy - ry); y <= cy + ry; y++) for (let x = Math.floor(cx - rx); x <= cx + rx; x++) if (((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1) set(x, y, c); },
     // snow masses get an icy checker underneath
     checker: (x0, x1, y0, y1, a = "s", b = "i") => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) if (SOLID.includes(get(x, y))) set(x, y, (x + y) % 2 ? a : b); },
   };
@@ -53,7 +58,9 @@ function peaks() {
   K.island(26, 36, 30, 6, "s", "s"); K.checker(26, 36, 32, 36); K.rect(29, 27, 33, 29, "#"); K.rect(30, 26, 32, 26, "#");    // floating snow island + boulder
   // the huge ice mountain (its sheer ice face can't be climbed, so the only way is the cave and the chimney), snow cap, cave underneath
   // it reaches the top of the map: no getting over it (its face can be climbed by wall-jumping), so the only way on is the cave and chimney
-  K.rect(45, 0, 67, 33, "i"); K.checker(46, 66, 0, 23);
+  // the top curves inward (steep low down, gentler near the top), so climbers can get up on its shoulder and try something
+  // clever there (a portal to the far side?), but the thin spire still reaches the sky, so there's no walking over
+  K.rect(45, 18, 67, 33, "i"); for (let y = 0; y < 18; y++) K.rect(45 + Math.round(13 * ((17 - y) / 17) ** 2), y, 67, y, "i"); K.checker(46, 66, 0, 23);
   for (const [x, l] of [[48, 3], [52, 2], [56, 4]]) K.rect(x, 34, x + 1, 33 + l, "i");                                       // icicles into the cave
   K.rect(60, 34, 60, 38, "v");                                                                                                // purple pillar
   K.col(43, 71, 46, "d", "d"); K.checker(43, 71, 48, 55, "d", "s"); K.rect(49, 43, 54, 45, "#"); K.rect(50, 42, 53, 42, "#"); // cave floor + boulder
@@ -120,23 +127,26 @@ function tropical() {
   return { n: "Tropical Islands", theme: "tropical", liquid: { y: water - f.crop, c: "#2a5fa8", c2: "#ffb46b", kill: 1 }, rows: f.rows };
 }
 function woods() {
-  // Savanna Canyon: off the mesa onto acacia tops, down to the canyon floor, climb up INSIDE a giant hollow baobab,
-  // out of its window onto a branch, hop the acacias and reach the flag on top of a rock arch
-  const R = grid(98, 52, "."), K = kit(R);
+  // Savanna Canyon: off the mesa onto acacia tops, down to the canyon floor, then through a winding cave inside a great red rock
+  // (bowls and ramps, dark roots to step on) and out of its top, across two acacias to the flag on the rock arch
+  const R = grid(100, 52, "."), K = kit(R);
   K.col(0, 14, 30, "#", "#");                                              // start mesa
-  K.col(15, 43, 44, "#", "#"); K.col(53, 83, 46, "#", "#"); K.rect(53, 44, 54, 45, "#");   // canyon floors
+  K.col(15, 43, 44, "#", "#");                                             // canyon floor
   K.acacia(16, 26, 33, 44, 21); K.acacia(29, 39, 37, 44, 34);
-  K.spike(25, 44); K.spike(38, 44); K.spike(62, 46); K.spike(70, 46); K.spike(78, 46);
-  // the baobab: thick wood walls, hollow inside, doors at the bottom, ledges inside, a window at the top right, crown on top
-  K.rect(44, 15, 52, 43, "w"); K.rect(46, 15, 50, 43, "."); K.rect(44, 44, 52, 51, "#"); K.rect(44, 41, 45, 43, "."); K.rect(51, 41, 52, 43, ".");
-  [41, 35, 29, 23, 17].forEach(y => K.rect(49, y, 50, y, "n")); [38, 32, 26, 20].forEach(y => K.rect(46, y, 47, y, "n"));
-  K.rect(51, 15, 52, 16, "."); K.rect(53, 17, 60, 17, "n");               // the window and the branch outside
-  K.rect(40, 13, 58, 14, "l"); K.rect(42, 12, 56, 12, "l"); for (let x = 41; x < 58; x += 3) K.set(x, 15, "n");
-  K.acacia(62, 70, 19, 46, 66); K.acacia(73, 80, 22, 46, 76);
+  K.spike(25, 44); K.spike(38, 44);
+  // the great rock: a rounded massif with a cave winding up through it
+  K.blob(58, 30, 15, 17, "#"); K.rect(44, 30, 72, 51, "#");
+  K.worm([[43, 41], [49, 41], [55, 39], [60, 35], [62, 30], [58, 26], [53, 23], [55, 19], [61, 16], [66, 13], [70, 11]], 2.6);
+  K.rect(44, 44, 46, 51, "#");                                             // the cave mouth's sill
+  // roots and ledges inside the cave to step up on
+  K.rect(57, 38, 59, 38, "n"); K.rect(60, 31, 61, 31, "n"); K.rect(54, 26, 56, 26, "n"); K.rect(57, 19, 58, 19, "n");
+  // little scrub on top of the rock, the rock's grassy crown
+  K.acacia(48, 56, 11, null, 0); K.rect(51, 13, 52, 14, "k");
+  K.acacia(75, 82, 17, null, 0); K.rect(78, 19, 79, 51, "k");
   // the rock arch with the flag
-  K.rect(83, 24, 97, 27, "#"); K.rect(83, 28, 85, 51, "#"); K.rect(94, 28, 97, 51, "#");
+  K.rect(85, 22, 99, 25, "#"); K.rect(85, 26, 87, 51, "#"); K.rect(96, 26, 99, 51, "#"); K.spike(90, 22);
   for (const x of [5, 10]) K.deco(x, 30, "P");
-  const f = finish(R, 5, 30, 91, 24);
+  const f = finish(R, 5, 30, 93, 22);
   return { n: "Sunset Woods", theme: "woods", rows: f.rows };
 }
 // ---------------- new themed maps ----------------
@@ -153,36 +163,57 @@ function space() {
   return { n: "Moon Base", theme: "space", grav: 0.72, rows: f.rows };
 }
 function dream() {
-  const R = grid(96, 50, "."), K = kit(R);
-  K.island(0, 16, 40, 6, "g", "u"); for (const x of [3, 9, 13]) K.deco(x, 40, "F");
-  K.cloud(19, 24, 37); K.cloud(25, 30, 34); K.cloud(19, 23, 30);
+  // Cloud Kingdom: meadow → cloud steps → a short rainbow bridge → ride under a hot-air balloon → drop to the low cloud bank
+  // → up a diagonal cloud staircase → over the castle's towers and battlements to the flag
+  const R = grid(112, 52, "."), K = kit(R);
+  K.island(0, 15, 40, 6, "g", "u"); for (const x of [3, 8, 12]) K.deco(x, 40, "F");
+  K.cloud(17, 22, 37); K.cloud(24, 29, 34); K.cloud(30, 36, 31);
+  // the rainbow: a short arch over a gap
   const cols = ["r", "y", "g", "b", "v"];
-  for (let x = 27; x <= 73; x++) { const y = Math.round(14 + Math.pow((x - 50) / 23, 2) * 15); cols.forEach((c, i) => K.set(x, y + i, c)); }
-  K.cloud(74, 80, 31); K.island(82, 95, 36, 4, "p", "o");
-  K.rect(84, 30, 85, 35, "p"); K.rect(92, 30, 93, 35, "p"); K.rect(84, 29, 93, 29, "p"); for (let x = 84; x <= 93; x += 2) K.set(x, 28, "p");
-  K.rect(87, 26, 90, 28, "o"); K.rect(87, 25, 90, 25, "p");
-  K.ledge(80, 82, 29, "o", "p");
-  K.cloud(40, 46, 28); K.cloud(56, 62, 26);
-  K.spike(50, 14); K.spike(11, 40);
-  const f = finish(R, 5, 40, 89, 25);
+  for (let x = 37; x <= 55; x++) { const y = Math.round(25 + Math.pow((x - 46) / 9, 2) * 6); cols.forEach((c, i) => K.set(x, y + i, c)); }
+  // the hot-air balloon: a striped envelope with a basket hanging under it (stand in the basket, duck under the balloon)
+  for (let y = 18; y <= 28; y++) for (let x = 55; x <= 65; x++) if (((x - 60) / 5.5) ** 2 + ((y - 23) / 5.5) ** 2 <= 1) K.set(x, y, (x % 2) ? "p" : "o");
+  K.rect(58, 32, 62, 33, "w"); K.set(58, 31, "w"); K.set(62, 31, "w");
+  // the low cloud bank, puffy on top, with a thorn
+  K.blob(72, 41, 9, 3, "o"); K.blob(68, 39, 4, 2, "o"); K.blob(77, 39, 4, 2, "o"); K.rect(63, 42, 81, 43, "p"); K.spike(72, 38);
+  // the cloud staircase, rising to the right
+  K.cloud(82, 85, 36); K.cloud(86, 89, 33); K.cloud(90, 93, 30); K.cloud(93, 96, 27);
+  // the castle: a left tower, the keep with battlements, a tall right tower with the flag
+  K.island(96, 111, 33, 5, "p", "o");
+  K.rect(97, 25, 99, 32, "p"); for (const x of [97, 99]) K.set(x, 24, "p");
+  K.rect(100, 27, 106, 32, "o"); K.rect(100, 27, 106, 27, "p"); for (let x = 100; x <= 106; x += 2) K.set(x, 26, "p"); K.rect(102, 30, 104, 32, ".");
+  K.rect(107, 23, 110, 32, "p"); K.rect(107, 23, 110, 23, "o");
+  const f = finish(R, 5, 40, 109, 23);
   return { n: "Cloud Kingdom", theme: "dream", rows: f.rows };
 }
 function ocean() {
-  // Sunken Temple: jump off the boat, dive past coral shelves and kelp, drop through the temple's broken roof,
-  // out its far door into a tunnel through the reef (down, along, up) to the treasure chamber with the flag
-  const R = grid(92, 62, "."), K = kit(R);
+  // Coral Reef: off the boat onto the reef shelf, under (or over) a coral arch, through the inside of a sunken ship
+  // (its broken mast is a high road), across a trench on tube-coral pillars, then down a winding reef cave to the treasure
+  const R = grid(98, 66, "."), K = kit(R);
   for (let k = 0; k < 3; k++) K.rect(2 + k, 8 + k, 14 - k, 8 + k, "w"); K.rect(8, 3, 8, 7, "w"); K.rect(5, 4, 11, 4, "w");   // the boat
-  K.ledge(16, 28, 16, "z", "#"); K.ledge(2, 12, 22, "z", "#"); K.ledge(14, 30, 28, "a", "#");
-  // the sunken temple: a roof with a hole, sandstone pillars, a floor, a door on the right
-  K.rect(33, 26, 61, 27, "y"); K.rect(46, 26, 48, 27, "."); for (const x of [36, 41, 53, 58]) { K.rect(x, 28, x, 32, "y"); K.rect(x, 38, x, 39, "y"); }   // broken pillars: stumps to hop over
-  K.rect(33, 28, 33, 39, "y"); K.rect(61, 28, 61, 35, "y"); K.rect(33, 40, 61, 41, "#");
-  // the reef: solid rock with a tunnel carved through it
-  K.rect(62, 30, 91, 61, "#"); K.rect(0, 42, 61, 61, "#"); K.rect(0, 41, 32, 41, "a");
-  K.rect(62, 36, 70, 39, "."); K.rect(68, 40, 71, 48, "."); K.rect(68, 45, 82, 48, "."); K.rect(80, 37, 82, 44, "."); K.rect(80, 34, 89, 41, ".");
-  K.rect(82, 45, 82, 45, "#"); K.set(80, 42, "#");
-  K.spike(22, 28); K.spike(50, 40); K.spike(75, 49);
-  for (const [x, t] of [[20, 16], [26, 16], [6, 22], [18, 28], [38, 40], [44, 40], [56, 40], [72, 49], [10, 41], [24, 41]]) K.deco(x, t, "K");
-  const f = finish(R, 6, 8, 86, 42, 3);
+  // the reef shelf under the boat: rock with brain-coral bumps
+  K.col(0, 13, 20, "#", "#", 65); K.blob(4, 19, 2, 1.5, "z"); K.blob(10, 19, 2.5, 1.5, "z");
+  // the sandy floor, the coral arch (walk under it, or over the top)
+  K.col(14, 40, 36, "a", "#", 65); K.rect(16, 22, 34, 24, "z"); K.rect(16, 25, 18, 35, "z"); K.rect(32, 25, 34, 35, "z"); K.rect(19, 25, 31, 25, "z");
+  K.blob(25, 21, 4, 1.5, "z"); K.blob(14, 26, 1.5, 4, "y");
+  K.spike(24, 36); K.spike(37, 36);
+  // the sunken ship: a hull you go through (holes at both ends), its mast leaning over as a high road
+  K.rect(41, 30, 63, 41, "w"); K.rect(43, 33, 61, 38, "."); K.rect(41, 34, 42, 37, "."); K.rect(62, 34, 63, 37, "."); K.rect(41, 42, 63, 65, "#");
+  for (let i = 0; i < 9; i++) K.rect(50 + i, 29 - i, 51 + i, 29 - i, "w"); K.rect(57, 20, 61, 20, "w");
+  K.rect(48, 38, 49, 38, "y"); K.rect(55, 38, 56, 38, "y");                                       // crates in the hold
+  // the trench, crossed on tube-coral pillars (fall in and you swim back up the far wall)
+  K.rect(64, 60, 73, 65, "#"); K.col(66, 67, 38, "y", "y", 59); K.col(70, 71, 36, "y", "y", 59);
+  K.spike(65, 60); K.spike(68, 60); K.spike(72, 60);
+  for (let y = 58; y >= 40; y -= 4) K.set(73, y, "z");
+  // the reef cave: a big rock with a mouth on its left, winding down to the treasure chamber
+  K.rect(74, 30, 97, 65, "#"); K.blob(86, 30, 12, 4, "z");
+  K.worm([[72, 35], [78, 35], [83, 38], [86, 43], [82, 48], [80, 53], [85, 57], [90, 57]], 2.4);
+  K.blob(91, 56, 5, 3.2, "."); K.rect(86, 60, 96, 61, "a");
+  K.set(84, 45, "h"); K.set(79, 50, "h"); K.set(87, 40, "h"); K.set(92, 52, "h");             // pearls in the walls
+  // kelp and coral sprigs
+  for (const [x, t] of [[6, 20], [11, 20], [20, 36], [27, 36], [30, 36], [39, 36], [46, 39], [59, 39], [83, 30]]) K.deco(x, t, "K");
+  for (const [x, t] of [[3, 20], [17, 36], [36, 36], [53, 39], [88, 30], [91, 60]]) K.deco(x, t, "c");
+  const f = finish(R, 6, 8, 93, 60, 3);
   return { n: "Coral Reef", theme: "ocean", grav: 0.8, rows: f.rows };
 }
 
